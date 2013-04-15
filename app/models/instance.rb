@@ -1,6 +1,8 @@
 class Instance < ActiveRecord::Base
   attr_accessible :full_path
 
+  has_many :campaigns
+
   def path
     p = JSON.parse(self.full_path)
     File.join(*p)
@@ -11,6 +13,15 @@ class Instance < ActiveRecord::Base
     ignored = ['.', '..', 'training', 'scenarios']
     dirs = Dir.entries(File.join(self.path, "saves"))
     dirs - ignored
+  end
+
+  def prepare_campaigns
+    existing_campaigns = discover_campaigns
+    known_campaign_names = self.campaigns.map{|c| c.name}
+    existing_campaigns.each do |camp|
+      next if known_campaign_names.include?(camp)
+      Campaign.create!(:name => camp)
+    end
   end
 
 end
