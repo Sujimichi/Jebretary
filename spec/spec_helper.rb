@@ -36,3 +36,65 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = "random"
 end
+
+def set_test_dir
+  FileUtils.rm_rf "temp_test_dir"
+  Dir.mkdir "temp_test_dir"
+  Dir.chdir "temp_test_dir"
+  Dir.chdir Rails.root      
+end
+
+def set_basic_mock_KSP_dir
+  FileUtils.rm_rf "KSP_test"
+  Dir.mkdir "KSP_test"
+  Dir.chdir "KSP_test"
+  Dir.mkdir "saves"
+  Dir.chdir "saves"  
+  Dir.chdir Rails.root
+end
+
+def make_sample_data
+  cur_dir = Dir.getwd
+  File.open("quicksave.sfs", 'w') {|f| f.write("some test data") }
+  File.open("persistent.sfs", 'w') {|f| f.write("some test data") }
+  Dir.mkdir("Ships")
+  Dir.chdir("Ships")
+  Dir.mkdir("VAB")
+  Dir.mkdir("SPH")
+  Dir.chdir("VAB")
+  File.open("my_rocket.craft", 'w') {|f| f.write("some test data") }
+  File.open("my_other_rocket.craft", 'w') {|f| f.write("some test data") }
+  Dir.chdir('..')
+  Dir.chdir('SPH')
+  File.open("my_rocket_car.craft", 'w') {|f| f.write("some test data") }
+  Dir.chdir(cur_dir)
+end
+
+def in_test_dir &blk
+  d = Dir.getwd
+  Dir.chdir "#{Rails.root}/temp_test_dir"
+  yield
+  Dir.chdir d
+end
+
+def set_up_sample_data campaign_name = "test_campaign"
+  set_test_dir
+  in_test_dir { set_basic_mock_KSP_dir }
+  in_test_dir do 
+    Dir.chdir("KSP_test/saves")
+    FileUtils.rm_rf(campaign_name)
+    Dir.mkdir(campaign_name)
+  end
+  @i = FactoryGirl.create(:instance)
+  @c = FactoryGirl.create(:campaign, :name => campaign_name, :instance_id => @i.id)
+  Dir.chdir @c.path
+  make_sample_data
+  @c
+end
+
+
+def contain string
+  be_include(string)
+end
+
+
