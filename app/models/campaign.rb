@@ -25,7 +25,7 @@ class Campaign < ActiveRecord::Base
     File.join(self.instance.path, "saves", self.name)
   end
 
-  def commit_craft
+  def commit_craft 
     g = self.git
     g.add("Ships/SPH/*.craft")
     g.add("Ships/VAB/*.craft")

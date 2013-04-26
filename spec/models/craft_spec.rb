@@ -66,8 +66,6 @@ describe Craft do
       @campaign.craft.where(:craft_type => 'vab', :name => "my_other_rocket").first.deleted.should be_true
     end
 
-
-
   end
   
 end

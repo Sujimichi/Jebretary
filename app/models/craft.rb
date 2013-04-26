@@ -2,6 +2,7 @@ class Craft < ActiveRecord::Base
   attr_accessible :name, :craft_type, :deleted
   belongs_to :campaign
 
+  #return the .craft files found in VAB and SPH
   def self.identify_craft_in campaign
     dir = File.join(campaign.instance.path, "saves", campaign.name, "Ships")
     Dir.chdir(dir)
@@ -11,6 +12,7 @@ class Craft < ActiveRecord::Base
     }
   end
 
+  #create Craft objects for each .craft found and mark existing Craft objects as deleted is the .craft no longer exists.
   def self.verify_craft_for campaign
     files = Craft.identify_craft_in campaign
     existing_craft = Craft.where(:campaign_id => campaign.id)
