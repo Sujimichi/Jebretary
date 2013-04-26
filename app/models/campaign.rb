@@ -2,6 +2,7 @@ class Campaign < ActiveRecord::Base
   require 'git'
   attr_accessible :instance_id, :name
   belongs_to :instance
+  has_many :craft
 
   validates :name, :instance_id, :presence => true
 
@@ -51,10 +52,8 @@ class Campaign < ActiveRecord::Base
     g.commit(message)
   end
 
-  def identify_craft
-    
+  
 
-  end
 
   #scan craft folders and identify craft files 
   #   - all craft files should have a coresponding Craft object, it can be deleted but would get replaced if the craft still exists.

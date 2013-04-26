@@ -22,8 +22,11 @@ ActiveRecord::Schema.define(:version => 20130425160507) do
 
   create_table "crafts", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.string   "craft_type"
+    t.boolean  "deleted",     :default => false
+    t.integer  "campaign_id"
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
   end
 
   create_table "instances", :force => true do |t|
