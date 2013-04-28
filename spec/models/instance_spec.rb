@@ -4,7 +4,6 @@ describe Instance do
   before(:all) do 
     set_test_dir
   end
-  #pending "add some examples to (or delete) #{__FILE__}"
   
   it 'should have a full_path' do 
     @i = FactoryGirl.create(:instance)
@@ -77,10 +76,6 @@ describe Instance do
       Campaign.should_not_receive(:create!).with(:name => "camp1", :instance_id => @i.id).ordered
       @i.prepare_campaigns
     end
-
-
-
-
 
   end
 end

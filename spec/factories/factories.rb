@@ -12,5 +12,9 @@ FactoryGirl.define do
     name "test"
   end
 
+  factory :craft do 
+    name "my_rocket"
+  end
+
 end
 

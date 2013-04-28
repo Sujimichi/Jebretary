@@ -20,10 +20,22 @@ class Campaign < ActiveRecord::Base
     return create_repo unless Dir.entries(self.path).include?('.git') #create the repo if it is not present.
     Git.open(self.path)
   end
+  alias repo git
 
-  def path 
+  def path
     File.join(self.instance.path, "saves", self.name)
   end
+
+  def poll_temp
+    Craft.verify_craft_for self
+    #might need reload
+    self.craft.select{|craft| craft.should_track?}.select{|craft| craft.is_new? || craft.is_changed?}.each do |craft|
+      craft.commit
+    end
+
+  end
+
+
 
   def commit_craft 
     g = self.git

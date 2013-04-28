@@ -86,10 +86,10 @@ def set_up_sample_data campaign_name = "test_campaign"
     Dir.mkdir(campaign_name)
   end
   @i = FactoryGirl.create(:instance)
-  @c = FactoryGirl.create(:campaign, :name => campaign_name, :instance_id => @i.id)
-  Dir.chdir @c.path
+  @campaign = FactoryGirl.create(:campaign, :name => campaign_name, :instance_id => @i.id)
+  Dir.chdir @campaign.path
   make_sample_data
-  @c
+  @campaign
 end
 
 
