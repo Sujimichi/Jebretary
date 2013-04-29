@@ -1,6 +1,12 @@
 Jebretary::Application.routes.draw do
   get "welcome/index"
 
+  resources :instances
+  resources :campaigns
+  resources :crafts
+
+
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

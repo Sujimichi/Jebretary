@@ -10,6 +10,11 @@ describe Instance do
     @i.full_path.should == ["", "home", "sujimichi", "Share", "jebretary", "temp_test_dir", "KSP_test"].to_json
   end
 
+  it 'should return the OS path' do 
+    @i = FactoryGirl.create(:instance)
+    @i.path.should == "/home/sujimichi/Share/jebretary/temp_test_dir/KSP_test"
+  end
+
   describe "discover_campaigns" do 
     before(:each) do 
       in_test_dir do 

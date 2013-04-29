@@ -1,2 +1,15 @@
-%h1 Welcome#index
-%p Find me in app/views/welcome/index.html.haml
+%h1 Jebretary v0.0.1 (it's alpha init)
+
+- unless @instances.empty?
+  - @instances.each do |instance|
+    = link_to(instance.full_path.last, File.join(instance.full_path))
+
+- if @instances.empty?
+  %h3 Setup your first KSP instance
+  (ie: tell me where KSP is installed)
+-else
+  %h3 Setup another KSP instance
+  (ie: tell me where a different version/copy of KSP is installed)
+
+#new_instance.hidden
+  = render('instances/form', :instance => Instance.new)

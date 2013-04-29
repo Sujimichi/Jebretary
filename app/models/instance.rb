@@ -7,7 +7,7 @@ class Instance < ActiveRecord::Base
 
   def path
     p = JSON.parse(self.full_path)
-    File.join(*p)
+    File.join(p)
   end
 
 
