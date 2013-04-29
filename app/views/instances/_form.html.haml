@@ -1,0 +1,7 @@
+= form_for(instance) do |f|
+  - unless instance.errors.empty?
+    Errors;
+    .form_errors= instance.errors.full_messages.inspect
+
+  = text_field_tag :full_path
+  = f.submit("Go")

@@ -1,0 +1,2 @@
+class CraftsController < ApplicationController
+end
