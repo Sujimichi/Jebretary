@@ -5,3 +5,11 @@
 require File.expand_path('../config/application', __FILE__)
 
 Jebretary::Application.load_tasks
+
+
+task :reset do
+  `rake db:drop:all`
+  `rake db:create:all`
+  `rake db:migrate`
+  `rake db:test:prepare`
+end

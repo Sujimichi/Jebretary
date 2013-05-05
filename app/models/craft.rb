@@ -1,5 +1,5 @@
 class Craft < ActiveRecord::Base
-  attr_accessible :name, :craft_type, :deleted
+  attr_accessible :name, :craft_type, :deleted, :part_count
   belongs_to :campaign
 
   require 'active_support/builder'
@@ -55,36 +55,66 @@ class Craft < ActiveRecord::Base
     true
   end
 
+  #crafts_campaign= allows the campaign to be passed in and held in instance var if the campaign has already been loaded from the DB
+  def crafts_campaign= campaign
+    @campaign = campaign
+  end
+
+  #returns a cached instance of the campaign
+  def crafts_campaign
+    return @campaign if defined?(@campaign) && !@campaign.nil?
+    craft_campaign = self.campaign
+  end
+
+  def repo_status
+    return @repo_status if defined?(@repo_status) && !@repo_status.nil?
+    @repo_status = crafts_campaign.repo.status
+  end
+
   #return true if the craft is not yet in the repo
   def is_new?
-    #self.campaign.repo.status.untracked.keys.include?("Ships/#{craft_type.upcase}/#{name}.craft")
-    self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].untracked == true
+    repo_status.untracked.keys.include?("Ships/#{craft_type.upcase}/#{name}.craft")
+    #self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].untracked == true
   end
   alias new_craft? is_new?
 
   #return true if the craft is in the repo and has changes.  If not in repo it returns nil.
-  def is_changed?
-    return nil if is_new?
-    #self.campaign.repo.status.changed.keys.include?("Ships/#{craft_type.upcase}/#{name}.craft")
-    self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].type == "M"
+  def is_changed? 
+    return nil if is_new? 
+    repo_status.changed.keys.include?("Ships/#{craft_type.upcase}/#{name}.craft")
+    #self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].type == "M"
   end
   alias changed_craft? is_changed?
 
   #stage the changes and commits the craft. simply returns if there are no changes.
   def commit
+    return "unable to commit; #{problems.join(",")}" unless problems.empty?
+    @repo_status = nil
     action = self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)
     unless action.eql?(:nothing_to_commit)
       message = "#{action} #{name}"
-      repo = self.campaign.repo
+      repo = self.crafts_campaign.repo
       repo.add("Ships/#{craft_type.upcase}/#{name}.craft")
+      self.part_count ||= 1
+      self.part_count += 1
+      self.save #temp till part count is implemented
       repo.commit(message)
     end
+    @repo_status = nil    
     return action
+  end
+
+  #identify possible problems with adding craft to repo.
+  def problems
+    problems = []
+    problems << "must not contain ` in name" if self.name.include?("`")
+    problems
   end
 
   #return the commits for the craft (most recent first)
   def history
-    logs = self.campaign.repo.log.object(file_name)
+    return [] if is_new?
+    logs = crafts_campaign.repo.log.object(file_name)
     logs.to_a
   end
 

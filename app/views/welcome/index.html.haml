@@ -1,8 +1,10 @@
 %h1 Jebretary v0.0.1 (it's alpha init)
 
+= @thread.inspect
+
 - unless @instances.empty?
   - @instances.each do |instance|
-    = link_to(instance.full_path.last, File.join(instance.full_path))
+    = link_to(instance.path, instance_path(instance))
 
 - if @instances.empty?
   %h3 Setup your first KSP instance

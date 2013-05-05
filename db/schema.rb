@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130425160507) do
+ActiveRecord::Schema.define(:version => 20130503183405) do
 
   create_table "campaigns", :force => true do |t|
     t.integer  "instance_id"
@@ -23,16 +23,43 @@ ActiveRecord::Schema.define(:version => 20130425160507) do
   create_table "crafts", :force => true do |t|
     t.string   "name"
     t.string   "craft_type"
+    t.integer  "part_count"
     t.boolean  "deleted",     :default => false
     t.integer  "campaign_id"
     t.datetime "created_at",                     :null => false
     t.datetime "updated_at",                     :null => false
   end
 
+  create_table "delayed_jobs", :force => true do |t|
+    t.integer  "priority",   :default => 0
+    t.integer  "attempts",   :default => 0
+    t.text     "handler"
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
+
   create_table "instances", :force => true do |t|
     t.string   "full_path"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  create_table "sessions", :force => true do |t|
+    t.string   "session_id", :null => false
+    t.text     "data"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
+  add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
 
 end

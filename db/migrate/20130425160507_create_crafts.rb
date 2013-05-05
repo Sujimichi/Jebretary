@@ -3,6 +3,7 @@ class CreateCrafts < ActiveRecord::Migration
     create_table :crafts do |t|
       t.string :name
       t.string :craft_type
+      t.integer :part_count
       t.boolean :deleted, :default => false
       t.integer :campaign_id
 

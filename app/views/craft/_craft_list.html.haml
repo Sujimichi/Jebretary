@@ -1,0 +1,17 @@
+- campaign.craft.group_by{|g| g.craft_type}.each do |type, crafts|
+  %h5= type
+  - crafts.sort_by{|c| c.updated_at}.reverse.each do |craft|
+    - craft.crafts_campaign = campaign
+    .craft
+      .name= craft.name
+      .clear
+      .git_info
+        - changed = craft.is_changed?
+        -if changed.nil?
+          = "new"
+        -else
+          = changed ? "untracked changes" : "tracked"
+
+      .history
+        Number of versions:
+        = craft.history.size

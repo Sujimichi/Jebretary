@@ -10,7 +10,8 @@ class Campaign < ActiveRecord::Base
   def create_repo
     return Git.open(self.path) if Dir.entries(self.path).include?('.git')
     g = Git.init(self.path)
-    File.open('.gitignore', 'w'){|f| f.write("Auto-Saved*") }
+    Dir.chdir(self.path)
+    File.open('.gitignore', 'w'){|f| f.write("") }
     g.add('.gitignore')
     g.commit("Initial Commit")
     g
@@ -26,15 +27,11 @@ class Campaign < ActiveRecord::Base
     File.join(self.instance.path, "saves", self.name)
   end
 
-  def poll_temp
-    Craft.verify_craft_for self
-    #might need reload
-    self.craft.select{|craft| craft.should_track?}.select{|craft| craft.is_new? || craft.is_changed?}.each do |craft|
-      craft.commit
+
+  def all_craft_data
+    self.craft.each do |craft|
     end
-
   end
-
 
 
   def commit_craft 

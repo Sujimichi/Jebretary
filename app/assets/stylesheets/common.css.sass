@@ -1,0 +1,32 @@
+
+=clearfix
+  :overflow hidden
+  :overflow -moz-scrollbars-none
+  // This makes ie6 get layout
+  :display inline-block
+  // and this puts it back to block
+  &
+    :display block
+
+.clearfix
+  +clearfix
+
+.clear
+  :display block
+  :clear both
+  :height 0
+  :width 0
+
+
+
+.craft
+  +clearfix
+  .name
+    :font-weight bold
+    :float left
+  .git_info
+    :padding-left 1em
+    :float left
+  .history
+    :padding-left 1em
+    :float left

@@ -1,0 +1,2 @@
+module CraftHelper
+end

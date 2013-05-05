@@ -10,8 +10,6 @@ class InstancesController < ApplicationController
     #raise params.inspect
     #/home/sujimichi/Share/KSPv0.19.1
     #r:\\Games\\KSPv0.19.1
-
-
     #params[:full_path] = "r:\\Games\\KSPv0.19.1"
     #params[:full_path] = "/home/sujimichi/Share/KSPv0.19.1"
     
@@ -32,7 +30,7 @@ class InstancesController < ApplicationController
     rescue
       @instance.errors.add(:base, "couldn't open directory")
     end
-    @instance.errors.add(:base, "Couldn't located KSP.exe") if !files.blank? && !files.include?("KSP.exe")
+    @instance.errors.add(:base, "Couldn't locate KSP.exe") if !files.blank? && !files.include?("KSP.exe")
 
 
     respond_with(@instance) do |f|      
@@ -47,5 +45,6 @@ class InstancesController < ApplicationController
 
   def show
     @instance = Instance.find(params[:id])
+    @campaigns = @instance.campaigns.includes(:craft)
   end
 end

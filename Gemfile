@@ -2,6 +2,8 @@ source 'https://rubygems.org'
 
 gem 'rails', '3.2.13'
 gem 'sqlite3'
+gem 'delayed_job_active_record'
+gem 'daemons'
 
 
 # Gems used only for assets and not required
