@@ -1,5 +1,5 @@
 class Craft < ActiveRecord::Base
-  attr_accessible :name, :craft_type, :deleted, :part_count
+  attr_accessible :name, :craft_type, :deleted, :part_count, :history_count
   belongs_to :campaign
 
   require 'active_support/builder'
@@ -101,6 +101,7 @@ class Craft < ActiveRecord::Base
       repo.commit(message)
     end
     @repo_status = nil    
+    self.update_attributes(:history_count => self.history.size)
     return action
   end
 

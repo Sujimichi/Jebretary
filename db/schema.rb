@@ -24,10 +24,11 @@ ActiveRecord::Schema.define(:version => 20130503183405) do
     t.string   "name"
     t.string   "craft_type"
     t.integer  "part_count"
-    t.boolean  "deleted",     :default => false
+    t.boolean  "deleted",       :default => false
     t.integer  "campaign_id"
-    t.datetime "created_at",                     :null => false
-    t.datetime "updated_at",                     :null => false
+    t.integer  "history_count"
+    t.datetime "created_at",                       :null => false
+    t.datetime "updated_at",                       :null => false
   end
 
   create_table "delayed_jobs", :force => true do |t|

@@ -1,0 +1,4 @@
+- campaigns.each do |campaign|
+  %h4= campaign.name
+  #craft_list
+    = render('craft/craft_list', :campaign => campaign)

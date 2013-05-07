@@ -34,6 +34,21 @@ class Campaign < ActiveRecord::Base
   end
 
 
+  def all_craft_data
+    craft_data = {}
+    threads = []
+    self.craft.each do |craft_object|
+      craft_object.crafts_campaign = self
+
+      craft_data[craft_object.id] = {
+        :changed => craft_object.is_changed?,
+        :history => craft_object.history
+      }
+    end
+    craft_data
+  end  
+
+
   def commit_craft 
     g = self.git
     g.add("Ships/SPH/*.craft")

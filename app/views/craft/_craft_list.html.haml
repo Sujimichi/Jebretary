@@ -1,6 +1,10 @@
 - campaign.craft.group_by{|g| g.craft_type}.each do |type, crafts|
   %h5= type
-  - crafts.sort_by{|c| c.updated_at}.reverse.each do |craft|
+  - sort_by = "updated_at reverse"
+  - reverse_order = sort_by.include?('reverse')
+  - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}
+  - crafts.reverse! if reverse_order
+  - crafts.each do |craft|
     - craft.crafts_campaign = campaign
     .craft
       .name= craft.name
@@ -14,4 +18,4 @@
 
       .history
         Number of versions:
-        = craft.history.size
+        = craft.history_count

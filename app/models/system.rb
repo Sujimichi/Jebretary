@@ -12,7 +12,7 @@ class System
         campaign.reload
         campaign.craft.select{|craft| 
           craft.crafts_campaign = campaign #pass in already loaded campaign into craft
-          craft.is_new? || craft.is_changed? 
+          craft.is_new? || craft.is_changed? || craft.history_count.nil? 
         }.each do |craft|
           craft.commit
         end        

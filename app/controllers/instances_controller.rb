@@ -46,5 +46,7 @@ class InstancesController < ApplicationController
   def show
     @instance = Instance.find(params[:id])
     @campaigns = @instance.campaigns.includes(:craft)
+    
+
   end
 end
