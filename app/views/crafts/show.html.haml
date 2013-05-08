@@ -1,0 +1,10 @@
+%h2= @craft.name
+
+%h3 Version History
+
+%table
+  - @craft.history.each do |hist|
+    %tr.history
+      %td= hist.sha
+      %td= hist.date.to_formatted_s(:short)
+      %td= link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha => hist.sha

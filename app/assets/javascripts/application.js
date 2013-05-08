@@ -15,3 +15,7 @@
 //= require jquery-ui
 //= require_tree .
 //
+
+$(function(){
+  clearTimeout(index_search_timer);
+});

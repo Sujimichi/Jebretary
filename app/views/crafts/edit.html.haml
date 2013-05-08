@@ -1,0 +1,9 @@
+%h2= "Edit #{@craft.name}"
+
+- if @sha_id
+  %h4= "Commit ID: #{@sha_id}"
+  %h4= "Created on: #{@commit.date.to_formatted_s(:short)}"
+
+  %h3 Please confirm that you want to restore this version
+  = form_for(@craft) do |f|
+    - f.submit "Confirm"

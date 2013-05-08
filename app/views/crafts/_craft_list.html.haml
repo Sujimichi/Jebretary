@@ -7,7 +7,7 @@
   - crafts.each do |craft|
     - craft.crafts_campaign = campaign
     .craft
-      .name= craft.name
+      .name= link_to(craft.name, craft_path(craft))
       .clear
       .git_info
         - changed = craft.is_changed?
