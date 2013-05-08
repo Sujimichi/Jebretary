@@ -33,6 +33,18 @@ class CraftsController < ApplicationController
   end
 
   def update
-    raise params.inspect
+    @craft = Craft.find(params[:id])
+    history = @craft.history
+    if params[:sha_id] && history.map{|h| h.sha}.include?(params[:sha_id])
+      past_version = history.select{|h| h.sha.eql?(params[:sha_id])}
+      @craft.commit #ensure current version is commited before reverting
+      @craft.revert_to past_version
+    end
+    respond_with(@craft) do |f|
+      f.html{
+        redirect_to @craft
+      }
+    end
+
   end
 end

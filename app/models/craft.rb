@@ -123,7 +123,10 @@ class Craft < ActiveRecord::Base
   def revert_to commit
     repo = self.campaign.repo
     repo.checkout_file(commit, file_name)
-    repo.commit("reverted #{name}")
+    begin
+      repo.commit("reverted #{name}")
+    rescue
+    end
   end
 
 end

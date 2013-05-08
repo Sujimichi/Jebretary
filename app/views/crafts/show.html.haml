@@ -1,10 +1,19 @@
+- history = @craft.history
 %h2= @craft.name
+=link_to "return to campaign", campaign_path(@craft.campaign)
 
 %h3 Version History
+%p= "#{@craft.name} has #{history.size} versions"
 
+- version = history.size + 1
 %table
-  - @craft.history.each do |hist|
+  - history.each do |hist|
     %tr.history
-      %td= hist.sha
+      %td= "V#{version -= 1}"
+      %td.hidden.sha_id= hist.sha
       %td= hist.date.to_formatted_s(:short)
-      %td= link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha => hist.sha
+      %td
+        - unless hist == history.first
+          = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha => hist.sha
+        -else
+          Current Version

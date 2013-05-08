@@ -1,6 +1,9 @@
 %h2 Instance
 %h3= File.join(JSON.parse(@instance.full_path)).inspect
 = hidden_field_tag :instance_id, @instance.id
+=link_to "return home", root_path
+
+- @instance.campaigns.each do |campaign|
+  %h4= link_to campaign.name, campaign_path(campaign)
 
 #campaigns_list
-  =# render('campaigns/list', :campaigns => @campaigns)

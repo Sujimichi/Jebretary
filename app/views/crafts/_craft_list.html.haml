@@ -1,5 +1,5 @@
 - campaign.craft.group_by{|g| g.craft_type}.each do |type, crafts|
-  %h5= type
+  %h4= type
   - sort_by = "updated_at reverse"
   - reverse_order = sort_by.include?('reverse')
   - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}

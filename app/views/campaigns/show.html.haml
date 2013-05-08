@@ -1,0 +1,15 @@
+%h2= @campaign.name
+%h3= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
+= hidden_field_tag :campaign_id, @campaign.id
+=link_to "return to Instance", instance_path(@campaign.instance)
+
+#campaigns_list
+  Please wait...
+  loading craft data
+
+
+:javascript
+
+  $(function(){
+    poll_for_updated_list();
+  });

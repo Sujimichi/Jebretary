@@ -1,13 +1,22 @@
 class CampaignsController < ApplicationController
+   
+  respond_to :html, :js
 
   def index
-    respond_to do |f|
-      f.js{
-        instance = Instance.find(params[:instance_id])
-        raise "couldn't find instance" unless instance && instance.is_a?(Instance)
-        @campaigns = instance.campaigns
-        #return render(:partial => 'campaigns/list', :locals => {:campaigns => campaigns})
-      }
+    instance = Instance.find(params[:instance_id])
+    @campaigns = instance.campaigns if instance
+    @campaigns ||= Campaign.all
+
+    respond_with(@campaigns) do |f|
+      f.js{}
+      f.html{}
+    end
+  end
+
+  def show
+    @campaign = Campaign.find(params[:id])
+    respond_with(@campaign) do |f|
+      f.js{}
       f.html{}
     end
   end

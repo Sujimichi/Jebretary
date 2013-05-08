@@ -6,4 +6,5 @@
 
   %h3 Please confirm that you want to restore this version
   = form_for(@craft) do |f|
-    - f.submit "Confirm"
+    = hidden_field_tag :sha_id, @sha_id
+    = f.submit "Confirm"

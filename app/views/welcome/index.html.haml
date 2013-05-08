@@ -1,7 +1,5 @@
 %h1 Jebretary v0.0.1 (it's alpha init)
 
-= @thread.inspect
-
 - unless @instances.empty?
   - @instances.each do |instance|
     = link_to(instance.path, instance_path(instance))
