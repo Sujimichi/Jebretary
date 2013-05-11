@@ -15,6 +15,6 @@ function poll_for_updated_list(){
   }, error: function(r,t,e){
     //alert("test from error" + r.status)
     //alert(r.responseText);
-    //$('#campaigns_list').html(r.responseText);
+    $('#campaigns_list').html(r.responseText);
   }, dataType: 'script' });
 };
