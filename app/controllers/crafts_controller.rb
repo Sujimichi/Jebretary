@@ -20,6 +20,9 @@ class CraftsController < ApplicationController
     @craft = Craft.find(params[:id])
     respond_with(@craft) do |f|
       f.html{}
+      f.js{
+        @history = @craft.history
+      }
     end
   end
 
