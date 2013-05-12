@@ -101,8 +101,12 @@ class Craft < ActiveRecord::Base
       repo.commit(message)
     end
     @repo_status = nil    
-    self.update_attributes(:history_count => self.history.size)
+    update_history_count
     return action
+  end
+
+  def update_history_count
+    self.update_attributes(:history_count => self.history.size)   
   end
 
   #identify possible problems with adding craft to repo.
@@ -115,7 +119,8 @@ class Craft < ActiveRecord::Base
   #return the commits for the craft (most recent first)
   def history
     return [] if is_new?
-    logs = crafts_campaign.repo.log.object(file_name)
+    max_history_size = 100000
+    logs = crafts_campaign.repo.log(max_history_size).object(file_name)
     logs.to_a
   end
 

@@ -10,11 +10,10 @@ class System
         campaign.git #ensure git repo is present
         Craft.verify_craft_for campaign #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         campaign.reload
-        campaign.craft.select{|craft| 
-          craft.crafts_campaign = campaign #pass in already loaded campaign into craft
-          craft.is_new? || craft.is_changed? || craft.history_count.nil? 
-        }.each do |craft|
-          craft.commit
+        campaign.craft.each do |craft_object|
+          craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
+          next unless craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
+          craft_object.reload.commit
         end        
       end
     end

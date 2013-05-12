@@ -29,12 +29,6 @@ class Campaign < ActiveRecord::Base
 
 
   def all_craft_data
-    self.craft.each do |craft|
-    end
-  end
-
-
-  def all_craft_data
     craft_data = {}
     threads = []
     self.craft.each do |craft_object|
