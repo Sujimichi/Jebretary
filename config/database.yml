@@ -18,8 +18,12 @@ test:
   pool: 5
   timeout: 5000
 
+
+
 production:
   adapter: sqlite3
-  database: db/production.sqlite3
+  database: <%= ENV["OCRA_EXECUTABLE"] ? File.expand_path('../production.sqlite3', ENV["OCRA_EXECUTABLE"]) : 'db/production.sqlite3' %>
   pool: 5
   timeout: 5000
+ 
+  

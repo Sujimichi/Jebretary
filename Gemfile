@@ -4,6 +4,8 @@ gem 'rails', '3.2.13'
 gem 'sqlite3'
 gem 'delayed_job_active_record'
 gem 'daemons'
+gem 'bundler'
+gem 'thin'
 
 
 # Gems used only for assets and not required
@@ -20,13 +22,12 @@ gem 'jquery-ui-rails'
 gem 'haml-rails'
 gem 'git'
 
-group :test, :development do 
+#group :test, :development do 
   gem 'rspec-rails'
   gem 'factory_girl_rails'
-  gem 'autotest-rails'
-  gem 'autotest'
 
-end
+
+#end
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

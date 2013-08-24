@@ -4,6 +4,7 @@
 
 require File.expand_path('../config/application', __FILE__)
 
+
 Jebretary::Application.load_tasks
 
 
@@ -12,4 +13,13 @@ task :reset do
   `rake db:create:all`
   `rake db:migrate`
   `rake db:test:prepare`
+end
+
+
+task :monitor => :environment do 
+
+  print "Running Monitor..."
+  System.monitor
+  puts "done"
+
 end

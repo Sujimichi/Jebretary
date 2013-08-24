@@ -13,8 +13,10 @@ class Instance < ActiveRecord::Base
 
   def discover_campaigns
     ignored = ['.', '..', 'training', 'scenarios']
-    dirs = Dir.entries(File.join(self.path, "saves"))
-    dirs - ignored
+    save_dir = File.join(self.path, "saves")
+    dirs = Dir.entries(save_dir).select{|entry| 
+      File.directory? File.join(save_dir,entry) and !ignored.include?(entry)
+    }
   end
 
   def prepare_campaigns
