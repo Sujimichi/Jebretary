@@ -27,14 +27,6 @@ class System
     end
   end
 
-  #RAILS_ENV=production script/delayed_job --queue=tracking start
-  def self.start_monitor
-    s = System.new
-    s.delay(:queue => "monitor").run_monitor
-    #Delayed::Job.enqueue(System.run_monitor, :queue => "monitor")
-  end
-
-
   def self.reset
     Instance.destroy_all
     Campaign.destroy_all

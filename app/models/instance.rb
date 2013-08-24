@@ -2,14 +2,12 @@ class Instance < ActiveRecord::Base
   attr_accessible :full_path
 
   validates :full_path, :presence => true
-
   has_many :campaigns
 
   def path
     p = JSON.parse(self.full_path)
     File.join(p)
   end
-
 
   def discover_campaigns
     ignored = ['.', '..', 'training', 'scenarios']

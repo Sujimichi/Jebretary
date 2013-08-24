@@ -1,3 +1,5 @@
+
+- new_and_changed = campaign.new_and_changed_keys
 - campaign.craft.group_by{|g| g.craft_type}.each do |type, crafts|
   %h4= type
   - sort_by = "updated_at reverse"
@@ -10,10 +12,10 @@
       .name= link_to(craft.name, craft_path(craft))
       .clear
       .git_info
-        - changed = craft.is_changed?
-        -if changed.nil?
+        -if new_and_changed[:new].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
           = "new"
         -else
+          - changed = new_and_changed[:changed].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
           = changed ? "untracked changes" : "tracked"
 
       .history

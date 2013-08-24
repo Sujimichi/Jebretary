@@ -1,10 +1,23 @@
 class Campaign < ActiveRecord::Base
   require 'git'
+
   attr_accessible :instance_id, :name
+  
   belongs_to :instance
   has_many :craft
 
   validates :name, :instance_id, :presence => true
+
+
+  def path
+    File.join(self.instance.path, "saves", self.name)
+  end
+
+  def git
+    return create_repo unless Dir.entries(self.path).include?('.git') #create the repo if it is not present.
+    Git.open(self.path)
+  end
+  alias repo git
 
   #initialise the git repo and add a .gitignore to ignore the AutoSaved craft
   def create_repo
@@ -17,17 +30,16 @@ class Campaign < ActiveRecord::Base
     g
   end
 
-  def git
-    return create_repo unless Dir.entries(self.path).include?('.git') #create the repo if it is not present.
-    Git.open(self.path)
+
+  def new_and_changed_keys
+    status = repo.status
+    {
+      :new => status.untracked.keys,
+      :changed => status.changed.keys
+    }
   end
-  alias repo git
 
-  def path
-    File.join(self.instance.path, "saves", self.name)
-  end
-
-
+=begin
   def all_craft_data
     craft_data = {}
     threads = []
@@ -69,9 +81,8 @@ class Campaign < ActiveRecord::Base
     message ||= "added .sfs files" 
     g.commit(message)
   end
-
   
-
+=end
 
   #scan craft folders and identify craft files 
   #   - all craft files should have a coresponding Craft object, it can be deleted but would get replaced if the craft still exists.
