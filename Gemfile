@@ -2,10 +2,16 @@ source 'https://rubygems.org'
 
 gem 'rails', '3.2.13'
 gem 'sqlite3'
-gem 'delayed_job_active_record'
-gem 'daemons'
 gem 'bundler'
 gem 'thin'
+
+gem 'jquery-rails'
+gem 'jquery-ui-rails'
+gem 'haml-rails'
+
+gem 'git'
+gem 'delayed_job_active_record'
+gem 'daemons'
 
 
 # Gems used only for assets and not required
@@ -17,16 +23,10 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
-gem 'jquery-rails'
-gem 'jquery-ui-rails'
-gem 'haml-rails'
-gem 'git'
 
-#group :test, :development do 
+#group :test, :development do
   gem 'rspec-rails'
   gem 'factory_girl_rails'
-
-
 #end
 
 # To use ActiveModel has_secure_password
@@ -43,5 +43,3 @@ gem 'git'
 
 # To use debugger
 # gem 'debugger'
-
-

@@ -3,7 +3,6 @@
 var craft_version_timer = null
 
 function poll_craft_version(){
-  //alert("poll called")
   var craft_id = $('#craft_id').val();
   var data = {id: craft_id};
   $.ajax({ url: "/crafts/"+ craft_id, data: data, type: "GET", success: function(data,textStatus){
