@@ -77,6 +77,23 @@ def make_new_craft_in campaign = nil, c_type = "VAB", name = "some_rocket"
   File.open("#{name}.craft", 'w') {|f| f.write("some test data") }
 end
 
+
+def verify_craft_for_campaign
+  @campaign.create_repo      
+  Craft.verify_craft_for @campaign
+end
+
+def commit_craft_in_campaign
+  @campaign.reload.craft.each{|c| c.commit}
+end
+
+def change_craft_contents craft, new_content = "this is some different file data"
+  cur_dir = Dir.getwd
+  Dir.chdir(craft.craft_type.upcase)
+  File.open("#{craft.name}.craft", 'w') {|f| f.write(new_content) }
+  Dir.chdir(cur_dir)
+end
+
 def in_test_dir &blk
   d = Dir.getwd
   Dir.chdir "#{Rails.root}/temp_test_dir"

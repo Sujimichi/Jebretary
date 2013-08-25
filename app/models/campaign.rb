@@ -39,6 +39,11 @@ class Campaign < ActiveRecord::Base
     }
   end
 
+
+  def last_changed_craft
+    self.craft.order("updated_at").last
+  end
+
 =begin
   def all_craft_data
     craft_data = {}

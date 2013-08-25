@@ -36,9 +36,8 @@ describe Campaign do
   describe "new_and_changed_keys" do 
     before(:each) do 
       set_up_sample_data
-      @campaign.create_repo      
-      Craft.verify_craft_for @campaign
-      @campaign.reload.craft.each{|c| c.commit}
+      verify_craft_for_campaign
+      commit_craft_in_campaign
       make_new_craft_in @campaign, "VAB", "rocket_thing"
     end
 
@@ -53,6 +52,33 @@ describe Campaign do
     it 'should reference changed craft in :changed' do 
       File.open("my_rocket.craft", 'w') {|f| f.write("some changed test data") }
       @campaign.new_and_changed[:changed].should be_include "Ships/VAB/my_rocket.craft"
+    end
+
+  end
+
+
+  describe "last_changed" do 
+    before(:each) do 
+      set_up_sample_data
+      verify_craft_for_campaign
+      commit_craft_in_campaign
+      @campaign.last_changed_craft.name.should == "my_rocket_car"      
+    end
+
+    it 'should return a newly created craft ' do 
+      make_new_craft_in @campaign, "VAB", "this_rocket_thing"
+      verify_craft_for_campaign
+      @campaign.last_changed_craft.should be_a(Craft)
+      @campaign.last_changed_craft.name.should == "this_rocket_thing"
+    end
+
+    it 'should return a recently changed craft' do 
+      craft = Craft.where(:name => "my_rocket").first
+      change_craft_contents craft, "this craft has different content"
+
+      verify_craft_for_campaign
+      commit_craft_in_campaign
+      @campaign.last_changed_craft.name.should == "my_rocket"
     end
 
   end
