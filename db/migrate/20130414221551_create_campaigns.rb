@@ -4,6 +4,8 @@ class CreateCampaigns < ActiveRecord::Migration
       t.integer :instance_id
       t.string :name
 
+      t.string :persistence_checksum
+
       t.timestamps
     end
   end

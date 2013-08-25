@@ -36,7 +36,7 @@ class Craft < ActiveRecord::Base
 
     #mark craft objects as deleted if the file no longer exists.
     existing_craft.each do |craft|
-      next if present_craft[craft.craft_type.to_sym].include?(craft.name)
+      next if present_craft[craft.craft_type.to_sym] && present_craft[craft.craft_type.to_sym].include?(craft.name)
       craft.update_attributes(:deleted => true)
     end
   end

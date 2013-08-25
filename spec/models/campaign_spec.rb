@@ -86,5 +86,55 @@ describe Campaign do
 
   end
 
+  describe "update_persistence_checksum" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+      @digest = Digest::SHA256.file("persistent.sfs").hexdigest
+    end
+
+    it 'should update the persistence.sfs checksum' do 
+      @campaign.persistence_checksum.should be_nil
+      @campaign.update_persistence_checksum
+      @campaign.persistence_checksum.should_not be_nil
+      @campaign.persistence_checksum.should == @digest 
+    end
+
+  end
+
+  describe "should_process?" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+    end
+
+    it 'should return true on a newly created campaign' do 
+      @campaign.should_process?.should be_true
+    end
+
+    it 'should return false if the persistence_checksum matches the persistent.sfs file' do 
+      @campaign.update_persistence_checksum
+      @campaign.should_process?.should be_false
+    end
+
+    it 'should return true again if the persistent.sfs file is changed' do 
+      @campaign.update_persistence_checksum
+      Dir.chdir(@campaign.path)
+      File.open("persistent.sfs", 'w') {|f| f.write("this file is now changed") }
+      @campaign.should_process?.should be_true
+    end
+
+    it 'should return true of the persistence_checksum is set to nil' do 
+      @campaign.update_persistence_checksum
+      @campaign.should_process?.should be_false
+      @campaign.update_attributes(:persistence_checksum => nil)
+      @campaign.should_process?.should be_true
+    end
+    
+    it "should return false if the persistence_checksum is set to 'skip'" do 
+      @campaign.update_attributes(:persistence_checksum => "skip")
+      @campaign.should_process?.should be_false
+    end
+
+  end
+
 
 end

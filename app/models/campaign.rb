@@ -1,7 +1,7 @@
 class Campaign < ActiveRecord::Base
   require 'git'
 
-  attr_accessible :instance_id, :name
+  attr_accessible :instance_id, :name, :persistence_checksum
   
   belongs_to :instance
   has_many :craft
@@ -47,6 +47,19 @@ class Campaign < ActiveRecord::Base
       last_updated = matched_craft.first unless matched_craft.empty?
     end
     last_updated
+  end
+
+  def update_persistence_checksum
+    Dir.chdir(self.path)
+    checksum = Digest::SHA256.file("persistent.sfs").hexdigest
+    self.update_attributes(:persistence_checksum => checksum)
+  end
+
+  def should_process?
+    return false if self.persistence_checksum.eql?("skip")
+    Dir.chdir(self.path)
+    checksum = Digest::SHA256.file("persistent.sfs").hexdigest
+    not checksum.eql?(self.persistence_checksum)
   end
 
 end

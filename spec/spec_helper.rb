@@ -102,20 +102,25 @@ def in_test_dir &blk
 end
 
 def set_up_sample_data campaign_name = "test_campaign"
-  set_test_dir
-  in_test_dir { set_basic_mock_KSP_dir }
-  in_test_dir do 
-    Dir.chdir("KSP_test/saves")
-    FileUtils.rm_rf(campaign_name)
-    Dir.mkdir(campaign_name)
-  end
-  @i = FactoryGirl.create(:instance)
-  @campaign = FactoryGirl.create(:campaign, :name => campaign_name, :instance_id => @i.id)
+  create_sample_data campaign_name
+  @instance = FactoryGirl.create(:instance)
+  @campaign = FactoryGirl.create(:campaign, :name => campaign_name, :instance_id => @instance.id)
   Dir.chdir @campaign.path
   make_sample_data
   @campaign
 end
 
+def create_sample_data campaign_name = "test_campaign", args = {:reset => true}
+  if args[:reset]
+    set_test_dir
+    in_test_dir { set_basic_mock_KSP_dir }
+  end
+  in_test_dir do 
+    Dir.chdir("KSP_test/saves")
+    FileUtils.rm_rf(campaign_name)
+    Dir.mkdir(campaign_name)
+  end
+end
 
 def contain string
   be_include(string)

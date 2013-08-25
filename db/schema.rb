@@ -16,8 +16,9 @@ ActiveRecord::Schema.define(:version => 20130503171814) do
   create_table "campaigns", :force => true do |t|
     t.integer  "instance_id"
     t.string   "name"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.string   "persistence_checksum"
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
   end
 
   create_table "crafts", :force => true do |t|
