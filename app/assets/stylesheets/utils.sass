@@ -1,0 +1,261 @@
+//Utils - Mixins and styles used to extend other classes.
+@import variables.sass
+
+=clearfix
+  :overflow hidden
+  :overflow -moz-scrollbars-none
+  // This makes ie6 get layout
+  :display inline-block
+  // and this puts it back to block
+  &
+    :display block
+
+.clearfix
+  +clearfix
+
+.clear
+  :display block
+  :clear both
+  :height 0
+  :width 0
+
+//Helpers
+.left
+  :float left
+.right
+  :float right
+.with_margin
+  :margin-left 1em
+.small
+  :font-size 80%
+.inline
+  :display inline
+.hidden
+  :display none
+
+.center-text
+  :text-align center
+
+.css_table
+  :display table-row
+  .label
+    :display table-cell
+    @extend .label
+    :vertical-align text-top
+    :padding-left 1em
+  .value
+    :display table-cell
+    :padding-left 1em
+
+
+
+=dev_show($col: blue, $val: 45)
+  :background-color lighten($col, $val)
+
+.dev_show_yo
+  +dev_show
+
+//Transparency_mixins
+=transparent($trans: 70)
+  :filter alpha(opacity=$trans)
+  :opacity ($trans / 100 )
+
+//Gradient Mixins
+=gradient($start_color, $end_color)
+  /* for webkit browsers */
+  background: -webkit-gradient(linear, left top, left bottom, from($start_color), to($end_color))
+  /* for firefox 3.6+ */
+  background: -moz-linear-gradient(top,  $start_color,  $end_color)
+  /* for IE */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$start_color}', endColorstr='#{$end_color}', GradientType=0)
+
+
+=gradient_h($start_color, $end_color)
+  /* for webkit browsers */
+  background: -webkit-gradient(linear, left top, right top, from($start_color), to($end_color))
+  /* for firefox 3.6+ */
+  background: -moz-linear-gradient(left,  $start_color,  $end_color)
+  /* for IE */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$start_color}', endColorstr='#{$end_color}', GradientType=1)
+
+
+//Border Rounding Mixins
+=rounded($vals: 16px)
+  -moz-border-radius: $vals
+  border-radius: $vals
+
+=rounded_top($vals: 16px 16px 0px 0px)
+  +rounded($vals)
+=rounded_bottom($vals: 0px 0px 16px 16px)
+  +rounded($vals)
+=rounded_none
+  +rounded(0px 0px 0px 0px)
+
+.rounded_top
+  +rounded_top
+
+
+//Shadows
+.shadow_border
+  :position absolute
+  :top 0
+  :z-index 2000
+  :background
+    :color transparent
+    :image url(/images/shadow.png)
+    :repeat repeat-x
+  :width 100%
+  :height 20px
+
+//CSS Shadows
+
+=cast_shadow($args)
+  -moz-box-shadow: $args
+  -webkit-box-shadow: $args
+  box-shadow: $args
+
+$shadow_vals: 0px 2px 30px 2px grey
+$alert_shadow_vals: 0px 3px 30px 5px black, 0px 3px 30px 5px $flash_error_color
+$notice_shadow_vals: 0px 3px 30px 5px black, 0px 3px 30px 5px $flash_notice_color
+$header_alert_shadow_vals: -35px 0px 30px 5px black, -35px 0px 30px 5px $flash_error_color
+$header_notice_shadow_vals: -35px 0px 30px 5px black, -35px 0px 30px 5px $flash_notice_color
+
+.default_shadow
+  +cast_shadow($shadow_vals)
+
+.alert_shadow
+  +cast_shadow($alert_shadow_vals)
+  /* For IE 8 */
+  -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#000000')"
+  /* For IE 5.5 - 7 */
+  filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=180, Color='#000000')
+
+.notice_shadow
+  +cast_shadow($notice_shadow_vals)
+
+.header_alert_shadow
+  :z-index 3000
+  +cast_shadow($header_alert_shadow_vals)
+
+.header_notice_shadow
+  :z-index 3000
+  +cast_shadow($header_notice_shadow_vals)
+
+$inner_shadow: inset 0px 0px 6px 2px black
+$inner_shadow_2: inset 0px 3px 10px $site_shadow
+
+
+.inner_shadow
+  +cast_shadow($inner_shadow)
+
+.element_shadow
+  //+cast_shadow($inner_shadow_2)
+  +cast_shadow(inset 0px 3px 10px $site_shadow)
+
+.element_shadow_hover
+  &:hover
+    +cast_shadow(inset 0px 3px 10px lighten($site_shadow, 10))
+
+
+
+//Flash and Ajax Error and Notices
+
+//Cover up is used as two divs which hide the shaddow effect from the flash display at either side, leaving the shadoww to be just from the bottom.
+=cover_up
+  :background-color $color_header
+  :height 2.4em
+  :width 3em
+  :position absolute
+  :top 0
+
+#flash_display
+  :position absolute
+  :z-index 1000
+  :top 0em
+  :left 25%
+  :width 50%
+  :background-color $color_header
+  :border 2px solid $color_header
+  :border-top none
+  :padding 0.5em
+  .cover_up_right
+    +cover_up
+    :right -2em
+  .cover_up_left
+    :left -2em
+    +cover_up
+
+  -moz-border-radius-bottomleft:  20px
+  -moz-border-radius-bottomright:  20px
+  border-bottom-left-radius: 20px
+  border-bottom-right-radius: 20px
+
+
+.flash_display_alert
+  @extend .alert_shadow
+  .close_flash_link
+    :background-color $flash_error_color
+    @extend .inner_shadow
+
+.flash_display_notice
+  @extend .notice_shadow
+  .close_flash_link
+    :background-color $flash_notice_color
+    @extend .inner_shadow
+
+
+=flash
+  :padding 0.3em
+  :text-align center
+  :position relative
+  :margin 0 auto
+  -moz-border-radius: 12px
+  border-radius: 12px
+
+.flash_alert
+  :background-color $flash_error_color
+  +flash
+  @extend .inner_shadow
+
+.flash_notice
+  :background-color $flash_notice_color
+  +flash
+  @extend .inner_shadow
+
+
+.error_class
+  :color $error_font_color
+  :border 1px solid $error_border_color
+  :background-color $error_background_color
+
+.notice_class
+  :color $notice_font_color
+  :border 1px solid $notice_border_color
+  :background-color $notice_background_color
+
+.inline_message_class
+  :padding 5px
+  :font-size 1em
+  :text-align center
+
+.form_errors
+  h2
+    :font-size 120%
+  @extend .error_class
+  :padding 10px
+  :text-align left
+  :font-size 80%
+  :margin-bottom 1em
+  +rounded
+
+.index_panel_section
+  .form_errors
+    +rounded_none
+
+.inline_errors
+  @extend .error_class
+  @extend .inline_message_class
+
+.inline_notice
+  @extend .notice_class
+  @extend .inline_message_class
