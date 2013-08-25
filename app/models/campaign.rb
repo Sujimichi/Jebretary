@@ -39,61 +39,14 @@ class Campaign < ActiveRecord::Base
     }
   end
 
-
   def last_changed_craft
-    self.craft.order("updated_at").last
-  end
-
-=begin
-  def all_craft_data
-    craft_data = {}
-    threads = []
-    self.craft.each do |craft_object|
-      craft_object.crafts_campaign = self
-
-      craft_data[craft_object.id] = {
-        :changed => craft_object.is_changed?,
-        :history => craft_object.history
-      }
+    last_updated = self.craft.order("updated_at").last
+    unless new_and_changed[:changed].empty?
+      craft_name = new_and_changed[:changed].first
+      matched_craft = self.craft.where(:name => craft_name.split("/").last.sub(".craft",""))
+      last_updated = matched_craft.first unless matched_craft.empty?
     end
-    craft_data
-  end  
-
-
-  def commit_craft 
-    g = self.git
-    g.add("Ships/SPH/*.craft")
-    g.add("Ships/VAB/*.craft")
-    updated = g.status.changed.map{|name, craft| g.add(name); name}
-    added = g.status.added.keys
-    message = ""
-    message << "Added craft: #{added.map{|ship| ship.sub('Ships/', '')}.join(", ") }" unless added.empty?
-    message << "Updated craft: #{updated.map{|ship| ship.sub('Ships/', '')}.join(", ") }" unless updated.empty?
-    g.commit(message)
+    last_updated
   end
 
-  def commit_saves
-    g = self.git
-    saves = %w[quicksave.sfs persistent.sfs]   
-    saves.each{|save| g.add(save)}
-    message = "Added quicksave and persistent save files" if g.status.added.keys.include?("persistent.sfs") and g.status.added.keys.include?("quicksave.sfs")
-    if g.status.changed.keys.include?("persistent.sfs") && g.status.changed.keys.include?("quicksave.sfs")
-      message = "Updated quicksave and persistent save files" 
-    else
-      message = "Updated quicksave file" if g.status.changed.keys.include?("quicksave.sfs") &! g.status.changed.keys.include?("persistent.sfs")
-      message = "Updated persistent file" if g.status.changed.keys.include?("persistent.sfs") &! g.status.changed.keys.include?("quicksave.sfs")
-    end
-    message ||= "added .sfs files" 
-    g.commit(message)
-  end
-  
-=end
-
-  #scan craft folders and identify craft files 
-  #   - all craft files should have a coresponding Craft object, it can be deleted but would get replaced if the craft still exists.
-  #   - it should continue to exist once the craft is deleted to enable referencing it in the git repo.
-  #create craft object for each one
-  #pass craft objects to commit_craft (with option for craft objects to be excluded from commit)
-  #commit (update or add) craft defined by given craft objects
-  #
 end

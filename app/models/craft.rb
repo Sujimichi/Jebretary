@@ -134,6 +134,7 @@ class Craft < ActiveRecord::Base
       repo.commit("reverted #{name} to V#{index}")
     rescue
     end
+    update_history_count    
   end
 
 

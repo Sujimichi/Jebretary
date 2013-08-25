@@ -75,9 +75,12 @@ describe Campaign do
     it 'should return a recently changed craft' do 
       craft = Craft.where(:name => "my_rocket").first
       change_craft_contents craft, "this craft has different content"
+      @campaign.reload
 
-      verify_craft_for_campaign
-      commit_craft_in_campaign
+      #raise @campaign.new_and_changed.inspect
+
+      #verify_craft_for_campaign
+      #commit_craft_in_campaign
       @campaign.last_changed_craft.name.should == "my_rocket"
     end
 

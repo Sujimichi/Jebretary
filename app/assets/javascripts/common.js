@@ -58,21 +58,34 @@ function poll_craft_version(){
 
 function change_message(div, current_text, craft_id, commit){
   clearTimeout(craft_version_timer);
-  ajax_get(craft_id + "/edit", {data: "message_form", sha_id: commit}, function(){
+  clearTimeout(index_search_timer);
+  ajax_get("/crafts/" + craft_id + "/edit", {data: "message_form", sha_id: commit}, function(){
   });
 };
 
 function update_message(div, craft_id, commit, original_message){
+
   $(div).find('#message').bind("blur", function(){
     $('.message_form').hide();
 
     var new_message = $(this).val();
     if(original_message != new_message){
-      ajax_put(craft_id, {update_message: new_message, commit_to_edit: commit}, function(){});
-    }
-    poll_craft_version();
+      ajax_put("/crafts/" + craft_id, {update_message: new_message, commit_to_edit: commit}, function(){});
+    }else{
+      restart_appropriate_poller()
+    };
 
   });
   $(div).find('#message').focus()
+
+};
+
+function restart_appropriate_poller(){
+  var campaign = $('#campaign_id').val();
+  if(campaign == undefined){
+    poll_craft_version();
+  }else{
+    poll_for_updated_list()
+  };
 
 };

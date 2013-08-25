@@ -1,8 +1,9 @@
+
 %p= "#{@craft.name} has #{history.size} versions"
 -if @craft.is_changed?
   "Untracked changes"
-- version = history.size + 1
 
+- version = history.size + 1
 .craft_history
   - history.each do |commit|
     .craft
