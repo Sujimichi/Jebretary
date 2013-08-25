@@ -248,18 +248,32 @@ describe Craft do
     end
 
 
-    it 'should change the commit message for a specified commit' do 
+    it 'should be able to change the most recent commit message' do 
       most_recent_commit = @craft.history.first
       most_recent_commit.message.should == "third commit"
-
       @craft.change_commit_message most_recent_commit, "this is the third commit"
 
-      #raise [most_recent_commit, most_recent_commit.parent].inspect
-
-
-      @craft.history.first.message.should == "this is the third commit"
-      
+      @craft.reload.history.first.message.should == "this is the third commit"
     end
+
+    it 'should be able to change a specific commit message' do 
+      commit = @craft.history[1]
+      commit.message.should == "second commit"
+      @craft.change_commit_message commit, "this is a new message"
+
+      @craft.reload.history[1].message.should == "this is a new message"
+    end
+
+    it 'should not result in additional commits' do 
+      @craft.history.size.should == 3
+      commit = @craft.history[1]
+      commit.message.should == "second commit"
+      @craft.change_commit_message commit, "this is a new message"
+
+      @craft.reload.history.size.should == 3
+    end
+
+
 
 
   end

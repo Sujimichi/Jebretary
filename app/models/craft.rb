@@ -135,35 +135,32 @@ class Craft < ActiveRecord::Base
     end
   end
 
+
+  #git branch temp refb
+  #git filter-branch -f --msg-filter "sed 's/test/testy/'" refa..temp
+  #git rebase temp
+  #git branch --delete temp
   def change_commit_message commit, new_message
-=begin
-git branch temp refb
-
-git filter-branch --env-filter '
-export GIT_AUTHOR_EMAIL="foo@example.com"' refa..temp
-
-git rebase temp
-git branch --delete temp
-=end
-  
     repo = self.campaign.repo
     temp_branch_name = "temp_message_change_branch"
 
-    #create a new branch from the commit I want to change (refb)
+    #create a new branch with it head as the commit I want to change (refb)
     repo.checkout(commit)
     repo.branch(temp_branch_name).checkout
+    #and switch back to master
     repo.checkout("master")
 
-  
+    #This part uses system commands to interact with the git repo as 
+    #I couldn't find a way using the git-gem to do filter-branch actions
     repo.with_working(campaign.path) do
-      #git filter-branch -f --msg-filter "sed 's/test/testy/'" refa..temp
-      command = "git filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}"
-      `#{command}`
+      #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
+      `git filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}`
+      #rebase the temp branch back into master
       `git rebase #{temp_branch_name}`
     end
 
+    #clean up - delete the temp branch
     repo.branch(temp_branch_name).delete
-
   end
 
 end
