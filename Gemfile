@@ -10,8 +10,6 @@ gem 'jquery-ui-rails'
 gem 'haml-rails'
 
 gem 'git'
-gem 'delayed_job_active_record'
-gem 'daemons'
 
 
 # Gems used only for assets and not required
