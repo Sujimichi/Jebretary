@@ -5,7 +5,8 @@ class System
       instance.prepare_campaigns
       instance.reload
 
-      instance.campaigns.each do |campaign|
+      campaigns = instance.campaigns.includes(:craft)
+      campaigns.each do |campaign|
         campaign.git #ensure git repo is present
         Craft.verify_craft_for campaign #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         campaign.reload

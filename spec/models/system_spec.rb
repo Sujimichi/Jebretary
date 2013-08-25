@@ -69,7 +69,9 @@ describe System do
       craft.stub!(:is_new? => false, :is_changed? => false, :history_count => 1)
       
       @campaign_1.stub!(:craft => [craft])      
-      @instance.stub!(:campaigns => [@campaign_1])
+      a = [@campaign_1]
+      a.stub!(:includes => [@campaign_1])
+      @instance.stub!(:campaigns => a)
       Instance.stub!(:all => [@instance])
       System.process
     end
@@ -80,8 +82,9 @@ describe System do
       craft.stub!(:is_new? => false, :is_changed? => true, :history_count => 1)
       
       @campaign_1.stub!(:craft => [craft])
-      @instance.stub!(:campaigns => [@campaign_1])
-
+      a = [@campaign_1]
+      a.stub!(:includes => [@campaign_1])
+      @instance.stub!(:campaigns => a)
       Instance.stub!(:all => [@instance])
       System.process
     end
@@ -93,7 +96,9 @@ describe System do
       
       @campaign_1.stub!(:craft => [craft])
       @campaign_1.stub!(:should_process? => false)
-      @instance.stub!(:campaigns => [@campaign_1])
+      a = [@campaign_1]
+      a.stub!(:includes => [@campaign_1])
+      @instance.stub!(:campaigns => a)
       Instance.stub!(:all => [@instance])
       System.process
 
