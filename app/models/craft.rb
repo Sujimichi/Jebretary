@@ -87,12 +87,13 @@ class Craft < ActiveRecord::Base
   alias changed_craft? is_changed?
 
   #stage the changes and commits the craft. simply returns if there are no changes.
-  def commit
+  def commit args = {}
     return "unable to commit; #{problems.join(",")}" unless problems.empty?
     @repo_status = nil
     action = self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)
     unless action.eql?(:nothing_to_commit)
       message = "#{action} #{name}"
+      message = args[:m] if args[:m]
       repo = self.crafts_campaign.repo
       repo.add("Ships/#{craft_type.upcase}/#{name}.craft")
       self.part_count ||= 1
@@ -132,6 +133,37 @@ class Craft < ActiveRecord::Base
       repo.commit("reverted #{name}")
     rescue
     end
+  end
+
+  def change_commit_message commit, new_message
+=begin
+git branch temp refb
+
+git filter-branch --env-filter '
+export GIT_AUTHOR_EMAIL="foo@example.com"' refa..temp
+
+git rebase temp
+git branch --delete temp
+=end
+  
+    repo = self.campaign.repo
+    temp_branch_name = "temp_message_change_branch"
+
+    #create a new branch from the commit I want to change (refb)
+    repo.checkout(commit)
+    repo.branch(temp_branch_name).checkout
+    repo.checkout("master")
+
+  
+    repo.with_working(campaign.path) do
+      #git filter-branch -f --msg-filter "sed 's/test/testy/'" refa..temp
+      command = "git filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}"
+      `#{command}`
+      `git rebase #{temp_branch_name}`
+    end
+
+    repo.branch(temp_branch_name).delete
+
   end
 
 end

@@ -161,6 +161,13 @@ describe Craft do
       @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.size.should == 1
     end
 
+    it 'should set a given commit message if one is supplied' do 
+      repo = @campaign.repo
+      @craft.commit :m => "custom message"
+      message = @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.first.message
+      message.should == "custom message"
+    end
+
   end
 
   describe "history" do    
@@ -227,5 +234,34 @@ describe Craft do
 
   end
 
+  describe "change_commit_message" do 
+    before(:each) do 
+      set_up_sample_data
+      File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("first version")}
+      @campaign.create_repo
+      @craft = FactoryGirl.create(:craft, :campaign => @campaign, :name => "my_rocket", :craft_type => "vab")
+      @craft.commit :m => "first commit"
+      File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("second version")}
+      @craft.commit :m => "second commit"
+      File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("third version")}
+      @craft.commit :m => "third commit"  
+    end
+
+
+    it 'should change the commit message for a specified commit' do 
+      most_recent_commit = @craft.history.first
+      most_recent_commit.message.should == "third commit"
+
+      @craft.change_commit_message most_recent_commit, "this is the third commit"
+
+      #raise [most_recent_commit, most_recent_commit.parent].inspect
+
+
+      @craft.history.first.message.should == "this is the third commit"
+      
+    end
+
+
+  end
 
 end
