@@ -128,9 +128,10 @@ class Craft < ActiveRecord::Base
   #revert the craft to a previous commit
   def revert_to commit
     repo = self.campaign.repo
+    index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
     repo.checkout_file(commit, file_name)
     begin
-      repo.commit("reverted #{name}")
+      repo.commit("reverted #{name} to V#{index}")
     rescue
     end
   end

@@ -46,7 +46,7 @@ class CraftsController < ApplicationController
       @craft.change_commit_message commit, params[:update_message]
     end
     if params[:sha_id] && history.map{|h| h.sha}.include?(params[:sha_id])
-      past_version = history.select{|h| h.sha.eql?(params[:sha_id])}
+      past_version = history.select{|h| h.sha.eql?(params[:sha_id])}.first
       @craft.commit #ensure current version is commited before reverting
       @craft.revert_to past_version
     end

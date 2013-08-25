@@ -218,19 +218,33 @@ describe Craft do
       commit = @craft.history[2]
       @craft.revert_to commit
       File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "first version"
-      @craft.history.first.message.should == "reverted my_rocket"
+      @craft.history.first.message.should contain "reverted my_rocket"
             
       commit = @craft.history[2] #same index as there is now another commit 
       @craft.revert_to commit
       File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "second version"
-      @craft.history.first.message.should == "reverted my_rocket"
+      @craft.history.first.message.should contain "reverted my_rocket"
 
       commit = @craft.history.select{|log| log.message == "updated my_rocket"}.first
       @craft.revert_to commit
       File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "third version"
-      @craft.history.first.message.should == "reverted my_rocket"
+      @craft.history.first.message.should contain "reverted my_rocket"
 
     end
+
+    it 'should put the version number it reverted to in the commit message' do 
+      commit = @craft.history[2]
+      @craft.revert_to commit
+      File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "first version"
+      @craft.history.first.message.should == "reverted my_rocket to V1"
+
+      commit = @craft.history[2]
+      @craft.revert_to commit
+      File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "second version"
+      @craft.history.first.message.should == "reverted my_rocket to V2"
+
+    end
+
 
   end
 

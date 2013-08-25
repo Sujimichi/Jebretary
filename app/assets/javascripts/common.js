@@ -70,7 +70,8 @@ function update_message(div, craft_id, commit, original_message){
     if(original_message != new_message){
       ajax_put(craft_id, {update_message: new_message, commit_to_edit: commit}, function(){});
     }
-  poll_craft_version();
+    poll_craft_version();
+
   });
   $(div).find('#message').focus()
 
