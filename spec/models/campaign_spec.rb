@@ -27,110 +27,33 @@ describe Campaign do
     it 'should not attempt to create if repo already exists' do 
       @campaign.create_repo
       g = Git.open(@campaign.path)
-
       Git.should_not_receive(:init)
       @campaign.create_repo
     end
 
   end
 
-  describe "commit craft" do 
+  describe "new_and_changed_keys" do 
     before(:each) do 
       set_up_sample_data
-      @campaign.create_repo
+      @campaign.create_repo      
+      Craft.verify_craft_for @campaign
+      @campaign.reload.craft.each{|c| c.commit}
+      make_new_craft_in @campaign, "VAB", "rocket_thing"
     end
 
-    it 'should commit existing craft files to repo (assuming run first time with craft already present)' do 
-      g = Git.open(@campaign.path)
-      g.status["Ships/VAB/my_rocket.craft"].untracked.should be_true
-      @campaign.commit_craft
-      g.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
-      g.log.object("Ships/VAB/my_rocket.craft").should be_a Git::Log
-      g.log.object("Ships/VAB/my_rocket.craft").should_not contain("unknown revision or path")
+    it 'should return a hash containing :new and :changed keys' do 
+      @campaign.new_and_changed.keys.sort.should == [:changed, :new]
     end
 
-    it 'should put the added craft names in the commit message' do 
-      @campaign.commit_craft
-      g = Git.open(@campaign.path)
-      message = g.object(g.log.to_a[0]).message
-      message.should == "Added craft: SPH/my_rocket_car.craft, VAB/my_other_rocket.craft, VAB/my_rocket.craft" 
+    it 'should reference new craft in :new' do 
+      @campaign.new_and_changed[:new].should be_include "Ships/VAB/rocket_thing.craft"
     end
 
-    it 'should put the updated craft names in the commit message' do 
-      @campaign.commit_craft
-      File.open('Ships/VAB/my_rocket.craft', 'w'){|f| f.write("changed content*") }
-      @campaign.commit_craft
-      g = Git.open(@campaign.path)
-      message = g.object(g.log.to_a[0]).message
-      message.should == "Updated craft: VAB/my_rocket.craft" 
+    it 'should reference changed craft in :changed' do 
+      File.open("my_rocket.craft", 'w') {|f| f.write("some changed test data") }
+      @campaign.new_and_changed[:changed].should be_include "Ships/VAB/my_rocket.craft"
     end
-
-    it 'should add and commit new craft files to repo (assuming some craft already present)' do 
-      g = Git.open(@campaign.path)
-      Dir.chdir("#{@campaign.path}/Ships/VAB")
-      File.open('my_brand_new_fast_as_fuck_rocket.craft', 'w'){|f| f.write("some test data")}
-      g.status["Ships/VAB/my_brand_new_fast_as_fuck_rocket.craft"].untracked.should be_true
-      @campaign.commit_craft
-      g.status["Ships/VAB/my_brand_new_fast_as_fuck_rocket.craft"].untracked.should be_false
-      g.log.object("Ships/VAB/my_brand_new_fast_as_fuck_rocket.craft").should be_a Git::Log
-      g.log.object("Ships/VAB/my_brand_new_fast_as_fuck_rocket.craft").should_not contain("unknown revision or path")
-    end
-
-
-  end
-
-  describe "commit saves" do
-    before(:each) do 
-      set_up_sample_data
-      @campaign.create_repo
-    end
-
-    it 'should add save files' do 
-      g = Git.open(@campaign.path)
-      g.status["persistent.sfs"].untracked.should be_true
-      g.status["quicksave.sfs"].untracked.should be_true
-
-      @campaign.commit_saves
-      g.status["persistent.sfs"].untracked.should be_false
-      g.status["quicksave.sfs"].untracked.should be_false
-    end
-
-    it "should put 'added quicksave and persistent save files' in the message first time round" do 
-      g = Git.open(@campaign.path)
-      @campaign.commit_saves
-      message = g.object(g.log.to_a[0]).message
-      message.should == "Added quicksave and persistent save files"
-    end
-
-    it "should put 'updated quicksave and persistent save files' in the message when both are changed" do 
-      g = Git.open(@campaign.path)
-      @campaign.commit_saves
-      File.open('persistent.sfs', 'w'){|f| f.write("changed p file")}
-      File.open('quicksave.sfs', 'w'){|f| f.write("changed qs file")}
-
-      @campaign.commit_saves
-      message = g.object(g.log.to_a[0]).message
-      message.should == "Updated quicksave and persistent save files"
-    end
-
-    it "should put 'Updated quicksave file' when just updating the quicksave" do
-      g = Git.open(@campaign.path)
-      @campaign.commit_saves
-      File.open('quicksave.sfs', 'w'){|f| f.write("changed qs file")}
-      @campaign.commit_saves
-      message = g.object(g.log.to_a[0]).message
-      message.should == "Updated quicksave file"
-    end
-
-    it "should put 'Updated persistent file' when just updating the persistent file" do
-      g = Git.open(@campaign.path)
-      @campaign.commit_saves
-      File.open('persistent.sfs', 'w'){|f| f.write("changed p file")}
-      @campaign.commit_saves
-      message = g.object(g.log.to_a[0]).message
-      message.should == "Updated persistent file"
-    end
-    
 
   end
 

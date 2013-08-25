@@ -70,6 +70,13 @@ def make_sample_data
   Dir.chdir(cur_dir)
 end
 
+def make_new_craft_in campaign = nil, c_type = "VAB", name = "some_rocket"
+  return false unless 
+  Dir.chdir campaign.path
+  Dir.chdir("Ships/#{c_type}")
+  File.open("#{name}.craft", 'w') {|f| f.write("some test data") }
+end
+
 def in_test_dir &blk
   d = Dir.getwd
   Dir.chdir "#{Rails.root}/temp_test_dir"

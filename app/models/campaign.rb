@@ -31,7 +31,7 @@ class Campaign < ActiveRecord::Base
   end
 
 
-  def new_and_changed_keys
+  def new_and_changed
     status = repo.status
     {
       :new => status.untracked.keys,
