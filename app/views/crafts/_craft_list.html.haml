@@ -1,5 +1,5 @@
 
-- new_and_changed = campaign.new_and_changed_keys
+- new_and_changed = campaign.new_and_changed
 - campaign.craft.group_by{|g| g.craft_type}.each do |type, crafts|
   %h4= type
   - sort_by = "updated_at reverse"

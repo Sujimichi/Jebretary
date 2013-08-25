@@ -1,13 +1,22 @@
 %p= "#{@craft.name} has #{history.size} versions"
+-if @craft.is_changed?
+  "Untracked changes"
 - version = history.size + 1
-%table
-  - history.each do |hist|
-    %tr.history
-      %td= "V#{version -= 1}"
-      %td.hidden.sha_id= hist.sha
-      %td= hist.date.to_formatted_s(:short)
-      %td
-        - unless hist == history.first
-          = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha => hist.sha
+
+.craft_history
+  - history.each do |commit|
+    .craft
+      .version= "V#{version -= 1}"
+      .value
+        .hidden.sha_id= commit.sha
+      .date= commit.date.to_formatted_s(:short)
+      .restore_link
+        - unless commit == history.first
+          = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha_id => commit.sha
         -else
           Current Version
+
+    .message
+      .small{:onclick => "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"}
+        = commit.message
+      .message_form{:id => "message_form_for_#{commit.to_s}"}

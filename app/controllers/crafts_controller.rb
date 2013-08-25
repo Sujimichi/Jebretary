@@ -28,16 +28,23 @@ class CraftsController < ApplicationController
 
   def edit
     @craft = Craft.find(params[:id])
-    @sha_id = params[:sha]
+    @sha_id = params[:sha_id]
     @commit = @craft.history.select{|commit| commit.sha == @sha_id}.first
     respond_with(@craft) do |f|
       f.html{}
+      f.js {
+        
+      }
     end
   end
 
   def update
     @craft = Craft.find(params[:id])
     history = @craft.history
+    if params[:commit_to_edit] && params[:update_message]
+      commit = history.select{|h| h.sha.eql?(params[:commit_to_edit])}.first
+      @craft.change_commit_message commit, params[:update_message]
+    end
     if params[:sha_id] && history.map{|h| h.sha}.include?(params[:sha_id])
       past_version = history.select{|h| h.sha.eql?(params[:sha_id])}
       @craft.commit #ensure current version is commited before reverting
@@ -47,6 +54,7 @@ class CraftsController < ApplicationController
       f.html{
         redirect_to @craft
       }
+      f.js {}
     end
 
   end
