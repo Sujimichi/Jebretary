@@ -41,8 +41,11 @@ class Campaign < ActiveRecord::Base
 
   def last_changed_craft
     last_updated = self.craft.order("updated_at").last
-    unless new_and_changed[:changed].empty?
+    new = new_and_changed[:new] - ["persistent.sfs", "quicksave.sfs"]
+    unless new_and_changed[:changed].empty? 
       craft_name = new_and_changed[:changed].first
+      craft_name = new.first unless new.empty?
+
       matched_craft = self.craft.where(:name => craft_name.split("/").last.sub(".craft",""))
       last_updated = matched_craft.first unless matched_craft.empty?
     end

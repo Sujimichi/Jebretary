@@ -68,11 +68,8 @@ describe System do
       craft.should_not_receive(:commit)
       craft.stub!(:is_new? => false, :is_changed? => false, :history_count => 1)
       
-      @campaign_1.stub!(:craft => [craft])
-      a = [@campaign_1]
-      a.stub!(:includes => [@campaign_1])
-      @instance.stub!(:campaigns => a)
-
+      @campaign_1.stub!(:craft => [craft])      
+      @instance.stub!(:campaigns => [@campaign_1])
       Instance.stub!(:all => [@instance])
       System.process
     end
@@ -83,9 +80,7 @@ describe System do
       craft.stub!(:is_new? => false, :is_changed? => true, :history_count => 1)
       
       @campaign_1.stub!(:craft => [craft])
-      a = [@campaign_1]
-      a.stub!(:includes => [@campaign_1])
-      @instance.stub!(:campaigns => a)
+      @instance.stub!(:campaigns => [@campaign_1])
 
       Instance.stub!(:all => [@instance])
       System.process
@@ -98,9 +93,7 @@ describe System do
       
       @campaign_1.stub!(:craft => [craft])
       @campaign_1.stub!(:should_process? => false)
-      a = [@campaign_1]
-      a.stub!(:includes => [@campaign_1])
-      @instance.stub!(:campaigns => a)
+      @instance.stub!(:campaigns => [@campaign_1])
       Instance.stub!(:all => [@instance])
       System.process
 

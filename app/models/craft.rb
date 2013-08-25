@@ -44,7 +44,7 @@ class Craft < ActiveRecord::Base
   #
   ## - Instance Methods
   ###
-  
+
   #retun the path to the .craft file, form the root of the repo.
   def file_name
     "Ships/#{craft_type.upcase}/#{name}.craft"
@@ -86,35 +86,9 @@ class Craft < ActiveRecord::Base
   end
   alias changed_craft? is_changed?
 
-  #stage the changes and commits the craft. simply returns if there are no changes.
-  def commit args = {}
-    return "unable to commit; #{problems.join(",")}" unless problems.empty?
-    @repo_status = nil
-    action = self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)
-    unless action.eql?(:nothing_to_commit)
-      message = "#{action} #{name}"
-      message = args[:m] if args[:m]
-      repo = self.crafts_campaign.repo
-      repo.add("Ships/#{craft_type.upcase}/#{name}.craft")
-      self.part_count ||= 1
-      self.part_count += 1
-      self.save #temp till part count is implemented
-      repo.commit(message)
-    end
-    @repo_status = nil    
-    update_history_count
-    return action
-  end
-
+  
   def update_history_count
     self.update_attributes(:history_count => self.history.size)   
-  end
-
-  #identify possible problems with adding craft to repo.
-  def problems
-    problems = []
-    problems << "must not contain ` in name" if self.name.include?("`")
-    problems
   end
 
   #return the commits for the craft (most recent first)
@@ -125,16 +99,60 @@ class Craft < ActiveRecord::Base
     logs.to_a
   end
 
+
+  #identify possible problems with adding craft to repo.
+  def problems
+    problems = []
+    problems << "must not contain ` in name" if self.name.include?("`")
+    problems
+  end
+
+
+  #takes a block to run and while the block is being run the persistence_checksum on the craft campaign is set to 'skip'
+  #this means that the campaign will not be processed by the background monitor while the blocks actions are being carried out.
+  def dont_process_campaign_while &blk
+    self.campaign.update_attributes(:persistence_checksum => "skip")
+    yield
+    self.campaign.update_persistence_checksum
+  end
+
+
+  #stage the changes and commits the craft. simply returns if there are no changes.
+  def commit args = {}
+    dont_process_campaign_while do 
+      return "unable to commit; #{problems.join(",")}" unless problems.empty?
+      @repo_status = nil
+      action = self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)
+      unless action.eql?(:nothing_to_commit)
+        message = "#{action} #{name}"
+        message = args[:m] if args[:m]
+        repo = self.crafts_campaign.repo
+        repo.add("Ships/#{craft_type.upcase}/#{name}.craft")
+        self.part_count ||= 1
+        self.part_count += 1
+        self.save #temp till part count is implemented
+        repo.commit(message)
+      end
+      @repo_status = nil    
+      update_history_count
+      return action
+    end
+  end
+
+
+
   #revert the craft to a previous commit
   def revert_to commit
-    repo = self.campaign.repo
-    index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
-    repo.checkout_file(commit, file_name)
-    begin
-      repo.commit("reverted #{name} to V#{index}")
-    rescue
+    dont_process_campaign_while do 
+      repo = self.campaign.repo
+      index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
+      repo.checkout_file(commit, file_name)
+      begin
+        repo.commit("reverted #{name} to V#{index}")
+      rescue
+      end
+      update_history_count    
     end
-    update_history_count    
   end
 
 
@@ -143,26 +161,28 @@ class Craft < ActiveRecord::Base
   #git rebase temp
   #git branch --delete temp
   def change_commit_message commit, new_message
-    repo = self.campaign.repo
-    temp_branch_name = "temp_message_change_branch"
+    dont_process_campaign_while do 
+      repo = self.campaign.repo
+      temp_branch_name = "temp_message_change_branch"
 
-    #create a new branch with it head as the commit I want to change (refb)
-    repo.checkout(commit)
-    repo.branch(temp_branch_name).checkout
-    #and switch back to master
-    repo.checkout("master")
+      #create a new branch with it head as the commit I want to change (refb)
+      repo.checkout(commit)
+      repo.branch(temp_branch_name).checkout
+      #and switch back to master
+      repo.checkout("master")
 
-    #This part uses system commands to interact with the git repo as 
-    #I couldn't find a way using the git-gem to do filter-branch actions
-    repo.with_working(campaign.path) do
-      #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
-      `git filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}`
-      #rebase the temp branch back into master
-      `git rebase #{temp_branch_name}`
+      #This part uses system commands to interact with the git repo as 
+      #I couldn't find a way using the git-gem to do filter-branch actions
+      repo.with_working(campaign.path) do
+        #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
+        `git filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}`
+        #rebase the temp branch back into master
+        `git rebase #{temp_branch_name}`
+      end
+
+      #clean up - delete the temp branch
+      repo.branch(temp_branch_name).delete
     end
-
-    #clean up - delete the temp branch
-    repo.branch(temp_branch_name).delete
   end
 
 end

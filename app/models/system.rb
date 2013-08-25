@@ -5,18 +5,19 @@ class System
       instance.prepare_campaigns
       instance.reload
 
-      campaigns = instance.campaigns.includes(:craft)
-      campaigns.each do |campaign|
+      instance.campaigns.each do |campaign|
         campaign.git #ensure git repo is present
         Craft.verify_craft_for campaign #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         campaign.reload
 
-        next unless campaign.should_process?
-        campaign.craft.each do |craft_object|
-          craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
-          next unless craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
-          craft_object.reload.commit
+        if campaign.should_process?
+          campaign.craft.each do |craft_object|
+            craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
+            next unless craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
+            craft_object.reload.commit
+          end
         end
+        campaign.update_persistence_checksum
       end
 
     end
