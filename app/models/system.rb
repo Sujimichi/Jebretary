@@ -8,7 +8,7 @@ class System
     instances = Instance.all
 
     instances.each{ |instance| data[instance.id] = {} }
-    System.update_db_flag(data)
+    #System.update_db_flag(data)
 
     craft_in_campaigns_for_instance = {}
 
@@ -37,6 +37,7 @@ class System
       campaigns.each do |campaign|
         campaign.git #ensure git repo is present
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
+
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true
         System.update_db_flag(data)
         campaign.verify_craft craft_in_campaigns[campaign.name]
@@ -50,9 +51,7 @@ class System
           craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
           next unless craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
           craft_object.commit
-
           data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
-
           System.update_db_flag(data)
 
         end       
