@@ -1,0 +1,5 @@
+if(#{@locked_out == "true"}){
+$(function(){poll_for_updated_instance();alert("repoll") });
+}else{
+$('#campaigns_list').html("#{j render :partial => 'campaigns/list', :locals => {:instance => @instance, :campaigns => @campaigns, :discovered_campaigns => @discovered_campaigns} }");
+}

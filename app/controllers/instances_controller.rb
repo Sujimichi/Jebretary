@@ -44,9 +44,31 @@ class InstancesController < ApplicationController
   end
 
   def show
-    @instance = Instance.find(params[:id])
-    @campaigns = @instance.campaigns.includes(:craft)
-    
+    respond_with(@instance) do |f|           
+      @instance = Instance.find(params[:id])
+
+      @campaigns = @instance.campaigns
+      @discovered_campaigns = @instance.discover_campaigns
+
+      t = @discovered_campaigns.map do |discovered_c|
+        camp = @campaigns.select{|c| c.name == discovered_c}
+        unless camp.empty?
+          camp = camp.first 
+          rem_craft = "foo"#Craft.where("history_count is null and campaign_id == #{camp.id}").count
+        end
+        camp = nil unless camp.is_a?(Campaign)
+        {discovered_c => {
+          :campaign => camp,
+          :remaining_craft => rem_craft
+          }
+        }
+      end.inject{|i,j| i.merge(j)}
+
+      @discovered_campaigns = t
+
+      f.html{}
+      f.js  {}
+    end
 
   end
 end

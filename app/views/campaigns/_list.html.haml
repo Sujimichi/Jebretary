@@ -1,0 +1,14 @@
+
+
+- discovered_campaigns.each do |campaign, data|
+  - if data[:campaign]
+    %h3= link_to campaign, campaign_path(data[:campaign])
+  -else
+    %h3= campaign
+    Please wait while I prepare this campaign
+
+
+
+
+:javascript
+  $(function(){poll_for_updated_instance() });

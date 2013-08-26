@@ -19,7 +19,7 @@ end
 task :monitor => :environment do 
 
   print "Running Monitor..."
-  System.monitor
+  System.run_monitor
   puts "done"
 
 end

@@ -31,7 +31,14 @@ function ajax_send(url, data, callback, type){
   $.ajax({ url: url, data: data, type: type, success: callback, error: wrapped_error, dataType: 'script' });
 };
 
-
+var setup_timer = null
+function poll_for_updated_instance(){
+  clearTimeout(setup_timer);
+  setup_timer = setTimeout(function(){
+    instance_id = $('#instance_id').val();
+    ajax_get(instance_id, {}, function(){});
+  }, 1000);
+};
 
 function poll_for_updated_list(){
   var campaign_id = $('#campaign_id').val();
