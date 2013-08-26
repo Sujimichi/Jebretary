@@ -26,5 +26,17 @@ class Instance < ActiveRecord::Base
     end
   end
 
+  #return the .craft files found in VAB and SPH
+  def identify_craft_in campaign_name
+    dir = File.join(self.path, "saves", campaign_name, "Ships")
+    Dir.chdir(dir)
+    {
+      :vab => Dir.glob("VAB/*.craft").map{|craft| craft.gsub("VAB/", "")}, 
+      :sph => Dir.glob("SPH/*.craft").map{|craft| craft.gsub("SPH/", "")}
+    }
+  end
+
+
+
 end
 

@@ -83,4 +83,32 @@ describe Instance do
     end
 
   end
+
+
+  describe "identify_craft_in" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+    end
+
+    it 'should identify all present craft files in VAB and SPH' do 
+      files = @instance.identify_craft_in(@campaign.name)
+      files.should be_a(Hash)
+      files.should have_key(:vab)
+      files.should have_key(:sph)
+      files[:vab].should be_a(Array)
+      files[:sph].should be_a(Array)
+      
+      files[:vab].should contain("my_rocket.craft")
+      files[:vab].should contain("my_other_rocket.craft")
+      files[:sph].should contain("my_rocket_car.craft")
+    end
+
+    it 'should not track non .craft files' do 
+      Dir.chdir("Ships/VAB")
+      File.open("not_a_craft.file", "w"){|f| f.write("some test data")}
+      files = @instance.identify_craft_in(@campaign.name)
+      files[:vab].should_not contain("not_a_craft.file")
+    end
+
+  end
 end

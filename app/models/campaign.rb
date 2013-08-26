@@ -34,14 +34,14 @@ class Campaign < ActiveRecord::Base
   def new_and_changed
     status = repo.status
     {
-      :new => status.untracked.keys,
-      :changed => status.changed.keys
+      :new => status.untracked.keys.select{|k| k.include?("Ships") && k.include?(".craft")},
+      :changed => status.changed.keys.select{|k| k.include?("Ships") && k.include?(".craft")}
     }
   end
 
   def last_changed_craft
     last_updated = self.craft.order("updated_at").last
-    new = new_and_changed[:new] - ["persistent.sfs", "quicksave.sfs"]
+    new = new_and_changed[:new]
     unless new_and_changed[:changed].empty? 
       craft_name = new_and_changed[:changed].first
       craft_name = new.first unless new.empty?
@@ -64,5 +64,34 @@ class Campaign < ActiveRecord::Base
     checksum = Digest::SHA256.file("persistent.sfs").hexdigest
     not checksum.eql?(self.persistence_checksum)
   end
+
+  #create Craft objects for each .craft found and mark existing Craft objects as deleted is the .craft no longer exists.
+  def verify_craft files = nil
+    files = self.instance.identify_craft_in(self.name) if files.nil?
+
+    existing_craft = Craft.where(:campaign_id => self.id)
+    present_craft = {:sph => [], :vab => []}
+
+    #create a new Craft object for each craft file found, unless a craft object for that craft already exists.
+    files.each do |type, craft_files| 
+      craft_files.each do |craft_name| 
+        name = craft_name.sub(".craft","")
+        if existing_craft.where(:name => name, :craft_type => type).empty?
+          craft = Craft.new(:name =>  name, :craft_type => type)
+          craft.campaign = self
+          craft.save!
+        end
+        present_craft[type] << name
+      end
+    end
+
+    #mark craft objects as deleted if the file no longer exists.
+    existing_craft.each do |craft|
+      next if present_craft[craft.craft_type.to_sym] && present_craft[craft.craft_type.to_sym].include?(craft.name)
+      craft.update_attributes(:deleted => true)
+    end
+  end
+
+
 
 end

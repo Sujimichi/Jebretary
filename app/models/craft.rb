@@ -4,17 +4,6 @@ class Craft < ActiveRecord::Base
 
   require 'active_support/builder'
 
-  #return the .craft files found in VAB and SPH
-  def self.identify_craft_in campaign
-    dir = File.join(campaign.instance.path, "saves", campaign.name, "Ships")
-    Dir.chdir(dir)
-    {
-      :vab => Dir.glob("VAB/*.craft").map{|craft| craft.gsub("VAB/", "")}, 
-      :sph => Dir.glob("SPH/*.craft").map{|craft| craft.gsub("SPH/", "")}
-    }
-  end
-
-
   #create Craft objects for each .craft found and mark existing Craft objects as deleted is the .craft no longer exists.
   def self.verify_craft_for campaign
     files = Craft.identify_craft_in campaign
@@ -111,7 +100,7 @@ class Craft < ActiveRecord::Base
   #takes a block to run and while the block is being run the persistence_checksum on the craft campaign is set to 'skip'
   #this means that the campaign will not be processed by the background monitor while the blocks actions are being carried out.
   def dont_process_campaign_while &blk
-    self.campaign.update_attributes(:persistence_checksum => "skip")
+    self.campaign.update_attributes(:persistence_checksum => "skip") #unless self.campaign.persistence_checksum.eql?("skip")
     yield
     self.campaign.update_persistence_checksum
   end
@@ -119,7 +108,7 @@ class Craft < ActiveRecord::Base
 
   #stage the changes and commits the craft. simply returns if there are no changes.
   def commit args = {}
-    dont_process_campaign_while do 
+    #dont_process_campaign_while do 
       return "unable to commit; #{problems.join(",")}" unless problems.empty?
       @repo_status = nil
       action = self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)
@@ -128,15 +117,17 @@ class Craft < ActiveRecord::Base
         message = args[:m] if args[:m]
         repo = self.crafts_campaign.repo
         repo.add("Ships/#{craft_type.upcase}/#{name}.craft")
-        self.part_count ||= 1
-        self.part_count += 1
-        self.save #temp till part count is implemented
         repo.commit(message)
       end
+      self.part_count ||= 1
+      self.part_count += 1 #temp till part count is implemented
+      self.history_count = self.history.size
+      self.history_count = 1 if self.history_count.eql?(0)
+      self.save 
       @repo_status = nil    
-      update_history_count
+
       return action
-    end
+    #end
   end
 
 

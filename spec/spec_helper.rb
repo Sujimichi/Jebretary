@@ -80,7 +80,7 @@ end
 
 def verify_craft_for_campaign
   @campaign.create_repo      
-  Craft.verify_craft_for @campaign
+  @campaign.verify_craft
 end
 
 def commit_craft_in_campaign

@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe System do
+
+  describe "creating campaigns" do 
   before(:each) do 
     create_sample_data "test_campaign_1", :reset => true
     create_sample_data "test_campaign_2", :reset => false
@@ -9,8 +11,8 @@ describe System do
     make_sample_data
     Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
     make_sample_data
-
   end
+
 
   it "should discover and create Campaign objects for each campaign" do 
     Campaign.all.should be_empty
@@ -19,9 +21,17 @@ describe System do
     Campaign.count.should == 2
     Campaign.all.map{|c| c.name}.should == ["test_campaign_1", "test_campaign_2"]
   end
+  end
 
   describe "with created campaigns" do 
     before(:each) do 
+      create_sample_data "test_campaign_1", :reset => true
+      create_sample_data "test_campaign_2", :reset => false
+      @instance = FactoryGirl.create(:instance)
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
+      make_sample_data
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
+      make_sample_data     
       @campaign_1 = FactoryGirl.create(:campaign, :name => "test_campaign_1", :instance_id => @instance.id)
       @campaign_2 = FactoryGirl.create(:campaign, :name => "test_campaign_1", :instance_id => @instance.id)
     end
@@ -47,32 +57,34 @@ describe System do
   
   describe "commiting the craft" do 
     before(:each) do 
+      create_sample_data "test_campaign_1", :reset => true
+      @instance = FactoryGirl.create(:instance)
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
+      make_sample_data
       @campaign_1 = FactoryGirl.create(:campaign, :name => "test_campaign_1", :instance_id => @instance.id)
-      @campaign_2 = FactoryGirl.create(:campaign, :name => "test_campaign_1", :instance_id => @instance.id)
     end
 
     it 'should comit the craft to the git repo' do 
-      uncommitted_craft = (@campaign_1.new_and_changed[:new] - ["persistent.sfs", "quicksave.sfs"])
+      uncommitted_craft = @campaign_1.new_and_changed[:new]
       uncommitted_craft.size.should == 3
       @campaign_1.craft.map{|c| c.history.empty?}.all?.should be_true
-      @campaign_1.update_persistence_checksum
+      @campaign_1.update_attributes(:persistence_checksum => nil)
   
       System.process
-      uncommitted_craft = (@campaign_1.new_and_changed[:new] - ["persistent.sfs", "quicksave.sfs"])
+      uncommitted_craft = @campaign_1.reload.new_and_changed[:new]
       uncommitted_craft.size.should == 0
-      @campaign_1.craft.map{|c| c.history.empty?}.all?.should be_true
+      @campaign_1.craft.map{|c| c.history.empty?}.all?.should be_false
     end
 
     it 'should not attempt to commit craft which are already commited (and unchanged)' do 
       craft = @campaign_1.craft.new(:name =>  "test", :craft_type => "VAB")
       craft.should_not_receive(:commit)
       craft.stub!(:is_new? => false, :is_changed? => false, :history_count => 1)
-      
-      @campaign_1.stub!(:craft => [craft])      
-      a = [@campaign_1]
-      a.stub!(:includes => [@campaign_1])
-      @instance.stub!(:campaigns => a)
-      Instance.stub!(:all => [@instance])
+
+      a = [craft]
+      a.stub!(:where => [craft])
+      Craft.should_receive(:where).at_least(1).times.and_return(a)
+
       System.process
     end
 
@@ -81,11 +93,10 @@ describe System do
       craft.should_receive(:commit).once
       craft.stub!(:is_new? => false, :is_changed? => true, :history_count => 1)
       
-      @campaign_1.stub!(:craft => [craft])
-      a = [@campaign_1]
-      a.stub!(:includes => [@campaign_1])
-      @instance.stub!(:campaigns => a)
-      Instance.stub!(:all => [@instance])
+      a = [craft]
+      a.stub!(:where => [craft])
+      Craft.should_receive(:where).at_least(1).times.and_return(a)
+
       System.process
     end
 
@@ -94,12 +105,11 @@ describe System do
       craft.should_not_receive(:commit)
       craft.stub!(:is_new? => false, :is_changed? => true, :history_count => 1)
       
-      @campaign_1.stub!(:craft => [craft])
       @campaign_1.stub!(:should_process? => false)
-      a = [@campaign_1]
-      a.stub!(:includes => [@campaign_1])
-      @instance.stub!(:campaigns => a)
-      Instance.stub!(:all => [@instance])
+      Campaign.should_receive(:where).at_least(1).times.and_return([@campaign_1])
+      a = [craft]
+      a.stub!(:where => [craft])
+      Craft.should_receive(:where).at_least(1).times.and_return(a)
       System.process
 
     end
