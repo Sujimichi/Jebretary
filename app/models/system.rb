@@ -44,9 +44,7 @@ class System
         campaign.verify_craft craft_in_campaigns[campaign.name]
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false
         System.update_db_flag(data)
-      #end
 
-      #campaigns.select{|c| c.should_process?}.each do |campaign|
         next unless campaign.should_process?
         craft = Craft.where(:campaign_id => campaign.id)
         craft.each do |craft_object|
@@ -58,7 +56,6 @@ class System
 
         end       
         campaign.update_persistence_checksum
-        #data[instance.id][:campaigns][campaign.name].delete(:added)
       end
     end
     System.remove_db_flag
@@ -70,20 +67,20 @@ class System
 
   def self.set_db_flag content
     Dir.chdir(File.join([Rails.root, ".."]))
-    File.open("db_access", 'w') {|f| f.write(content.to_json) }
+    File.open("#{Rails.env}_db_access", 'w') {|f| f.write(content.to_json) }
   end
 
   def self.remove_db_flag
     begin
       Dir.chdir(File.join([Rails.root, ".."]))
-      File.delete("db_access")
+      File.delete("#{Rails.env}_db_access")
     rescue
     end
   end
 
   def self.update_db_flag content 
     Dir.chdir(File.join([Rails.root, ".."]))
-    File.open("db_access", 'w') {|f| f.write(content.to_json) }
+    File.open("#{Rails.env}_db_access", 'w') {|f| f.write(content.to_json) }
   end
 
   def self.run_monitor

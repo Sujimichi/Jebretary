@@ -37,13 +37,16 @@
       .craft
         .name= link_to(craft.name, craft_path(craft))
         .clear
-        .git_info
-          -if new_and_changed[:new].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
-            = "new"
-          -else
-            - changed = new_and_changed[:changed].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
-            = changed ? "untracked changes" : "tracked"
+        - unless craft.deleted?
+          .git_info
+            -if new_and_changed[:new].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
+              = "new"
+            -else
+              - changed = new_and_changed[:changed].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
+              = changed ? "untracked changes" : "tracked"
 
-        .history
-          Number of versions:
-          = craft.history_count
+          .history
+            Number of versions:
+            = craft.history_count
+        -else
+          deleted
