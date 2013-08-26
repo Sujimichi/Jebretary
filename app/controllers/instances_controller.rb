@@ -1,5 +1,5 @@
 class InstancesController < ApplicationController
-  
+
   respond_to :html, :js
 
 
@@ -12,7 +12,7 @@ class InstancesController < ApplicationController
     #r:\\Games\\KSPv0.19.1
     #params[:full_path] = "r:\\Games\\KSPv0.19.1"
     #params[:full_path] = "/home/sujimichi/Share/KSPv0.19.1"
-    
+
     full_path = params[:full_path]
     if full_path.include?("/")
       full_path = full_path.split("/")
@@ -44,30 +44,50 @@ class InstancesController < ApplicationController
   end
 
   def show
-    respond_with(@instance) do |f|           
-      @instance = Instance.find(params[:id])
 
-      @campaigns = @instance.campaigns
-      @discovered_campaigns = @instance.discover_campaigns
+    respond_to do |f|           
 
-      t = @discovered_campaigns.map do |discovered_c|
-        camp = @campaigns.select{|c| c.name == discovered_c}
-        unless camp.empty?
-          camp = camp.first 
-          rem_craft = "foo"#Craft.where("history_count is null and campaign_id == #{camp.id}").count
-        end
-        camp = nil unless camp.is_a?(Campaign)
-        {discovered_c => {
-          :campaign => camp,
-          :remaining_craft => rem_craft
-          }
-        }
-      end.inject{|i,j| i.merge(j)}
+      f.html{
+        @instance = Instance.find(params[:id])
+      }
+      f.js  {
 
-      @discovered_campaigns = t
+        Dir.chdir(File.join([Rails.root, ".."]))
+        if File.exist?("db_access")
+          status = File.open("db_access", 'r') {|f| f.readlines }.join
 
-      f.html{}
-      f.js  {}
+          
+          unless status.blank?
+            data = JSON.parse(status) unless status.blank?
+            @preparing = data[params[:id]] if data[params[:id]]
+          else
+            @preparing = "waiting"
+          end
+
+
+
+        else
+          @instance = Instance.find(params[:id])
+          @discovered_campaigns = @instance.discover_campaigns
+          @campaigns = @instance.campaigns
+
+          t = @discovered_campaigns.map do |discovered_c|
+            camp = @campaigns.select{|c| c.name == discovered_c}
+            unless camp.empty?
+              camp = camp.first 
+              rem_craft = "foo"#Craft.where("history_count is null and campaign_id == #{camp.id}").count
+            end
+            camp = nil unless camp.is_a?(Campaign)
+            {discovered_c => {
+              :campaign => camp,
+              :remaining_craft => rem_craft
+            }
+            }
+          end.inject{|i,j| i.merge(j)}
+
+          @discovered_campaigns = t
+        end      
+      }
     end
 
   end

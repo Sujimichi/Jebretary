@@ -1,29 +1,87 @@
 class System 
 
   def self.process
-    Instance.all.each do |instance|
+
+    System.set_db_flag({:status => :locked})
+    data = {}
+
+    instances = Instance.all
+
+    instances.each{ |instance| data[instance.id] = {} }
+    System.update_db_flag(data)
+
+    craft_in_campaigns_for_instance = {}
+
+    instances.each do |instance|
       campaign_names = instance.prepare_campaigns
 
       craft_in_campaigns = campaign_names.map{|name|
         {name => instance.identify_craft_in(name)}
       }.inject{|i,j| i.merge(j)}
-      
-      Campaign.where(:instance_id => instance.id).each do |campaign|
+      craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns
+
+      campaigns = Campaign.where(:instance_id => instance.id)
+      existing_camps = campaigns.map{|c| {c.name => { :id => c.id}} }.inject{|i,j| i.merge(j)}
+
+      craft_in_campaigns.each do |name, craft|
+        existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size
+      end     
+      data[instance.id] = {:campaigns => existing_camps}
+      System.update_db_flag(data)
+  
+    end
+
+    instances.each do |instance|
+      campaigns = Campaign.where(:instance_id => instance.id)   
+      craft_in_campaigns = craft_in_campaigns_for_instance[instance.id]
+      campaigns.each do |campaign|
         campaign.git #ensure git repo is present
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
+        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true
+        System.update_db_flag(data)
         campaign.verify_craft craft_in_campaigns[campaign.name]
-        
-        if campaign.should_process?
-          craft = Craft.where(:campaign_id => campaign.id)
-          craft.each do |craft_object|
-            craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
-            next unless craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
-            craft_object.commit
-          end       
-        end
+        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false
+        System.update_db_flag(data)
+      end
+
+      campaigns.select{|c| c.should_process?}.each do |campaign|
+        craft = Craft.where(:campaign_id => campaign.id)
+        craft.each do |craft_object|
+          craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
+          next unless craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
+          craft_object.commit
+
+          data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
+
+          System.update_db_flag(data)
+
+        end       
         campaign.update_persistence_checksum
       end
     end
+    System.remove_db_flag
+  end
+
+
+
+
+
+  def self.set_db_flag content
+    Dir.chdir(File.join([Rails.root, ".."]))
+    File.open("db_access", 'w') {|f| f.write(content.to_json) }
+  end
+
+  def self.remove_db_flag
+    begin
+      Dir.chdir(File.join([Rails.root, ".."]))
+      File.delete("db_access")
+    rescue
+    end
+  end
+
+  def self.update_db_flag content 
+    Dir.chdir(File.join([Rails.root, ".."]))
+    File.open("db_access", 'w') {|f| f.write(content.to_json) }
   end
 
   def self.run_monitor
@@ -44,9 +102,11 @@ class System
   end
 
   def self.reset
-    Instance.destroy_all
+    System.set_db_flag({:status => :locked})
+    #Instance.destroy_all
     Campaign.destroy_all
     Craft.destroy_all
+    System.remove_db_flag
   end
 
 end

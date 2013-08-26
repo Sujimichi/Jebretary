@@ -1,13 +1,18 @@
 
+- preparing ||= nil
+= preparing.inspect
+.clear
+%br
 
-- discovered_campaigns.each do |campaign, data|
-  - if data[:campaign]
-    %h3= link_to campaign, campaign_path(data[:campaign])
+-if preparing
+  = preparing.inspect
+-else
+  -if campaigns.blank?
+    %p No Campaigns Discovered in this install yet
+    %p Please Wait while I discover them (or wait for you to create one)
   -else
-    %h3= campaign
-    Please wait while I prepare this campaign
-
-
+    - campaigns.each do |campaign|
+      %h3= link_to campaign.name, campaign_path(campaign)
 
 
 :javascript

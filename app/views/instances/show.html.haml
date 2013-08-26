@@ -5,4 +5,5 @@
 
 
 #campaigns_list
-  = render "campaigns/list", :instance => @instance, :campaigns => @campaigns, :discovered_campaigns => @discovered_campaigns
+  :javascript
+    $(function(){poll_for_updated_instance() });
