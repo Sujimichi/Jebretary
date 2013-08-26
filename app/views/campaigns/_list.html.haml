@@ -1,35 +1,35 @@
 
-- preparing ||= nil
+- background_process ||= nil
 
 
--if preparing && preparing.has_key?("campaigns")
+-if background_process && background_process.is_a?(Hash) && background_process.has_key?("campaigns")
 
-  - preparing["campaigns"].each do |name, data|
+  - background_process["campaigns"].each do |name, data|
     -if data["id"]
       %h3= link_to name, campaign_path(data["id"])
     -else
       %h3= name
-    -if data["total_craft"]
-      %p= "#{data['total_craft']} Craft #{data['creating_craft_objects'] ? 'creating craft objects, please wait' : ''}"
-    -if data["added"]
+    %p= "#{data['total_craft']} Craft"
+    -if data["creating_craft_objects"]
+      %p= "creating craft objects, please wait"
+    -if data["added"] && (data["added"] != data['total_craft'])
       %p= "Verifying craft are in repository #{data['added']}/#{data['total_craft']}"
-
 
 
 -else
   -if campaigns.blank?
     %p No Campaigns Discovered in this install yet
-    %p Please Wait while I discover them (or wait for you to create one)
+    %p Please Wait while I discover them
+    %p If this messages remains for more than a few seconds then either
+    %ul
+      %li You don't have any campaigns in this install
+      %li The background monitor is not running
   -else
     - campaigns.each do |campaign|
       %h3= link_to campaign.name, campaign_path(campaign)
       %p= "#{campaign.craft.count} Craft"
-      %p= "All craft are committed"
 
 
-= preparing.inspect
 .clear
 %br
-
-:javascript
-  $(function(){poll_for_updated_instance() });
+= background_process.inspect

@@ -44,51 +44,27 @@ class InstancesController < ApplicationController
   end
 
   def show
-
     respond_to do |f|           
-
       f.html{
         @instance = Instance.find(params[:id])
       }
       f.js  {
-
-        Dir.chdir(File.join([Rails.root, ".."]))
-        if File.exist?("db_access")
-          status = File.open("db_access", 'r') {|f| f.readlines }.join
-
-          
-          unless status.blank?
-            data = JSON.parse(status) unless status.blank?
-            @preparing = data[params[:id]] if data[params[:id]]
-          else
-            @preparing = "waiting"
-          end
-
-
-
-        else
+        ensure_no_db_lock do 
           @instance = Instance.find(params[:id])
-          @discovered_campaigns = @instance.discover_campaigns
           @campaigns = @instance.campaigns
-
-          t = @discovered_campaigns.map do |discovered_c|
-            camp = @campaigns.select{|c| c.name == discovered_c}
-            unless camp.empty?
-              camp = camp.first 
-              rem_craft = "foo"#Craft.where("history_count is null and campaign_id == #{camp.id}").count
-            end
-            camp = nil unless camp.is_a?(Campaign)
-            {discovered_c => {
-              :campaign => camp,
-              :remaining_craft => rem_craft
-            }
-            }
-          end.inject{|i,j| i.merge(j)}
-
-          @discovered_campaigns = t
         end      
       }
     end
-
   end
+
+  protected
+
+  def action_when_locked status
+    unless status.blank?
+      data = JSON.parse(status) unless status.blank?
+      @background_process = data[params[:id]] if data[params[:id]]
+    end
+    @background_process ||= "waiting"
+  end
+
 end

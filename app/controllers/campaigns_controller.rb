@@ -14,10 +14,15 @@ class CampaignsController < ApplicationController
   end
 
   def show
-    @campaign = Campaign.find(params[:id])
     respond_with(@campaign) do |f|
-      f.js{}
-      f.html{}
+      f.js{
+        ensure_no_db_lock do 
+          @campaign = Campaign.find(params[:id])
+        end
+      }
+      f.html{
+        @campaign = Campaign.find(params[:id])
+      }
     end
   end
 end

@@ -1,1 +1,7 @@
-$('#campaigns_list').html("#{j render :partial => 'campaigns/list', :locals => {:instance => @instance, :campaigns => @campaigns, :preparing => @preparing} }");
+
+
+if("#{@background_process}" != "waiting"){
+$('#campaigns_list').html("#{j render :partial => 'campaigns/list', :locals => {:instance => @instance, :campaigns => @campaigns, :background_process => @background_process} }");
+};
+
+$(function(){poll_for_updated_instance() });

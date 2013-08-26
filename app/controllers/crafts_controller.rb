@@ -17,11 +17,16 @@ class CraftsController < ApplicationController
   end
 
   def show
-    @craft = Craft.find(params[:id])
+    
     respond_with(@craft) do |f|
-      f.html{}
+      f.html{
+        @craft = Craft.find(params[:id])
+      }
       f.js{
-        @history = @craft.history
+        ensure_no_db_lock do         
+          @craft = Craft.find(params[:id])
+          @history = @craft.history
+        end
       }
     end
   end

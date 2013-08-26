@@ -34,6 +34,7 @@ class System
     instances.each do |instance|
       campaigns = Campaign.where(:instance_id => instance.id)   
       craft_in_campaigns = craft_in_campaigns_for_instance[instance.id]
+
       campaigns.each do |campaign|
         campaign.git #ensure git repo is present
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
@@ -43,9 +44,10 @@ class System
         campaign.verify_craft craft_in_campaigns[campaign.name]
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false
         System.update_db_flag(data)
-      end
+      #end
 
-      campaigns.select{|c| c.should_process?}.each do |campaign|
+      #campaigns.select{|c| c.should_process?}.each do |campaign|
+        next unless campaign.should_process?
         craft = Craft.where(:campaign_id => campaign.id)
         craft.each do |craft_object|
           craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
@@ -56,6 +58,7 @@ class System
 
         end       
         campaign.update_persistence_checksum
+        #data[instance.id][:campaigns][campaign.name].delete(:added)
       end
     end
     System.remove_db_flag

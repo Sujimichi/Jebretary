@@ -1,1 +1,3 @@
+if("#{@background_process}" != "waiting"){
 $('#campaigns_list').html("#{j render :partial => 'crafts/craft_list', :locals => {:campaign => @campaign} }");
+};
