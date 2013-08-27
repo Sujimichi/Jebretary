@@ -61,10 +61,6 @@ class System
     System.remove_db_flag
   end
 
-
-
-
-
   def self.set_db_flag content
     Dir.chdir(File.join([Rails.root, ".."]))
     File.open("#{Rails.env}_db_access", 'w') {|f| f.write(content.to_json) }
