@@ -128,13 +128,11 @@ class Campaign < ActiveRecord::Base
       end
     end
 
-    #mark craft objects as deleted if the file no longer exists.
+    #remove craft from the repo if the file no longer exists and mark the craft as deleted
     existing_craft.each do |craft|
       next if present_craft[craft.craft_type.to_sym] && present_craft[craft.craft_type.to_sym].include?(craft.name)
-      next if craft.deleted?
-      craft.remove_from_repo
+      craft.deleted = true #actions in .commit will save this attribute
       craft.commit
-      craft.update_attributes(:deleted => true)
     end
   end
 

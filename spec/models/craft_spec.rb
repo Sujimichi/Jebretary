@@ -120,37 +120,15 @@ describe Craft do
       @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.size.should == 1
 
       File.delete("Ships/VAB/my_rocket.craft")
-      @craft.remove_from_repo
+      #@craft.remove_from_repo
+
+      @craft.deleted = true
 
       action = @craft.commit
 
       action.should == :deleted
       @campaign.repo.log.first.message.should == "deleted #{@craft.name}"
     end
-
-  end
-
-  describe "remove_from_repo" do 
-    before(:each) do  
-      set_up_sample_data
-      @campaign.create_repo
-      @campaign.verify_craft
-      @campaign.reload
-      @campaign.craft.each{|c| c.commit}
-
-      @craft = @campaign.craft.first
-      #@craft = FactoryGirl.create(:craft, :campaign => @campaign, :name => "my_rocket", :craft_type => "vab")
-      @craft.commit
-      @repo = @campaign.repo
-    end
-
-    it 'should remove the craft from the repo' do 
-      @craft.remove_from_repo
-      @repo.status.deleted.keys.should be_include @craft.file_name
-
-    end
-
-
 
   end
 

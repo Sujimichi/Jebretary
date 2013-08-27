@@ -86,17 +86,20 @@ class Craft < ActiveRecord::Base
   def commit args = {}
     #dont_process_campaign_while do 
       return "unable to commit; #{problems.join(",")}" unless problems.empty?
-      @repo_status = nil
 
+      @repo_status = nil #ensure fresh instance of repo, not cached
       repo = self.crafts_campaign.repo
-      action = self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)     
-      action = :deleted if repo.status.deleted.keys.include?(self.file_name)
 
+      action = :deleted if self.deleted?
+      action ||= self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)     
+      
       unless action.eql?(:nothing_to_commit)
         message = "#{action} #{name}"
         message = args[:m] if args[:m]      
-        unless action.eql?(:deleted)
-          repo.add("Ships/#{craft_type.upcase}/#{name}.craft")
+        if action.eql?(:deleted)
+          repo.remove(self.file_name)
+        else
+          repo.add(self.file_name)
         end
         repo.commit(message)
       end
@@ -105,9 +108,9 @@ class Craft < ActiveRecord::Base
         self.part_count ||= 1
         self.part_count += 1 #temp till part count is implemented
         self.history_count = self.history.size
-        self.history_count = 1 if self.history_count.eql?(0)
-        self.save 
+        self.history_count = 1 if self.history_count.eql?(0)        
       end
+      self.save 
       @repo_status = nil    
 
       return action
@@ -128,12 +131,6 @@ class Craft < ActiveRecord::Base
       end
       update_history_count    
     end
-  end
-
-  def remove_from_repo
-    repo = self.crafts_campaign.repo
-    repo.remove(self.file_name)
-    #repo.commit("deleted #{self.file_name}")
   end
 
   #git branch temp refb
