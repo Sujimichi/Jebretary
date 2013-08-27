@@ -47,11 +47,13 @@ class InstancesController < ApplicationController
     respond_to do |f|           
       f.html{
         @instance = Instance.find(params[:id])
+        @flags = @instance.campaigns.select{|c| c.set_flag }.map{|c| c.id}.to_json
       }
       f.js  {
         ensure_no_db_lock do 
           @instance = Instance.find(params[:id])
           @campaigns = @instance.campaigns
+          @flags = @campaigns.select{|c| c.set_flag }.map{|c| c.id}.to_json
         end      
       }
     end
@@ -64,6 +66,8 @@ class InstancesController < ApplicationController
       data = JSON.parse(status) unless status.blank?
       @background_process = data[params[:id]] if data[params[:id]]
     end
+    @flags = Dir.entries(File.join([Rails.root,"public"])).select{|f| f.include?("flag_for_campaign")}.map{|f| f.sub("flag_for_campaign_","").sub(".png","").to_i}.to_json
+
     @background_process ||= "waiting"
   end
 

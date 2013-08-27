@@ -1,0 +1,318 @@
+@import variables.sass
+@import utils.sass
+@import grid960.sass
+
+
+html
+  :background-color $site_white
+  :margin 0
+  :padding 0
+  :width 100%
+  :background
+    :color $site_white
+    :image url(diagonals-small.png)
+    :repeat repeat-x repeat-y
+body
+  :padding 0
+  :margin 0
+  :font-family arial, "helvetica neue", helvetica, "lucida grande", sans-serif
+  //:font 1em Helvetica, Arial, sans-serif
+  :color #666
+  :min-width 960px
+  :position relative
+  :text-align justify
+
+
+
+.heading
+  :margin 0
+  :padding 0
+  :color $font-color_heading
+  :font
+    :weight bold
+
+.label
+  :color $font-color_label
+  :font-weight bold
+
+h1
+  @extend .heading
+  :font-size 200%
+h2
+  @extend .heading
+  :font-size 150%
+h3
+  @extend .heading
+  :font-size 120%
+h4
+  @extend .heading
+  :font-size 100%
+h5
+  @extend .heading
+  :font-size 90%
+h6
+  @extend .heading
+  :font-size 60%
+
+
+a
+  :outline none
+  :text-decoration none
+  :color $link_font_color_normal
+  &:hover
+    :color $link_font_color_hover
+  @extend .highlighted_link
+
+
+
+.plain_link
+  :padding 0
+  &:hover
+    :background-color transparent
+  :background-color transparent
+
+.highlighted_link
+  @extend .plain_link
+  &:hover
+    :background
+      :color $link_back_color_hover
+      :filter alpha(opacity=20)
+      :opacity 0.2
+  +rounded(8px)
+  :padding
+    :left 0.15em
+    :right 0.15em
+
+.dangerous_action_link
+  &:hover
+    :color $error_font_color
+
+.delete_link
+  @extend .dangerous_action_link
+
+.pale_links a
+  @extend .highlighted_link
+  :color $site_white
+  &:hover
+    :color $site_low_tone
+
+.plain_links a
+  @extend .plain_link
+
+.highlighted_links a
+  @extend .highlighted_link
+
+.underline_links a
+  :text-decoration underline
+
+
+
+#header
+  :position relative
+  :background-color $color_header
+  :overflow show
+  :height 2.4em
+  :max-height 2.4em
+  @extend .plain_links
+
+
+  .main_site_title
+    @extend .heading
+    :color $site_high_tone
+    :font-size 200%
+    :float left
+    :padding
+      :left 0.3em
+      :top 0.1em
+
+  .description
+    @extend .heading
+    :color $site_high_tone
+    :float left
+    :font-size 100%
+    :padding
+      :left 0.5em
+      :top 1em
+
+  .header_rhs
+    :position absolute
+    :top 0.2em
+    :right 0.5em
+    :z-index 2000
+    :color $site_white
+    @extend .pale_links
+    .username
+      :float right
+    .links
+      :padding-top 0.3em
+  +clearfix
+  @extend .default_shadow
+
+#content
+  :position relative
+  :background
+    :color $site_white
+    :image url(diagonals-small.png)
+    :repeat repeat-x repeat-y
+  +clearfix
+
+  .content_base
+    :padding-bottom 4em
+    :background
+      :color $site_white
+      :image url(diagonals-small.png)
+      :repeat repeat-x repeat-y
+
+#footer
+  @extend .grid960
+  :position relative
+  :min-height 5em
+  :overflow show
+  :text-align center
+
+.side_divide
+  :border-right 1px solid black
+  :padding-right 1em
+
+
+#flash
+  :position absolute
+  :z-index 100
+  :left 37.5%
+  :width 25%
+  :text-align center
+  #notice
+    :border 1px solid $color_header
+    :border-top none
+    :background-color $flash_notice_color
+    +rounded_bottom(0px 0px 32px 32px)
+
+
+  #alert
+    :border 1px solid $color_header
+    :border-top none
+    :background-color $flash_error_color
+    +rounded_bottom(0px 0px 32px 32px)
+
+
+
+#welcome, #instance_page
+  @extend .grid960
+  :padding
+    :top 1em
+    :bottom 2em
+  :background-color $site_high_tone
+  :min-height 15em
+  +cast_shadow(0px 2px 30px 5px grey)
+
+
+
+.main_content
+  :background-color $site_white
+  :min-height 8em
+  :margin-top 1em
+  :padding
+    :top 1em
+    :bottom 2em
+  +clearfix
+
+  .css_table
+    :border-bottom 1px solid red
+
+.list_object
+  :border-bottom 1px solid transparent
+  @extend .plain_link
+  &:hover
+    :border-bottom 1px solid $site_low_tone
+  +clearfix
+
+
+#welcome
+  #new_instance
+    input[type="text"]
+      :width 99%
+    input[type="submit"]
+      :width 50%
+      :float right
+
+.no_campaigns_message
+  :font
+    :size 120%
+    :weight bold
+  li
+    :margin-top 0.5em
+
+.campaigns_list
+  .grid_5
+    :margin-top 1em
+  img
+  p
+
+
+.flag_link
+  @extend .plain_link
+
+.craft
+  +clearfix
+  .name
+    :font-weight bold
+    :float left
+  .git_info
+    :padding-left 1em
+    :float left
+  .history
+    :padding-left 1em
+    :float left
+
+.craft_history
+  .version
+    :width 3em
+    :float left
+    :font-weight bold
+  .date
+    :width 8em
+    :float left
+  .restore_link
+    :float left
+  .message
+    :margin-left 3em
+
+
+
+
+
+#nav-box
+  :position absolute
+  :padding 0.5em
+  :right 0em
+  :top 0em
+  :background-color $site_low_tone
+  +rounded($vals: 0px 0px 0px 16px)
+
+.actions
+  :float right
+
+#error_xxx
+  :position relative
+  :padding-top 1em
+  .large_code_background
+    :position absolute
+    :z-index 0
+    :font-size 2000%
+    :top -0.1em
+    :right 0em
+    :color lighten($site_low_tone, 20%)
+
+  .absolute_content
+    :position relative
+    :z-index 100
+    :top 0
+    :left 0
+    :min-height 18em
+    +clearfix
+
+  .backtrace
+    :font-size 80%
+
+
+//the thing at the bottom

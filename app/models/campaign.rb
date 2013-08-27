@@ -13,6 +13,28 @@ class Campaign < ActiveRecord::Base
     File.join(self.instance.path, "saves", self.name)
   end
 
+  def path_to_flag
+    p_file = File.open(File.join([self.path, "persistent.sfs"]),'r'){|f| f.readlines}
+    flag_line = p_file.select{|line| line.match /\sflag/}.first
+    unless flag_line.blank?
+      path = File.join([self.instance.path,"GameData", flag_line.split(' = ').last.chomp]) << '.png'
+      return path
+    end
+    return nil
+  end
+
+  def set_flag
+    path = path_to_flag
+    return nil unless path
+    begin
+      img = File.open(path, 'r'){|f| f.readlines}.join
+      File.open(File.join([Rails.root, 'public', "flag_for_campaign_#{self.id}.png"]), 'w'){|f| f.write(img)}
+      "/flag_for_campaign_#{self.id}.png"
+    rescue
+      nil
+    end
+  end
+
   def git
     return create_repo unless Dir.entries(self.path).include?('.git') #create the repo if it is not present.
     Git.open(self.path)

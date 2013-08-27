@@ -196,6 +196,24 @@ describe Campaign do
       @campaign.craft.where(:craft_type => 'vab', :name => "my_other_rocket").first.deleted.should be_true
     end
   end
+
+
+  describe "flag_path" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+    end
+
+    it 'should return the flag file set in the persistent file' do 
+      File.open("persistent.sfs",'w'){|f| f.write persistent_file_without_craft}
+      @campaign.path_to_flag.should == "#{@instance.path}/GameData/Katateochi/Flags/my_flag.png"
+    end
+
+    it 'should return nil if no flag is defined in persistent file' do 
+      @campaign.path_to_flag.should be_nil
+    end
+
+
+  end
    
 
 end

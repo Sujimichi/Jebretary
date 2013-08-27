@@ -1,10 +1,12 @@
-%h2 Instance
-%h3= File.join(JSON.parse(@instance.full_path)).inspect
-= hidden_field_tag :instance_id, @instance.id
-=link_to "return home", root_path
+#instance_page
+  %h2= File.join(JSON.parse(@instance.full_path))
+  = hidden_field_tag :instance_id, @instance.id
+  #nav-box
+    =link_to "return home", root_path
 
+  = hidden_field_tag(:available_flags, @flags)
 
-#campaigns_list
-  Please Wait....
-  :javascript
-    $(function(){poll_for_updated_instance() });
+  #campaigns_list
+    Please Wait....
+    :javascript
+      $(function(){poll_for_updated_instance() });

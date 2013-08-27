@@ -1,5 +1,4 @@
 $(function(){
-  $("#new_instance").show('slow');
   clearTimeout(index_search_timer);
 });
 

@@ -1,34 +1,51 @@
 
 - background_process ||= nil
 
-
 -if background_process && background_process.is_a?(Hash) && background_process.has_key?("campaigns")
 
   - background_process["campaigns"].each do |name, data|
-    -if data["id"]
-      %h3= link_to name, campaign_path(data["id"])
-    -else
-      %h3= name
-    %p= "#{data['total_craft']} Craft"
-    -if data["creating_craft_objects"]
-      %p= "creating craft objects, please wait"
-    -if data["added"] && (data["added"] != data['total_craft'])
-      %p= "Verifying craft are in repository #{data['added']}/#{data['total_craft']}"
+    .campaigns_list
+      .grid_5.push_1
+        -if data["id"]
+          %h3= link_to name, campaign_path(data["id"])
+        -else
+          %h3= name
+        .flag_for{:id => "flag_for_campaign_#{data['id']}"}
+        = "#{data['total_craft']} Craft"
+        -if data["creating_craft_objects"]
+          %p= "creating craft objects, please wait"
+        -if data["added"] && (data["added"] != data['total_craft'])
+          %p= "Verifying craft are in repository #{data['added']}/#{data['total_craft']}"
 
 
 -else
   -if campaigns.blank?
-    %p No Campaigns Discovered in this install yet
-    %p Please Wait while I discover them
-    %p If this messages remains for more than a few seconds then either
-    %ul
-      %li You don't have any campaigns in this install
-      %li The background monitor is not running
+
+    .no_campaigns_message.grid_8.push_2
+      %p
+        No Campaigns Discovered in this install yet
+        %br
+        Please Wait while I discover them......
+
+      %p If this messages remains for more than a few seconds then either
+      %ul
+        %li
+          You don't have any campaigns in this install
+          .small (So go ahead and create on in the game)
+
+        %li
+          The background monitor is not running
+          .small (make sure you have started jeb_watch.exe
+          .small located in the same folder as this app)
+    .clear
   -else
     - campaigns.each do |campaign|
-      %h3= link_to campaign.name, campaign_path(campaign)
-      %p= "#{campaign.craft.count} Craft"
-
+      .campaigns_list
+        .grid_5.push_1
+          %h3= link_to campaign.name, campaign_path(campaign)
+          %a{:href => campaign_path(campaign), :class => 'flag_link'}
+            .flag_for{:id => "flag_for_campaign_#{campaign.id}"}
+          = "#{campaign.craft.count} Craft"
 
 .clear
 %br

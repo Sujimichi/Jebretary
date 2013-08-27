@@ -1,7 +1,13 @@
-
-
 if("#{@background_process}" != "waiting"){
 $('#campaigns_list').html("#{j render :partial => 'campaigns/list', :locals => {:instance => @instance, :campaigns => @campaigns, :background_process => @background_process} }");
+
+
+
+var flags = JSON.parse("#{@flags}")
+
+$.each(flags, function(index, value){
+$('#flag_for_campaign_' + value).html("<img src='/flag_for_campaign_" + value + ".png'>")
+})
 };
 
 $(function(){poll_for_updated_instance() });

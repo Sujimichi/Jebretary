@@ -1,15 +1,22 @@
-%h1 Jebretary v0.0.1 (it's alpha init)
+#welcome
+  %h1 Jebretary v0.0.1 (it's alpha init)
 
-- unless @instances.empty?
-  - @instances.each do |instance|
-    = link_to(instance.path, instance_path(instance))
+  - unless @instances.empty?
+    .instance_list
+      - @instances.each do |instance|
+        = link_to(instance.path, instance_path(instance))
 
-- if @instances.empty?
-  %h3 Setup your first KSP instance
-  (ie: tell me where KSP is installed)
--else
-  %h3 Setup another KSP instance
-  (ie: tell me where a different version/copy of KSP is installed)
-
-#new_instance.hidden
-  = render('instances/form', :instance => Instance.new)
+  - if @instances.empty?
+    .vblk_2
+    .grid_6.push_3
+      %h3 Setup your first KSP instance
+      (ie: tell me where KSP is installed)
+      #new_instance
+        = render('instances/form', :instance => Instance.new)
+  -else
+    .vblk_4
+    .grid_6
+      %h3 Setup another KSP instance
+      (ie: tell me where a different version/copy of KSP is installed)
+      #new_instance
+        = render('instances/form', :instance => Instance.new)
