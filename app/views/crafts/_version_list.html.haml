@@ -1,14 +1,15 @@
+
 -if @craft
+  - version = @craft.history_count
   = "#{@craft.name} has #{history.size} versions"
   -if @craft.is_changed?
     .untracked Untracked changes
 
-  - version = history.size + 1
   .craft_history
     - history.each do |commit|
       .craft_info
         .craft_details
-          .version= "V#{version -= 1}"
+          .version= "V#{1 + (version -= 1)}"
           .value
             .hidden.sha_id= commit.sha
           .date= commit.date.to_formatted_s(:short)

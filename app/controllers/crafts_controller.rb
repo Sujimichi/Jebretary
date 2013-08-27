@@ -34,7 +34,11 @@ class CraftsController < ApplicationController
   def edit
     @craft = Craft.find(params[:id])
     @sha_id = params[:sha_id]
-    @commit = @craft.history.select{|commit| commit.sha == @sha_id}.first
+    history = @craft.history
+    @commit = history.select{|commit| commit.sha == @sha_id}.first
+    @revert_to_version = history.reverse.index(@commit) + 1
+
+
     respond_with(@craft) do |f|
       f.html{}
       f.js {

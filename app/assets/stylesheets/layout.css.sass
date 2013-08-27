@@ -226,7 +226,7 @@ a
 
 
 
-#welcome, #instance_page, #campaigns_page, #craft_page
+#welcome, #instance_page, #campaigns_page, #craft_page, #craft_edit
   @extend .grid960
   :padding
     :top 1em
@@ -339,6 +339,25 @@ a
 
 .flag_link
   @extend .plain_link
+
+
+.restore_details
+  :margin-top 1.5em
+  :font-size 110%
+  .info
+    :font-size 90%
+.restore_form
+  :margin-top 2em
+  :margin-left  auto
+  :margin-right auto
+  :width 18em
+  form
+    :width 9em
+    :float left
+  input[type="submit"]
+    :float left
+    :width 7em
+    :font-size 120%
 
 #craft_page
   .untracked

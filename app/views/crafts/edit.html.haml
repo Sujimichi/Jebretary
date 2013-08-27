@@ -1,10 +1,25 @@
-%h2= "Edit #{@craft.name}"
+#craft_edit
+  .grid_8.push_2
 
-- if @sha_id
-  %h4= "Commit ID: #{@sha_id}"
-  %h4= "Created on: #{@commit.date.to_formatted_s(:short)}"
+    - if @sha_id
+      %h2= "Revert #{@craft.name} to Version #{@revert_to_version}?"
+      .restore_details
+        %h4
+          .css_table
+            .label Commit ID
+            .value= "#{@sha_id}"
+          .css_table
+            .label Created on
+            .value= "#{@commit.date.to_formatted_s(:short)}"
+        .vblk_1
+        .info= "Restoring to a previous version will create a new version (#{@craft.history_count + 1})."
+        .info= "The current version will be kept (as version #{@craft.history_count}), so you can always come back to it later if you choose."
 
-  %h3 Please confirm that you want to restore this version
-  = form_for(@craft) do |f|
-    = hidden_field_tag :sha_id, @sha_id
-    = f.submit "Confirm"
+
+      %h3 Please confirm that you want to restore this version
+      .restore_form
+        = form_tag(:back, :method => :get) do
+          = submit_tag "Cancel"
+        = form_for(@craft) do |f|
+          = hidden_field_tag :sha_id, @sha_id
+          = f.submit "Confirm"
