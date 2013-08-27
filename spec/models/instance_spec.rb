@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Instance do
-  before(:all) do 
+  before(:each) do 
     set_test_dir
   end
   

@@ -38,10 +38,11 @@ RSpec.configure do |config|
 end
 
 def set_test_dir
+  Dir.chdir Rails.root      
   FileUtils.rm_rf "temp_test_dir"
   Dir.mkdir "temp_test_dir"
-  Dir.chdir "temp_test_dir"
-  Dir.chdir Rails.root      
+  #Dir.chdir "temp_test_dir"
+  
 end
 
 def set_basic_mock_KSP_dir
