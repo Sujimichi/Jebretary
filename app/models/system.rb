@@ -33,7 +33,9 @@ class System
       craft_in_campaigns = craft_in_campaigns_for_instance[instance.id]
 
       campaigns.each do |campaign|
+        campaign.cache_instance(instance)
         campaign.git #ensure git repo is present
+        campaign.set_flag if campaign.should_process?
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
 
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true

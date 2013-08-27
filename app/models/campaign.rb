@@ -9,8 +9,20 @@ class Campaign < ActiveRecord::Base
   validates :name, :instance_id, :presence => true
 
 
+  def cache_instance instance
+    return unless instance.id.eql?(self.instance_id)
+    campaigns_instance = instance
+  end
+  def campaigns_instance= instance
+    @instance = instance
+  end
+  def campaigns_instance
+    return @instance if defined?(@instance) && !@instance.nil?
+    campaigns_instance = self.instance
+  end
+  
   def path
-    File.join(self.instance.path, "saves", self.name)
+    File.join(campaigns_instance.path, "saves", self.name)
   end
 
   def path_to_flag
@@ -80,12 +92,14 @@ class Campaign < ActiveRecord::Base
     self.update_attributes(:persistence_checksum => checksum)
   end
 
+
+
   def should_process?
     #return false if it has been set to skip processing
     return false if self.persistence_checksum.eql?("skip")
 
     #return true if there are different number of craft files than records of craft that are not marked as deleted
-    craft_files = self.instance.identify_craft_in(self.name)
+    craft_files = campaigns_instance.identify_craft_in(self.name)
     return true if craft_files.map{|k,v| v}.flatten.size != self.craft.where(:deleted => false).count
 
     #return true if the stored checksum for persistent.sfs does not match the one generated for the current persistent.sfs
