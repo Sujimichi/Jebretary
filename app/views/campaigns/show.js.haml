@@ -4,4 +4,13 @@ $('#campaigns_list').html("#{j render :partial => 'crafts/craft_list', :locals =
 var current_project = $('#content_for_current_project').html()
 $('#current_project').html(current_project)
 
+var show_del = $('#show_deleted').val()
+if(show_del == "false"){
+$(".deleted_craft").each(function(){$(this).hide()});
+$('.toggle_deleted_craft_link').html("show deleted craft")
+}else{
+$(".deleted_craft").each(function(){$(this).show()});
+$('.toggle_deleted_craft_link').html("hide deleted craft")
+};
+
 };

@@ -95,3 +95,16 @@ function restart_appropriate_poller(){
   };
 
 };
+
+function toggle_deleted_craft(){
+  var show_del = $('#show_deleted').val()
+  if(show_del == "false"){
+    $(".deleted_craft").show('fast');
+    $('#show_deleted').val('true')
+    $('.toggle_deleted_craft_link').html("hide deleted craft")
+  }else{
+    $(".deleted_craft").hide('fast');
+    $('#show_deleted').val('false')
+    $('.toggle_deleted_craft_link').html("show deleted craft")
+  };
+};
