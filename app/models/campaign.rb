@@ -40,13 +40,13 @@ class Campaign < ActiveRecord::Base
   end
 
   def last_changed_craft
-    last_updated = self.craft.order("updated_at").last
+    last_updated = self.craft.where(:deleted => false).order("updated_at").last
     new = new_and_changed[:new]
     unless new_and_changed[:changed].empty? 
       craft_name = new_and_changed[:changed].first
       craft_name = new.first unless new.empty?
 
-      matched_craft = self.craft.where(:name => craft_name.split("/").last.sub(".craft",""))
+      matched_craft = self.craft.where(:name => craft_name.split("/").last.sub(".craft",""), :deleted => false)
       last_updated = matched_craft.first unless matched_craft.empty?
     end
     last_updated
@@ -59,7 +59,14 @@ class Campaign < ActiveRecord::Base
   end
 
   def should_process?
+    #return false if it has been set to skip processing
     return false if self.persistence_checksum.eql?("skip")
+
+    #return true if there are different number of craft files than records of craft that are not marked as deleted
+    craft_files = self.instance.identify_craft_in(self.name)
+    return true if craft_files.map{|k,v| v}.flatten.size != self.craft.where(:deleted => false).count
+
+    #return true if the stored checksum for persistent.sfs does not match the one generated for the current persistent.sfs
     Dir.chdir(self.path)
     checksum = Digest::SHA256.file("persistent.sfs").hexdigest
     not checksum.eql?(self.persistence_checksum)
@@ -88,6 +95,9 @@ class Campaign < ActiveRecord::Base
     #mark craft objects as deleted if the file no longer exists.
     existing_craft.each do |craft|
       next if present_craft[craft.craft_type.to_sym] && present_craft[craft.craft_type.to_sym].include?(craft.name)
+      #next if craft.deleted?
+      #craft.remove_from_repo
+      #craft.commit
       craft.update_attributes(:deleted => true)
     end
   end

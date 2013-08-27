@@ -36,6 +36,7 @@ class Craft < ActiveRecord::Base
 
   #return true if the craft is not yet in the repo
   def is_new?
+    return false if deleted?
     repo_status.untracked.keys.include?("Ships/#{craft_type.upcase}/#{name}.craft")
     #self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].untracked == true
   end
@@ -44,6 +45,7 @@ class Craft < ActiveRecord::Base
   #return true if the craft is in the repo and has changes.  If not in repo it returns nil.
   def is_changed? 
     return nil if is_new? 
+    return false if deleted?
     repo_status.changed.keys.include?("Ships/#{craft_type.upcase}/#{name}.craft")
     #self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].type == "M"
   end
@@ -56,7 +58,7 @@ class Craft < ActiveRecord::Base
 
   #return the commits for the craft (most recent first)
   def history
-    return [] if is_new?
+    return [] if is_new? || deleted?
     max_history_size = 100000
     logs = crafts_campaign.repo.log(max_history_size).object(file_name)
     logs.to_a
@@ -85,19 +87,27 @@ class Craft < ActiveRecord::Base
     #dont_process_campaign_while do 
       return "unable to commit; #{problems.join(",")}" unless problems.empty?
       @repo_status = nil
-      action = self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)
+
+      repo = self.crafts_campaign.repo
+      action = self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)     
+      action = :deleted if repo.status.deleted.keys.include?(self.file_name)
+
       unless action.eql?(:nothing_to_commit)
         message = "#{action} #{name}"
-        message = args[:m] if args[:m]
-        repo = self.crafts_campaign.repo
-        repo.add("Ships/#{craft_type.upcase}/#{name}.craft")
+        message = args[:m] if args[:m]      
+        unless action.eql?(:deleted)
+          repo.add("Ships/#{craft_type.upcase}/#{name}.craft")
+        end
         repo.commit(message)
       end
-      self.part_count ||= 1
-      self.part_count += 1 #temp till part count is implemented
-      self.history_count = self.history.size
-      self.history_count = 1 if self.history_count.eql?(0)
-      self.save 
+
+      unless action.eql?(:deleted)    
+        self.part_count ||= 1
+        self.part_count += 1 #temp till part count is implemented
+        self.history_count = self.history.size
+        self.history_count = 1 if self.history_count.eql?(0)
+        self.save 
+      end
       @repo_status = nil    
 
       return action
@@ -120,6 +130,11 @@ class Craft < ActiveRecord::Base
     end
   end
 
+  def remove_from_repo
+    repo = self.crafts_campaign.repo
+    repo.remove(self.file_name)
+    #repo.commit("deleted #{self.file_name}")
+  end
 
   #git branch temp refb
   #git filter-branch -f --msg-filter "sed 's/test/testy/'" refa..temp

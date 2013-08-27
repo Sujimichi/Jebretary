@@ -19,6 +19,11 @@ describe Craft do
       r.commit("added craft")
       @craft.is_new?.should be_false
     end
+
+    it 'should return false if the craft is marked as deleted' do 
+      @craft.update_attributes(:deleted => true)
+      @craft.is_new?.should be_false
+    end
   end
 
   describe "is_changed?" do 
@@ -36,7 +41,7 @@ describe Craft do
     it 'should return true if the craft is in the repo and has changed' do 
       @repo.add("Ships/VAB/my_rocket.craft")
       @repo.commit("added craft")      
-      
+     
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write("something different")}
       @craft.is_changed?.should be_true
     end
@@ -44,6 +49,15 @@ describe Craft do
     it 'should return false if the craft is in the repo and is not changed' do 
       @repo.add("Ships/VAB/my_rocket.craft")
       @repo.commit("added craft")      
+
+      @craft.is_changed?.should be_false
+    end
+
+    it 'should return false if the craft is marked as deleted' do 
+      @repo.add("Ships/VAB/my_rocket.craft")
+      @repo.commit("added craft")          
+      File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write("something different")}
+      @craft.update_attributes(:deleted => true)
 
       @craft.is_changed?.should be_false
     end
@@ -100,6 +114,46 @@ describe Craft do
       message.should == "custom message"
     end
 
+    it 'should commit a deleted craft' do 
+      repo = @campaign.repo
+      @craft.commit
+
+      @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.size.should == 1
+
+      @craft.remove_from_repo
+
+      action = @craft.commit
+
+      action.should == :deleted
+      message = @campaign.repo.log.first.message
+      message.should == "deleted #{@craft.name}"
+
+    end
+
+  end
+
+  describe "remove_from_repo" do 
+    before(:each) do  
+      set_up_sample_data
+      @campaign.create_repo
+      @campaign.verify_craft
+      @campaign.reload
+      @campaign.craft.each{|c| c.commit}
+
+      @craft = @campaign.craft.first
+      #@craft = FactoryGirl.create(:craft, :campaign => @campaign, :name => "my_rocket", :craft_type => "vab")
+      @craft.commit
+      @repo = @campaign.repo
+    end
+
+    it 'should remove the craft from the repo' do 
+      @craft.remove_from_repo
+      @repo.status.deleted.keys.should be_include @craft.file_name
+
+    end
+
+
+
   end
 
   describe "history" do    
@@ -129,6 +183,13 @@ describe Craft do
       [:archive, :author, :author_date, :blob?, :commit?, :committer, :committer_date, :contents, :contents_array, :date, :diff, :diff_parent, :grep, :gtree, :log, :message, :mode, :mode=, :objectish, :objectish=, :set_commit, :sha, :size, :size=, :tag?, :tree?, :type, :type=]
 =end
 
+    end
+
+    it 'should return an empty array if the craft is marked as deleted' do 
+      @craft.commit
+      File.delete("Ships/VAB/my_rocket.craft")
+      @craft.update_attributes(:deleted => true)
+      @craft.history.should == []
     end
   end
 

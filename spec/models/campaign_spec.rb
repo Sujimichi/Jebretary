@@ -86,6 +86,15 @@ describe Campaign do
       @campaign.last_changed_craft.name.should == "my_rocket"
     end
 
+    it 'should not return a deleted craft' do 
+      @campaign.craft.each{|c| c.commit}
+      craft = Craft.where(:name => "my_rocket").first.update_attributes(:deleted => true)
+      @campaign.reload
+      @campaign.last_changed_craft.name.should_not == "my_rocket"
+      @campaign.last_changed_craft.name.should == "my_rocket_car"
+
+    end
+
   end
 
   describe "update_persistence_checksum" do 
@@ -106,6 +115,7 @@ describe Campaign do
   describe "should_process?" do 
     before(:each) do 
       @campaign = set_up_sample_data
+      @campaign.verify_craft
     end
 
     it 'should return true on a newly created campaign' do 
@@ -134,6 +144,15 @@ describe Campaign do
     it "should return false if the persistence_checksum is set to 'skip'" do 
       @campaign.update_attributes(:persistence_checksum => "skip")
       @campaign.should_process?.should be_false
+    end
+
+    it 'should return true if one of its craft have been deleted' do 
+      
+      @campaign.update_persistence_checksum
+      @campaign.should_process?.should be_false
+      
+      File.delete("Ships/VAB/my_rocket.craft")
+      @campaign.should_process?.should be_true
     end
 
   end
