@@ -6,11 +6,9 @@ class System
     data = {}
 
     instances = Instance.all
-
     instances.each{ |instance| data[instance.id] = {} }
-    #System.update_db_flag(data)
-
     craft_in_campaigns_for_instance = {}
+
 
     instances.each do |instance|
       campaign_names = instance.prepare_campaigns
@@ -23,9 +21,8 @@ class System
       campaigns = Campaign.where(:instance_id => instance.id)
       existing_camps = campaigns.map{|c| {c.name => { :id => c.id}} }.inject{|i,j| i.merge(j)}
 
-      craft_in_campaigns.each do |name, craft|
-        existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size
-      end     
+      craft_in_campaigns.each{ |name, craft| existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size }
+
       data[instance.id] = {:campaigns => existing_camps}
       System.update_db_flag(data)
   
@@ -62,21 +59,27 @@ class System
   end
 
   def self.set_db_flag content
+    cur_dir = Dir.getwd
     Dir.chdir(File.join([Rails.root, ".."]))
     File.open("#{Rails.env}_db_access", 'w') {|f| f.write(content.to_json) }
+    Dir.chdir(cur_dir)
   end
 
   def self.remove_db_flag
     begin
+      cur_dir = Dir.getwd
       Dir.chdir(File.join([Rails.root, ".."]))
       File.delete("#{Rails.env}_db_access")
+      Dir.chdir(cur_dir)
     rescue
     end
   end
 
   def self.update_db_flag content 
+    cur_dir = Dir.getwd
     Dir.chdir(File.join([Rails.root, ".."]))
     File.open("#{Rails.env}_db_access", 'w') {|f| f.write(content.to_json) }
+    Dir.chdir(cur_dir)
   end
 
   def self.run_monitor

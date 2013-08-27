@@ -76,7 +76,7 @@ class Campaign < ActiveRecord::Base
   def verify_craft files = nil
     files = self.instance.identify_craft_in(self.name) if files.nil?
 
-    existing_craft = Craft.where(:campaign_id => self.id)
+    existing_craft = Craft.where(:campaign_id => self.id, :deleted => false)
     present_craft = {:sph => [], :vab => []}
 
     #create a new Craft object for each craft file found, unless a craft object for that craft already exists.
@@ -95,9 +95,9 @@ class Campaign < ActiveRecord::Base
     #mark craft objects as deleted if the file no longer exists.
     existing_craft.each do |craft|
       next if present_craft[craft.craft_type.to_sym] && present_craft[craft.craft_type.to_sym].include?(craft.name)
-      #next if craft.deleted?
-      #craft.remove_from_repo
-      #craft.commit
+      next if craft.deleted?
+      craft.remove_from_repo
+      craft.commit
       craft.update_attributes(:deleted => true)
     end
   end

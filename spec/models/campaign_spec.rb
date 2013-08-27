@@ -186,8 +186,11 @@ describe Campaign do
 
     it 'should mark existing craft objects as deleted if the .craft file is no longer present' do 
       @campaign.verify_craft
+      @campaign.craft.each{|c| c.commit}
+
       @campaign.craft.map{|craft| craft.deleted?}.all?.should be_false
-      File.delete("VAB/my_other_rocket.craft")
+
+      File.delete("Ships/VAB/my_other_rocket.craft")
       @campaign.verify_craft
       @campaign.craft.map{|craft| craft.deleted? }.all?.should be_false
       @campaign.craft.where(:craft_type => 'vab', :name => "my_other_rocket").first.deleted.should be_true

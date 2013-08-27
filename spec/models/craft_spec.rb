@@ -117,17 +117,15 @@ describe Craft do
     it 'should commit a deleted craft' do 
       repo = @campaign.repo
       @craft.commit
-
       @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.size.should == 1
 
+      File.delete("Ships/VAB/my_rocket.craft")
       @craft.remove_from_repo
 
       action = @craft.commit
 
       action.should == :deleted
-      message = @campaign.repo.log.first.message
-      message.should == "deleted #{@craft.name}"
-
+      @campaign.repo.log.first.message.should == "deleted #{@craft.name}"
     end
 
   end
