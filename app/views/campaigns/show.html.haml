@@ -1,15 +1,25 @@
-%h2= @campaign.name
-%h3= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
-= hidden_field_tag :campaign_id, @campaign.id
-=link_to "return to Instance", instance_path(@campaign.instance)
+#campaigns_page
+  .grid_8.alpha
+    %h2= @campaign.name
+    .small= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
+    =link_to "return to Instance", instance_path(@campaign.instance)
 
-#campaigns_list
-  Please wait...
-  loading craft data
+    .grid_6.push_1.alpha
+      #current_project
+
+  .grid_4.omega
+    .campaign_image
+      =image_tag("/flag_for_campaign_#{@campaign.id}.png")
+
+  = hidden_field_tag :campaign_id, @campaign.id
+
+  #campaigns_list
+    Please wait...
+    loading craft data
 
 
-:javascript
+  :javascript
 
-  $(function(){
-    poll_for_updated_list();
-  });
+    $(function(){
+      poll_for_updated_list();
+    });

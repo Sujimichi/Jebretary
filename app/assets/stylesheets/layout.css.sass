@@ -196,7 +196,7 @@ a
 
 
 
-#welcome, #instance_page
+#welcome, #instance_page, #campaigns_page, #craft_page
   @extend .grid960
   :padding
     :top 1em
@@ -234,6 +234,16 @@ a
     input[type="submit"]
       :width 50%
       :float right
+  .instance_list
+    @extend .grid_10, .push_1
+    :margin-top 2em
+    :font-size 120%
+  .instance
+    :margin-top 0.5em
+    a
+      +clearfix
+      :width 100%
+
 
 .no_campaigns_message
   :font
@@ -248,12 +258,31 @@ a
   img
   p
 
+#campaigns_page
+  .campaign_image
+    :float right
+
+  #current_project
+    :margin-top 1em
+
 
 .flag_link
   @extend .plain_link
 
+#craft_page
+  .untracked
+    :color red
+  .craft_info
+    :border-bottom 1px solid grey
+    :padding
+      :top 0.2em
+      :bottom 0.2em
+  .craft_details
+    :margin-top 0.5em
+    +clearfix
+
 .craft
-  +clearfix
+  :margin-top 0.5em
   .name
     :font-weight bold
     :float left
@@ -263,6 +292,7 @@ a
   .history
     :padding-left 1em
     :float left
+  +clearfix
 
 .craft_history
   .version
@@ -273,7 +303,7 @@ a
     :width 8em
     :float left
   .restore_link
-    :float left
+    :float right
   .message
     :margin-left 3em
 

@@ -1,23 +1,24 @@
 -if @craft
-  %p= "#{@craft.name} has #{history.size} versions"
+  = "#{@craft.name} has #{history.size} versions"
   -if @craft.is_changed?
-    "Untracked changes"
+    .untracked Untracked changes
 
   - version = history.size + 1
   .craft_history
     - history.each do |commit|
-      .craft
-        .version= "V#{version -= 1}"
-        .value
-          .hidden.sha_id= commit.sha
-        .date= commit.date.to_formatted_s(:short)
-        .restore_link
-          - unless commit == history.first
-            = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha_id => commit.sha
-          -else
-            Current Version
+      .craft_info
+        .craft_details
+          .version= "V#{version -= 1}"
+          .value
+            .hidden.sha_id= commit.sha
+          .date= commit.date.to_formatted_s(:short)
+          .restore_link
+            - unless commit == history.first
+              = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha_id => commit.sha
+            -else
+              Current Version
 
-      .message
-        .small{:onclick => "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"}
-          = commit.message
-        .message_form{:id => "message_form_for_#{commit.to_s}"}
+        .message
+          .small{:onclick => "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"}
+            = commit.message
+          .message_form{:id => "message_form_for_#{commit.to_s}"}

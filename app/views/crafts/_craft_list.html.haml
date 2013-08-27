@@ -3,50 +3,54 @@
   - new_and_changed = campaign.new_and_changed
   - current_project = campaign.last_changed_craft
 
+
   - unless current_project.nil?
-    %h3 Current Project
-    .craft
-      .name= link_to(current_project.name, craft_path(current_project))
-      .clear
-      -if new_and_changed[:new].include?("Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft")
-        = "new"
-      -else
-        - changed = new_and_changed[:changed].include?("Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft")
-        = changed ? "untracked changes" : "tracked"
-
-        Number of versions:
-        = current_project.history_count
-        .message
-          - commit = current_project.history.first
-          .small{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
-            = commit.message
-          .message_form{:id => "message_form_for_#{commit.to_s}"}
-
-      .clear
-
-
-  - campaign.craft.group_by{|g| g.craft_type}.each do |type, crafts|
-    %h4= type
-    - sort_by = "updated_at reverse"
-    - reverse_order = sort_by.include?('reverse')
-    - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}
-    - crafts.reverse! if reverse_order
-    - crafts.each do |craft|
-      - next if craft.eql?(current_project)
-      - craft.crafts_campaign = campaign
+    #content_for_current_project.hidden
+      %h3 Current Project
       .craft
-        .name= link_to(craft.name, craft_path(craft))
+        .name= link_to(current_project.name, craft_path(current_project))
         .clear
-        - unless craft.deleted?
-          .git_info
-            -if new_and_changed[:new].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
-              = "new"
-            -else
-              - changed = new_and_changed[:changed].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
-              = changed ? "untracked changes" : "tracked"
-
-          .history
-            Number of versions:
-            = craft.history_count
+        -if new_and_changed[:new].include?("Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft")
+          = "new"
         -else
-          deleted
+          - changed = new_and_changed[:changed].include?("Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft")
+          = changed ? "untracked changes" : "tracked"
+
+          Number of versions:
+          = current_project.history_count
+          .message
+            - commit = current_project.history.first
+            .small{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
+              = commit.message
+            .message_form{:id => "message_form_for_#{commit.to_s}"}
+
+          .clear
+
+  .clear
+  .vblk_2
+  - campaign.craft.group_by{|g| g.craft_type}.each do |type, crafts|
+    .grid_5.push_1
+      %h4= type
+      - sort_by = "updated_at reverse"
+      - reverse_order = sort_by.include?('reverse')
+      - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}
+      - crafts.reverse! if reverse_order
+      - crafts.each do |craft|
+        - next if craft.eql?(current_project)
+        - craft.crafts_campaign = campaign
+        .craft
+          .name= link_to(craft.name, craft_path(craft))
+          .clear
+          - unless craft.deleted?
+            .git_info
+              -if new_and_changed[:new].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
+                = "new"
+              -else
+                - changed = new_and_changed[:changed].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
+                = changed ? "untracked changes" : "tracked"
+
+            .history
+              Number of versions:
+              = craft.history_count
+          -else
+            deleted

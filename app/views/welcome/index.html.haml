@@ -3,9 +3,14 @@
 
   - unless @instances.empty?
     .instance_list
+      %h2 Tracked Installs
       - @instances.each do |instance|
-        = link_to(instance.path, instance_path(instance))
+        .instance
+          %a{:href => instance_path(instance)}
+            = instance.path
+            .small= "#{instance.campaigns.count} Campaigns"
 
+  .clear
   - if @instances.empty?
     .vblk_2
     .grid_6.push_3

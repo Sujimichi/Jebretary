@@ -1,14 +1,18 @@
-- history = @craft.history
-= hidden_field_tag :craft_id, @craft.id
-%h2= @craft.name
-=link_to "return to campaign", campaign_path(@craft.campaign)
+#craft_page
+  #nav-box
+    =link_to "return to campaign", campaign_path(@craft.campaign)
+  .grid_12
+    - history = @craft.history
+    = hidden_field_tag :craft_id, @craft.id
+    %h2= @craft.name
 
-%h3 Version History
 
-
-
-#history_list
-  Loading craft History
+  .clear
+  .vblk_3
+  .grid_10.push_1
+    %h3 Version History
+    #history_list
+      Loading craft History
 
 :javascript
 
