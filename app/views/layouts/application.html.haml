@@ -11,12 +11,18 @@
       %h1{:class => 'main_site_title'}
         Jebretary
 
-%body
-  #content
-    =yield
+  %body
+    #content
+      .clamp_holder
+        .lhs_clamp
+        .rhs_clamp
+        .lhs_clamp_body
+        .rhs_clamp_body
+      =yield
 
-    .content_base
+      .content_base
 
+  .clear
   #footer
     %p Jebretary - Part of JebWeb
     %p Code2044 - Sujimichi (aka Katateochi)

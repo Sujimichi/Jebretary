@@ -15,3 +15,5 @@
 /tmp
 *~
 *.swp
+
+public/flag_for_campaign_*.png

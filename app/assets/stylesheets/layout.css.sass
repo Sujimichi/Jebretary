@@ -8,6 +8,7 @@ html
   :margin 0
   :padding 0
   :width 100%
+  :height 100%
   :background
     :color $site_white
     :image url(diagonals-small.png)
@@ -21,7 +22,6 @@ body
   :min-width 960px
   :position relative
   :text-align justify
-
 
 
 .heading
@@ -195,6 +195,36 @@ a
     +rounded_bottom(0px 0px 32px 32px)
 
 
+.clamp_holder
+  :margin-left  auto
+  :margin-right auto
+  :width 1050px
+  :position relative
+
+.clamp
+  :width 5em
+  :height 4em
+  :background-color red
+  :position absolute
+  :top 7em
+
+.lhs_clamp
+  @extend .clamp
+  :left 0
+
+.rhs_clamp
+  @extend .clamp
+  :right 0
+
+.lhs_clamp_body
+  :left -3em
+  :width 3em
+  :height 4000em
+  :background-color black
+  :position absolute
+  :top 7.5em
+
+
 
 #welcome, #instance_page, #campaigns_page, #craft_page
   @extend .grid960
@@ -245,6 +275,7 @@ a
       :width 100%
 
 
+
 .no_campaigns_message
   :font
     :size 120%
@@ -252,18 +283,58 @@ a
   li
     :margin-top 0.5em
 
+
+#process_notifier
+  :min-height 40px
+  :width 10em
+  :margin
+    :top 1em
+    :left 1em
+  .ajax_loader
+    :float right
+
+
+#campaigns_list
+  .loading
+    :margin-top 3em
+    :text-align center
+
+.ajax_loader
+  :margin-left  auto
+  :margin-right auto
+  :width 35px
+  :height 35px
+  :background
+    :color transparent
+    :image url(ajax-loader.gif)
+    :repeat no-repeat
+
 .campaigns_list
   .grid_5
-    :margin-top 1em
-  img
-  p
+    :margin
+      :top 0.5em
+      :bottom 3em
+
+  .campaign
+    .flag_for
+
+    .campaign_info
+      :min-height 3em
+      :padding 0.2em
+
+      .update_action
+        :font-weight bold
+        :padding-top 0.2em
 
 #campaigns_page
+  .header
+    :padding-left 0.5em
   .campaign_image
     :float right
 
   #current_project
     :margin-top 1em
+    :font-size 120%
 
 
 .flag_link

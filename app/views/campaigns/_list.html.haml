@@ -1,21 +1,42 @@
 
 - background_process ||= nil
 
+
+- unless campaigns.blank? && background_process.nil?
+  #process_notifier
+    -unless background_process.nil?
+      .left
+        .small Updating data
+        .small Please wait.....
+      .ajax_loader
+
 -if background_process && background_process.is_a?(Hash) && background_process.has_key?("campaigns")
 
   - background_process["campaigns"].each do |name, data|
     .campaigns_list
-      .grid_5.push_1
+      .grid_5.push_1.campaign
         -if data["id"]
           %h3= link_to name, campaign_path(data["id"])
         -else
           %h3= name
-        .flag_for{:id => "flag_for_campaign_#{data['id']}"}
-        = "#{data['total_craft']} Craft"
-        -if data["creating_craft_objects"]
-          %p= "creating craft objects, please wait"
-        -if data["added"] && (data["added"] != data['total_craft'])
-          %p= "Verifying craft are in repository #{data['added']}/#{data['total_craft']}"
+        %a{:href => campaign_path(data["id"]), :class => 'flag_link'}
+          .flag_for{:id => "flag_for_campaign_#{data['id']}"}
+        .campaign_info
+          = "#{data['total_craft']} Craft"
+          -if data["creating_craft_objects"]
+            .update_action= "creating craft objects, please wait"
+          -if data["added"] && (data["added"] != data['total_craft'])
+            .update_action= "Verifying craft are in repository #{data['added']}/#{data['total_craft']}"
+
+        .progress_bar{:id => "progress_bar_for_#{data['id']}", "data-max_value" => data['total_craft'], "data-cur_value" => data['added']}
+        :javascript
+          var bar = "#progress_bar_for_#{data['id']}"
+          var max = $(bar).data("max_value")
+
+          //$( bar ).progressbar( "option", "max", max );
+
+
+
 
 
 -else
@@ -27,11 +48,11 @@
         %br
         Please Wait while I discover them......
 
-      %p If this messages remains for more than a few seconds then either
+      %p If this messages remains for more than 10 seconds then either
       %ul
         %li
           You don't have any campaigns in this install
-          .small (So go ahead and create on in the game)
+          .small (So go ahead and create one in the game)
 
         %li
           The background monitor is not running
@@ -41,12 +62,9 @@
   -else
     - campaigns.each do |campaign|
       .campaigns_list
-        .grid_5.push_1
+        .grid_5.push_1.campaign
           %h3= link_to campaign.name, campaign_path(campaign)
           %a{:href => campaign_path(campaign), :class => 'flag_link'}
             .flag_for{:id => "flag_for_campaign_#{campaign.id}"}
-          = "#{campaign.craft.count} Craft"
-
-.clear
-%br
-= background_process.inspect
+          .campaign_info
+            = "#{campaign.craft.where(:deleted => false).count} Craft"

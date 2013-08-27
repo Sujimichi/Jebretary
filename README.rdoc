@@ -1,11 +1,18 @@
 Jebretary
 
 ==Issues
+  - cant revert unless commited
+    revert should first commit a craft regardless of save mode
+
   - cant update commit message while craft is in a untracked state
   - certian chars like ' can't be used in commit message
 
+  - editing a commit message somehow results in deleted craft that dont have a corresponding craft object to appear and get created resulting in an error as they have :deleted => false and so history throws an error
+    either need to ensure all objects in the repo that have been deleted automattically get a craft object or find out why this happens and prevent it
+
 ==Planned/Todo
   - recovery of deleted craft
+
   - different save modes {
       :agressive  => saves on every change to a craft,
       :laid_back  => saves when change in persistent.sfs is detected (ie on launch),

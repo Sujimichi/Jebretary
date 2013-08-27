@@ -1,8 +1,10 @@
 #campaigns_page
+  #nav-box
+    =link_to "back", instance_path(@campaign.instance)
   .grid_8.alpha
-    %h2= @campaign.name
-    .small= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
-    =link_to "return to Instance", instance_path(@campaign.instance)
+    .header
+      %h2= @campaign.name
+      .small= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
 
     .grid_6.push_1.alpha
       #current_project
