@@ -25,7 +25,7 @@ class Campaign < ActiveRecord::Base
     File.join(campaigns_instance.path, "saves", self.name)
   end
 
-  def present?
+  def exists?
     File.exists? self.path
   end
 

@@ -111,4 +111,20 @@ describe Instance do
     end
 
   end
+
+
+  describe "present?" do 
+    before(:each) do 
+      set_up_sample_data
+    end
+
+    it 'should return true if the campaign directory is present' do 
+      @instance.exists?.should be_true
+    end
+
+    it 'should return false if the campaign directory has been removed' do 
+      FileUtils.rm_rf(@instance.path)
+      @instance.exists?.should be_false
+    end
+  end
 end

@@ -277,6 +277,23 @@ describe Campaign do
   end
 
 
+  describe "present?" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+    end
+
+    it 'should return true if the campaign directory is present' do 
+      @campaign.exists?.should be_true
+    end
+
+    it 'should return false if the campaign directory has been removed' do 
+      Dir.chdir Rails.root
+      FileUtils.rm_rf "temp_test_dir/KSP_test/saves/#{@campaign.name}"
+      @campaign.exists?.should be_false
+    end
+
+  end
+
   describe "flag_path" do 
     before(:each) do 
       @campaign = set_up_sample_data

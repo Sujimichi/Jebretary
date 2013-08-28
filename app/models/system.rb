@@ -25,7 +25,7 @@ class System
       }.inject{|i,j| i.merge(j)}
       craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns
 
-      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.present?}
+      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.exists?}
       existing_camps = campaigns.map{|c| {c.name => { :id => c.id}} }.inject{|i,j| i.merge(j)}
 
       craft_in_campaigns.each{ |name, craft| existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size }
@@ -40,7 +40,7 @@ class System
       craft_in_campaigns = craft_in_campaigns_for_instance[instance.id]
 
       campaigns.each do |campaign|
-        next unless campaign.present?
+        next unless campaign.exists?
         campaign.cache_instance(instance)
         campaign.git #ensure git repo is present
         campaign.set_flag if campaign.should_process?

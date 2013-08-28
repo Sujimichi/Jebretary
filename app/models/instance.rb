@@ -8,6 +8,10 @@ class Instance < ActiveRecord::Base
     p = JSON.parse(self.full_path)
     File.join(p)
   end
+    
+  def exists?
+    File.exists? self.path
+  end
 
   def discover_campaigns
     ignored = ['.', '..', 'training', 'scenarios']
