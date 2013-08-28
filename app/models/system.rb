@@ -25,7 +25,7 @@ class System
       }.inject{|i,j| i.merge(j)}
       craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns
 
-      campaigns = Campaign.where(:instance_id => instance.id)
+      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.present?}
       existing_camps = campaigns.map{|c| {c.name => { :id => c.id}} }.inject{|i,j| i.merge(j)}
 
       craft_in_campaigns.each{ |name, craft| existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size }
@@ -40,6 +40,7 @@ class System
       craft_in_campaigns = craft_in_campaigns_for_instance[instance.id]
 
       campaigns.each do |campaign|
+        next unless campaign.present?
         campaign.cache_instance(instance)
         campaign.git #ensure git repo is present
         campaign.set_flag if campaign.should_process?
@@ -103,9 +104,10 @@ class System
     while @heart_rate do
       begin
         System.process
-      rescue    
+      rescue Exception => e 
         System.remove_db_flag
         puts "!!Monitor Error!! - Please Restart me!"
+        puts e.message unless Rails.env.eql?("production")
       end
       sleep @heart_rate 
     end

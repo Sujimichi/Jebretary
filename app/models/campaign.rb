@@ -25,6 +25,10 @@ class Campaign < ActiveRecord::Base
     File.join(campaigns_instance.path, "saves", self.name)
   end
 
+  def present?
+    File.exists? self.path
+  end
+
   def path_to_flag
     p_file = File.open(File.join([self.path, "persistent.sfs"]),'r'){|f| f.readlines}
     flag_line = p_file.select{|line| line.match /\sflag/}.first
