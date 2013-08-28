@@ -14,8 +14,6 @@ Jebretary
     either need to ensure all objects in the repo that have been deleted automattically get a craft object or find out why this happens and prevent it
 
 ==Planned/Todo
-  - recovery of deleted craft interface
-
   - temporary revert option - restores previous craft, but doesnt commit
 
   - force save option on craft
