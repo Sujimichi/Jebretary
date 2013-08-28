@@ -19,6 +19,7 @@
           = current_project.history_count
           .clear
           -version = current_project.history_count
+          -version ||= 1
           - unless version.eql?(1)
             .left Revert to Previous Version:
             .left.with_margin

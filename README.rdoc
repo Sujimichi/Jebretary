@@ -4,8 +4,9 @@ Jebretary
   - cant revert unless commited
     revert should first commit a craft regardless of save mode
 
-  - cant update commit message while craft is in a untracked state
+  - cant update commit message while any craft is in a untracked state
     force save?
+    - better -> store updated message on craft object and auto update the commit message later when all craft have been committed
 
   - certian chars like ' can't be used in commit message
     apply escaping and just strip out know problem chars
