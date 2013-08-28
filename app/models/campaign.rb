@@ -127,10 +127,12 @@ class Campaign < ActiveRecord::Base
           craft = Craft.new(:name =>  name, :craft_type => type)
           craft.campaign = self
           craft.save!
+          self.persistence_checksum = nil
         end
         present_craft[type] << name
       end
     end
+    self.save
 
     ddc = []
     discover_deleted_craft.each do |del_inf|

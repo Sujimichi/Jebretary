@@ -156,6 +156,28 @@ describe Campaign do
       @campaign.should_process?.should be_true
     end
 
+    it 'should return true if a new craft is added' do 
+      @campaign.update_persistence_checksum
+      @campaign.should_process?.should be_false
+
+      File.open("Ships/VAB/my_brand_new_rocket.craft", 'w'){|f| f.write("some new rockets stuff")}
+      @campaign.should_process?.should be_true
+    end
+
+    it 'should return true if a commited craft object is deleted and then recreated with a call to veryfy craft' do 
+      @campaign.update_persistence_checksum
+      @campaign.should_process?.should be_false
+
+      craft = @campaign.craft.first
+      craft.destroy
+      @campaign.should_process?.should be_true
+
+      @campaign.verify_craft #will recreate the deleted craft object
+
+      @campaign.should_process?.should be_true
+
+    end
+
   end
 
   describe "verify_craft" do 
