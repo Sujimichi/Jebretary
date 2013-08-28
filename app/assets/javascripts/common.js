@@ -80,7 +80,7 @@ function update_message(div, craft_id, commit, original_message){
 
     var new_message = $(this).val();
     if(original_message != new_message){
-      ajax_put("/crafts/" + craft_id, {update_message: new_message, commit_to_edit: commit}, function(){});
+      ajax_put("/crafts/" + craft_id, {update_message: new_message, sha_id: commit}, function(){});
     }else{
       restart_appropriate_poller()
     };

@@ -227,6 +227,17 @@ describe Craft do
       @craft.revert_to commit
       File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "second version"
       @craft.history.first.message.should == "reverted my_rocket to V2"
+    end
+
+    describe "without commiting" do 
+
+      it 'should revert the contents of the file but not commit the change' do 
+        hist_count = @craft.history.size
+        commit = @craft.history[2]       
+        @craft.revert_to commit, :commit => false
+        File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "first version"
+        @craft.history.size.should == hist_count
+      end
 
     end
   end

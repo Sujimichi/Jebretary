@@ -38,12 +38,8 @@ class CraftsController < ApplicationController
       history = @craft.history
       @commit = history.select{|commit| commit.sha == @sha_id}.first
       @revert_to_version = history.reverse.index(@commit) + 1
-    else
-
     end
-    
     @return_to = params[:return_to]
-
     respond_with(@craft) do |f|
       f.html{}
       f.js {
@@ -55,21 +51,13 @@ class CraftsController < ApplicationController
   def update
     @craft = Craft.find(params[:id])
     history = @craft.history
-    if params[:commit_to_edit] && params[:update_message]
-      commit = history.select{|h| h.sha.eql?(params[:commit_to_edit])}.first
-      @craft.change_commit_message commit, params[:update_message]
-    end
-    if params[:sha_id] && history.map{|h| h.sha}.include?(params[:sha_id])
-      past_version = history.select{|h| h.sha.eql?(params[:sha_id])}.first
-      #@craft.commit #ensure current version is commited before reverting
-      @craft.revert_to past_version
-    end
-    if @craft.deleted? && params[:recover_deleted]
-      @craft.recover
-    end
-    if params[:force_commit]
-      @craft.commit
-    end
+
+    commit = history.select{|h| h.sha.eql?(params[:sha_id])}.first if params[:sha_id]   
+    @craft.change_commit_message commit, params[:update_message] if params[:update_message]
+    @craft.revert_to commit, :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
+    @craft.recover if @craft.deleted? && params[:recover_deleted]
+    @craft.commit if params[:force_commit]
+
     respond_with(@craft) do |f|
       f.html{
         if params[:return_to] && params[:return_to] == "campaign"

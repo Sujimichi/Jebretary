@@ -13,8 +13,6 @@ Jebretary
 
 
 ==Planned/Todo
-  - temporary revert option - restores previous craft, but doesnt commit
-
   - different save modes {
       :agressive  => saves on every change to a craft,
       :laid_back  => saves when change in persistent.sfs is detected (ie on launch),

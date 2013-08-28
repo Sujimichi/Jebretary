@@ -28,9 +28,13 @@
           = submit_tag "Cancel"
         = form_for(@craft) do |f|
           = hidden_field_tag :sha_id, @sha_id
+          = hidden_field_tag :revert_craft, true
           = hidden_field_tag :return_to, @return_to
-
           = f.submit "Confirm"
+          .with_margin{:title => "uncheck this to do a temporary revert - the reverted version is not automattically tracked.  Default is checked which will create a new version containing the reverted version"}
+            = label_tag :commit_revert, "commit revert"
+            = check_box_tag :commit_revert, true, true
+
 
     -else
       %h2= "Recover #{@craft.name}"
@@ -41,3 +45,6 @@
         = form_for(@craft) do |f|
           = hidden_field_tag :recover_deleted, true
           = f.submit "Confirm"
+
+:javascript
+  $(function(){ $('#commit_revert').prop('checked', true) });

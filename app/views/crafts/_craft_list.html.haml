@@ -17,7 +17,7 @@
             .left= "Number of versions: #{current_project.history_count}"
             .left.with_margin.small.aligned
               -if changed
-                .untracked= " - Plus untracked recent changes"
+                .untracked= " + untracked recent changes"
               -else
                 = "(No new changes)"
 
