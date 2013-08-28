@@ -21,4 +21,13 @@ class CampaignsController < ApplicationController
       }
     end
   end
+
+  def destroy
+    @campaign = Campaign.find(params[:id])
+    @campaign.destroy
+    respond_to do |format|
+      format.html { redirect_to :back }
+    end
+  end
+  
 end

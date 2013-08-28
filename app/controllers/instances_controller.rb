@@ -60,6 +60,14 @@ class InstancesController < ApplicationController
     end
   end
 
+  def destroy
+    @instance = Instance.find(params[:id])
+    @instance.destroy
+    respond_to do |format|
+      format.html { redirect_to :back }
+    end
+  end  
+
   protected
 
   def action_when_locked status
