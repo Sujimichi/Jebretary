@@ -5,7 +5,7 @@
   .clear
   -if @craft.is_changed?
     .left
-      .untracked Untracked changes
+      .untracked Plus Untracked changes
     .left.with_margin
       = form_for(@craft, :remote => true) do |f|
         = hidden_field_tag :force_commit, true
