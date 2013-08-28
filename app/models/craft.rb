@@ -1,5 +1,5 @@
 class Craft < ActiveRecord::Base
-  attr_accessible :name, :craft_type, :deleted, :part_count, :history_count
+  attr_accessible :name, :craft_type, :deleted, :part_count, :history_count, :last_commit
   belongs_to :campaign
 
   require 'active_support/builder'

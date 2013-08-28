@@ -115,6 +115,7 @@ describe Campaign do
   describe "should_process?" do 
     before(:each) do 
       @campaign = set_up_sample_data
+      @campaign.stub!(:discover_deleted_craft => [])      
       @campaign.verify_craft
     end
 
@@ -160,6 +161,7 @@ describe Campaign do
   describe "verify_craft" do 
     before(:each) do 
       @campaign = set_up_sample_data
+      @campaign.stub!(:discover_deleted_craft => [])
     end
 
     it 'should create a Craft model for each craft identified' do 
@@ -195,6 +197,82 @@ describe Campaign do
       @campaign.craft.map{|craft| craft.deleted? }.all?.should be_false
       @campaign.craft.where(:craft_type => 'vab', :name => "my_other_rocket").first.deleted.should be_true
     end
+  end
+
+
+  describe "discover already deleted craft" do 
+    before(:each) do 
+      set_up_sample_data
+      @campaign.create_repo
+      repo = @campaign.repo
+
+      repo.add("Ships/VAB/my_rocket.craft")
+      repo.commit("added my_rocket")
+      repo.add("Ships/VAB/my_other_rocket.craft")
+      repo.commit("added my_other_rocket")
+
+      repo.add("Ships/SPH/my_rocket_car.craft")
+      repo.commit("added my_rocket_car")
+
+    end
+
+    it 'should do return an array containing details about deleted craft' do     
+      repo = @campaign.repo
+      File.delete("Ships/VAB/my_rocket.craft")
+      repo.remove("Ships/VAB/my_rocket.craft")
+      repo.commit("removed my_rocket")     
+      File.delete("Ships/VAB/my_other_rocket.craft")
+      repo.remove("Ships/VAB/my_other_rocket.craft")
+      repo.commit("removed my_other_rocket")     
+      
+      discovered = @campaign.discover_deleted_craft
+      discovered.size.should == 2
+      discovered[0][:deleted][0][:name].should == "my_other_rocket.craft"
+      discovered[0][:deleted][0][:craft_type].should == "VAB"
+      discovered[1][:deleted][0][:name].should == "my_rocket.craft"
+      discovered[1][:deleted][0][:craft_type].should == "VAB"
+
+    end
+    
+    it 'should not include details if the deleted craft has a Craft object' do 
+      repo = @campaign.repo
+      @craft = @campaign.craft.create!(:name => "my_rocket", :craft_type => :vab)
+      @craft.history.size.should == 1
+
+      File.delete("Ships/VAB/my_rocket.craft")
+      @craft.deleted = true
+      @craft.commit   
+          
+      File.delete("Ships/VAB/my_other_rocket.craft")
+      repo.remove("Ships/VAB/my_other_rocket.craft")
+      repo.commit("removed my_other_rocket")     
+
+      discovered = @campaign.discover_deleted_craft
+
+      discovered.size.should == 1
+      discovered[0][:deleted].size.should == 1
+      discovered[0][:deleted][0][:name].should == "my_other_rocket.craft"
+      discovered[0][:deleted][0][:craft_type].should == "VAB"
+
+    end
+
+    it 'should return details of deleted craft that where deleted in the same commit' do 
+      repo = @campaign.repo
+      File.delete("Ships/VAB/my_rocket.craft")
+      File.delete("Ships/VAB/my_other_rocket.craft")
+      repo.remove("Ships/VAB/my_rocket.craft")
+      repo.remove("Ships/VAB/my_other_rocket.craft")
+      repo.commit("removed my_other_rocket")     
+      
+      discovered = @campaign.discover_deleted_craft
+      discovered.size.should == 1
+      discovered[0][:deleted][0][:name].should == "my_other_rocket.craft"
+      discovered[0][:deleted][0][:craft_type].should == "VAB"
+      discovered[0][:deleted][1][:name].should == "my_rocket.craft"
+      discovered[0][:deleted][1][:craft_type].should == "VAB"
+    end
+
+
   end
 
 

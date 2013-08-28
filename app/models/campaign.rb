@@ -128,12 +128,62 @@ class Campaign < ActiveRecord::Base
       end
     end
 
+    ddc = []
+    discover_deleted_craft.each do |del_inf|
+      del_inf[:deleted].each do |craft_data|
+        next if ddc.include? [craft_data[:craft_type], craft_data[:name]]
+        ddc << [craft_data[:craft_type], craft_data[:name]]
+        self.craft.create!(
+          :name => craft_data[:name].sub(".craft",""), 
+          :craft_type => craft_data[:craft_type].downcase, 
+          :deleted => true,
+          :last_commit => del_inf[:sha]
+        )
+      end
+    end
+
     #remove craft from the repo if the file no longer exists and mark the craft as deleted
     existing_craft.each do |craft|
       next if present_craft[craft.craft_type.to_sym] && present_craft[craft.craft_type.to_sym].include?(craft.name)
       craft.deleted = true #actions in .commit will save this attribute
       craft.commit
     end
+  end
+
+
+  def discover_deleted_craft
+
+    cur_dir = Dir.getwd
+    Dir.chdir(self.path)  
+    log = `git log --diff-filter=D --summary`
+    Dir.chdir(cur_dir)
+    
+
+    existing_craft = {
+      "VAB" => self.craft.where(:craft_type => "vab").map{|c| c.name},
+      "SPH" => self.craft.where(:craft_type => "sph").map{|c| c.name}
+    }
+
+    log = log.split("commit ")
+        
+    log = log.map{|l|
+      l.split("\n")
+    }.select{|l| !l.empty?}.map{|l|
+      commit_info = {
+        :sha => l[0],
+        :deleted => l.select{|line| line.include?("delete mode")}.map{|line| line.gsub("delete mode 100644","").strip}.map{|data|
+          s = data.sub("Ships/","").split("/")
+          d = {:craft_type => s[0], :name => s[1]}
+          d = nil if existing_craft[d[:craft_type]].include?(d[:name].sub(".craft",""))
+          d
+        }
+      }
+      commit_info = nil if commit_info[:deleted].compact.empty?
+      commit_info
+    }.compact
+
+    log
+
   end
 
 
