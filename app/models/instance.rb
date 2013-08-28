@@ -2,7 +2,7 @@ class Instance < ActiveRecord::Base
   attr_accessible :full_path
 
   validates :full_path, :presence => true
-  has_many :campaigns
+  has_many :campaigns, :dependent => :destroy
 
   def path
     p = JSON.parse(self.full_path)

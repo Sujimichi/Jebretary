@@ -226,7 +226,7 @@ a
 
 
 
-#welcome, #instance_page, #campaigns_page, #craft_page, #craft_edit
+#welcome, #standard_page, #instance_page, #campaigns_page, #craft_page, #craft_edit
   @extend .grid960
   :padding
     :top 1em
@@ -325,6 +325,15 @@ a
       .update_action
         :font-weight bold
         :padding-top 0.2em
+
+#standard_page
+  .campaign
+    :margin-bottom 0.5em
+    :border-bottom 1px solid $site_dark
+
+  .instance
+    :margin-bottom 0.5em
+    :border-bottom 1px solid $site_dark
 
 #campaigns_page
   .header

@@ -4,7 +4,7 @@ class Campaign < ActiveRecord::Base
   attr_accessible :instance_id, :name, :persistence_checksum
   
   belongs_to :instance
-  has_many :craft
+  has_many :craft, :dependent => :destroy
 
   validates :name, :instance_id, :presence => true
 
