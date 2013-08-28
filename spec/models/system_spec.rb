@@ -77,52 +77,42 @@ describe System do
     end
 
     it 'should not attempt to commit craft which are already commited (and unchanged)' do 
-      craft = @campaign_1.craft.new(:name =>  "test", :craft_type => "VAB")
+      craft = @campaign_1.craft.new(:name =>  "my_rocket", :craft_type => "vab")
       craft.should_not_receive(:commit)
       craft.stub!(:is_new? => false, :is_changed? => false, :history_count => 1, :deleted => false)
 
       a = [craft]
       a.stub!(:where => [craft])
-      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)
-
-      b = []
-      b.stub!(:where => b)
-      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(b)
-
+      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)     
       System.process
     end
 
     it 'should commit craft which are changed' do 
-      craft = @campaign_1.craft.create(:name =>  "test", :craft_type => "VAB")
+      craft = @campaign_1.craft.create(:name =>  "my_rocket", :craft_type => "vab")
       craft.should_receive(:commit).once
       craft.stub!(:is_new? => false, :is_changed? => true, :history_count => 1)
-      
+
       a = [craft]
       a.stub!(:where => [craft])
-      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)
+      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)     
       b = []
       b.stub!(:where => b)
       Craft.should_receive(:where).with("history_count is not null and campaign_id = #{@campaign_1.id}").at_least(1).times.and_return(b)
-      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(b)
 
       System.process
     end
 
     it 'should not process the craft if the campaign should_process returns false' do 
-      craft = @campaign_1.craft.new(:name =>  "test", :craft_type => "VAB")
+      craft = @campaign_1.craft.new(:name =>  "my_rocket", :craft_type => "vab")
       craft.should_not_receive(:commit)
       craft.stub!(:is_new? => false, :is_changed? => true, :history_count => 1, :deleted => false)
       
       @campaign_1.stub!(:should_process? => false)
-
       Campaign.should_receive(:where).at_least(1).times.and_return([@campaign_1])
-      
-      b = []
-      b.stub!(:where => b)
-      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(b)
-
+      a = [craft]
+      a.stub!(:where => [craft])
+      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)
       System.process
-
     end
     
   end
