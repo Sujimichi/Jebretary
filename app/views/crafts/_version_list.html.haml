@@ -1,7 +1,7 @@
 
 -if @craft
   - version = @craft.history_count
-  = "#{@craft.name} has #{history.size} versions"
+  = "#{@craft.name} has #{version} versions"
   -if @craft.is_changed?
     .untracked Untracked changes
 

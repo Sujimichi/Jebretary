@@ -13,28 +13,31 @@
           = "new"
         -else
           - changed = new_and_changed[:changed].include?("Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft")
-          = changed ? "untracked changes" : "tracked"
+          = changed ? "Untracked changes" : "Tracked"
 
-          Number of versions:
+          = " - Number of versions:"
           = current_project.history_count
+          .clear
+          -version = current_project.history_count
+          - unless version.eql?(1)
+            .left Revert to Previous Version:
+            .left.with_margin
+              - recent_history = current_project.history[1..3]
+              - recent_history.each_with_index do |prev_version, index|
+                = link_to "V#{version -= 1}", :controller => "crafts", :action => "edit", :id => current_project.id, :sha_id => prev_version.sha, :return_to => :campaign
+                -unless prev_version == recent_history.last
+                  |
+            .left
+              - if current_project.history.size > 4
+                |
+                = link_to "more", craft_path(current_project)
+          .clear
           .message
             - commit = current_project.history.first
             .small{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
               = commit.message
             .message_form{:id => "message_form_for_#{commit.to_s}"}
-          -version = current_project.history_count
-          .left Revert to Previous Version:
-          .left.with_margin
-            - current_project.history[1..3].each_with_index do |prev_version, index|
-              = link_to "V#{version -= 1}", :controller => "crafts", :action => "edit", :id => current_project.id, :sha_id => prev_version.sha
-              -unless index.eql?(2)
-                |
-          .left
-            - if current_project.history.size > 4
-              |
-              = link_to "more", craft_path(current_project)
 
-          .clear
 
 
   .clear

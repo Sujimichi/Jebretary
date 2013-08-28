@@ -98,6 +98,7 @@ class Craft < ActiveRecord::Base
         message = args[:m] if args[:m]      
         if action.eql?(:deleted)
           repo.remove(self.file_name)
+          self.history_count += 1
         else
           repo.add(self.file_name)
         end

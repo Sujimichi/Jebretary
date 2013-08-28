@@ -22,4 +22,16 @@
           = submit_tag "Cancel"
         = form_for(@craft) do |f|
           = hidden_field_tag :sha_id, @sha_id
+          = hidden_field_tag :return_to, @return_to
+
+          = f.submit "Confirm"
+
+    -else
+      %h2= "Recover #{@craft.name}"
+      %h3 Please confirm that you want to restore this deleted craft
+      .restore_form
+        = form_tag(:back, :method => :get) do
+          = submit_tag "Cancel"
+        = form_for(@craft) do |f|
+          = hidden_field_tag :recover_deleted, true
           = f.submit "Confirm"

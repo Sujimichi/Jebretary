@@ -33,11 +33,16 @@ class CraftsController < ApplicationController
 
   def edit
     @craft = Craft.find(params[:id])
-    @sha_id = params[:sha_id]
-    history = @craft.history
-    @commit = history.select{|commit| commit.sha == @sha_id}.first
-    @revert_to_version = history.reverse.index(@commit) + 1
+    unless @craft.deleted?
+      @sha_id = params[:sha_id]
+      history = @craft.history
+      @commit = history.select{|commit| commit.sha == @sha_id}.first
+      @revert_to_version = history.reverse.index(@commit) + 1
+    else
 
+    end
+    
+    @return_to = params[:return_to]
 
     respond_with(@craft) do |f|
       f.html{}
@@ -59,9 +64,16 @@ class CraftsController < ApplicationController
       @craft.commit #ensure current version is commited before reverting
       @craft.revert_to past_version
     end
+    if @craft.deleted? && params[:recover_deleted]
+      @craft.recover
+    end
     respond_with(@craft) do |f|
       f.html{
-        redirect_to @craft
+        if params[:return_to] && params[:return_to] == "campaign"
+          redirect_to @craft.campaign
+        else
+          redirect_to @craft
+        end
       }
       f.js {}
     end

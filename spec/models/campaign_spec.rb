@@ -238,6 +238,7 @@ describe Campaign do
       repo = @campaign.repo
       @craft = @campaign.craft.create!(:name => "my_rocket", :craft_type => :vab)
       @craft.history.size.should == 1
+      @craft.update_history_count
 
       File.delete("Ships/VAB/my_rocket.craft")
       @craft.deleted = true

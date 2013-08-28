@@ -4,18 +4,24 @@
   .grid_12
     - history = @craft.history
     = hidden_field_tag :craft_id, @craft.id
-    %h2= @craft.name
+    %h1= @craft.name
 
 
   .clear
   .vblk_3
-  .grid_10.push_1
-    %h3 Version History
-    #history_list
-      Loading craft History
+  - unless @craft.deleted?
+    .grid_10.push_1
+      %h3 Version History
+      #history_list
+        Loading craft History
 
-:javascript
+    :javascript
+      $(function(){poll_craft_version()});
 
-  $(function(){
-    poll_craft_version();
-  });
+  -else
+    .grid_6.push_3
+      .restore_craft
+        %h2 This Craft has been deleted!
+        %h4 All is lost, will we ever see it again?
+        %h4 Oh wait, just click Recover it!
+        %h1= link_to "Recover it!", edit_craft_path(@craft)

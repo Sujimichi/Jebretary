@@ -6,9 +6,16 @@ class System
     data = {}
 
     instances = Instance.all
+
+    unless instances.count.eql?(0)
+      print "\nchecking craft files..." unless Rails.env.eql?("test")
+      t = Time.now
+    else
+      print "\nWaiting for an instance of KSP to be defined" unless Rails.env.eql?("test")
+    end
+
     instances.each{ |instance| data[instance.id] = {} }
     craft_in_campaigns_for_instance = {}
-
 
     instances.each do |instance|
       campaign_names = instance.prepare_campaigns
@@ -36,8 +43,8 @@ class System
         campaign.cache_instance(instance)
         campaign.git #ensure git repo is present
         campaign.set_flag if campaign.should_process?
-        #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
 
+        #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true
         System.update_db_flag(data)
         campaign.verify_craft craft_in_campaigns[campaign.name]
@@ -45,7 +52,7 @@ class System
         System.update_db_flag(data)
 
         next unless campaign.should_process?
-        craft = Craft.where(:campaign_id => campaign.id)
+        craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
         craft.each do |craft_object|
           craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
           next unless craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
@@ -57,6 +64,8 @@ class System
         campaign.update_persistence_checksum
       end
     end
+
+    puts "done - (#{(Time.now - t).round(2)}seconds)" unless instances.count.eql?(0) || Rails.env.eql?("test")
     System.remove_db_flag
   end
 
@@ -95,7 +104,8 @@ class System
       begin
         System.process
       rescue    
-        puts "DATABASE WAS LOCKED - twiddling thumbs"
+        System.remove_db_flag
+        puts "!!Monitor Error!! - Please Restart me!"
       end
       sleep @heart_rate 
     end
