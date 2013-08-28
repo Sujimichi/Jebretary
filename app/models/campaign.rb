@@ -112,6 +112,8 @@ class Campaign < ActiveRecord::Base
     not checksum.eql?(self.persistence_checksum)
   end
 
+
+
   #create Craft objects for each .craft found and mark existing Craft objects as deleted is the .craft no longer exists.
   def verify_craft files = nil
     files = self.instance.identify_craft_in(self.name) if files.nil?
@@ -124,9 +126,7 @@ class Campaign < ActiveRecord::Base
       craft_files.each do |craft_name| 
         name = craft_name.sub(".craft","")
         if existing_craft.where(:name => name, :craft_type => type).empty?
-          craft = Craft.new(:name =>  name, :craft_type => type)
-          craft.campaign = self
-          craft.save!
+          craft = self.craft.create(:name =>  name, :craft_type => type)
           self.persistence_checksum = nil
         end
         present_craft[type] << name
@@ -135,7 +135,7 @@ class Campaign < ActiveRecord::Base
     self.save
 
     ddc = []
-    discover_deleted_craft.each do |del_inf|
+    self.discover_deleted_craft.each do |del_inf|
       del_inf[:deleted].each do |craft_data|
         next if ddc.include? [craft_data[:craft_type], craft_data[:name]]
         ddc << [craft_data[:craft_type], craft_data[:name]]
@@ -157,6 +157,7 @@ class Campaign < ActiveRecord::Base
   end
 
 
+
   def discover_deleted_craft
 
     cur_dir = Dir.getwd
@@ -164,7 +165,6 @@ class Campaign < ActiveRecord::Base
     log = `git log --diff-filter=D --summary`
     Dir.chdir(cur_dir)
     
-
     existing_craft = {
       "VAB" => self.craft.where(:craft_type => "vab").map{|c| c.name},
       "SPH" => self.craft.where(:craft_type => "sph").map{|c| c.name}
@@ -180,9 +180,9 @@ class Campaign < ActiveRecord::Base
         :deleted => l.select{|line| line.include?("delete mode")}.map{|line| line.gsub("delete mode 100644","").strip}.map{|data|
           s = data.sub("Ships/","").split("/")
           d = {:craft_type => s[0], :name => s[1]}
-          d = nil if existing_craft[d[:craft_type]].include?(d[:name].sub(".craft",""))
+          d = nil if !["SPH","VAB"].include?(d[:craft_type]) || existing_craft[d[:craft_type]].include?(d[:name].sub(".craft",""))
           d
-        }
+        }.compact
       }
       commit_info = nil if commit_info[:deleted].compact.empty?
       commit_info
