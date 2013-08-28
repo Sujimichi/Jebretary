@@ -102,6 +102,7 @@ class Craft < ActiveRecord::Base
           repo.add(self.file_name)
         end
         repo.commit(message)
+        self.last_commit = repo.log.first.to_s
       end
 
       unless action.eql?(:deleted)    
@@ -132,6 +133,17 @@ class Craft < ActiveRecord::Base
       update_history_count    
     end
   end
+
+  def recover
+    repo = self.campaign.repo
+    commit = repo.gcommit(self.last_commit).parent
+    repo.checkout_file(commit, self.file_name)
+    repo.commit("recovered #{name}")
+    self.deleted = false
+    self.history_count = self.history.size
+    self.last_commit = repo.log.first.to_s
+    self.save
+  end 
 
   #git branch temp refb
   #git filter-branch -f --msg-filter "sed 's/test/testy/'" refa..temp

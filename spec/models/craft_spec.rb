@@ -96,6 +96,7 @@ describe Craft do
       message.should contain "my_rocket"
     end 
 
+
     it 'should not commit anything if the craft has no changes' do 
       repo = @campaign.repo
       repo.add("Ships/VAB/my_rocket.craft")
@@ -117,11 +118,7 @@ describe Craft do
     it 'should commit a deleted craft' do 
       repo = @campaign.repo
       @craft.commit
-      @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.size.should == 1
-
       File.delete("Ships/VAB/my_rocket.craft")
-      #@craft.remove_from_repo
-
       @craft.deleted = true
 
       action = @craft.commit
@@ -129,6 +126,25 @@ describe Craft do
       action.should == :deleted
       @campaign.repo.log.first.message.should == "deleted #{@craft.name}"
     end
+
+    it 'should set the last_commit attr with the sha_id of its latest commit' do 
+      @craft.last_commit.should be_nil
+      repo = @campaign.repo
+      @craft.commit
+      first_commit_sha = repo.log.first
+      first_commit_sha.message.should == "added my_rocket"
+
+      @craft.last_commit.should == first_commit_sha.to_s
+      
+      File.delete("Ships/VAB/my_rocket.craft")
+      @craft.deleted = true
+      @craft.commit
+      latest_commit_sha = repo.log.first
+      latest_commit_sha.message.should == "deleted my_rocket"
+
+      @craft.last_commit.should == latest_commit_sha.to_s
+    end
+
 
   end
 
@@ -212,6 +228,43 @@ describe Craft do
       File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "second version"
       @craft.history.first.message.should == "reverted my_rocket to V2"
 
+    end
+  end
+
+  describe "recover deleted craft" do 
+    before(:each) do 
+      set_up_sample_data
+      File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("first version")}
+      @campaign.create_repo
+      @craft = FactoryGirl.create(:craft, :campaign => @campaign, :name => "my_rocket", :craft_type => "vab")
+      @craft.commit
+      File.delete("Ships/VAB/my_rocket.craft")
+      @craft.deleted = true
+      @craft.commit
+    end
+
+    it 'should recover the deleted craft file' do 
+      @craft.recover
+      File.exists?("Ships/VAB/my_rocket.craft").should be_true
+      File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "first version"
+    end
+
+    it 'should set the crafts deleted attribute to false' do 
+      @craft.should be_deleted
+      @craft.recover
+      @craft.should_not be_deleted
+    end
+
+    it 'should commit the recovery with a message recovered <craft_name>' do 
+      @craft.recover
+      @craft.history.size.should == 3
+      @craft.history.first.message.should == "recovered my_rocket"
+    end
+
+    it 'should updated the crafts history_count and last_commit attributes' do 
+      @craft.recover
+      @craft.history_count.should == 3
+      @craft.last_commit.should == @campaign.repo.log.first.to_s
     end
 
 

@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(:version => 20130503171814) do
     t.boolean  "deleted",       :default => false
     t.integer  "campaign_id"
     t.integer  "history_count"
+    t.string   "last_commit"
     t.datetime "created_at",                       :null => false
     t.datetime "updated_at",                       :null => false
   end

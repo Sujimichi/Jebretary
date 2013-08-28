@@ -7,6 +7,7 @@ class CreateCrafts < ActiveRecord::Migration
       t.boolean :deleted, :default => false
       t.integer :campaign_id
       t.integer :history_count
+      t.string  :last_commit
 
       t.timestamps
     end
