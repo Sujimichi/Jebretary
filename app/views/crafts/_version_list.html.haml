@@ -20,7 +20,7 @@
             .hidden.sha_id= commit.sha
           .date= commit.date.to_formatted_s(:short)
           .restore_link
-            - unless commit == history.first
+            - unless commit == history.first && !@craft.is_changed?
               = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha_id => commit.sha
             -else
               Current Version

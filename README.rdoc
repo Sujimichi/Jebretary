@@ -1,22 +1,19 @@
 Jebretary
 
 ==Issues
-    reverting to a previous version while there are untracked changes will result in two new versions, 1 to track the recent (unwanted) changes and a 2nd new version which is the actual revert.  Maybe better to just discard the untracked changes if the user is doing a revert?
-
   - cant update commit message while any craft is in a untracked state
     force save?
     - better -> store updated message on craft object and auto update the commit message later when all craft have been committed
 
-  - certian chars like ' can't be used in commit message
+  - certian chars like be used in commit messages, some result in message update being ignored, others break the ability to update that message
     apply escaping and just strip out know problem chars
 
   - editing a commit message somehow results in deleted craft that dont have a corresponding craft object to appear and get created resulting in an error as they have :deleted => false and so history throws an error
     either need to ensure all objects in the repo that have been deleted automattically get a craft object or find out why this happens and prevent it
 
+
 ==Planned/Todo
   - temporary revert option - restores previous craft, but doesnt commit
-
-  - force save option on craft
 
   - different save modes {
       :agressive  => saves on every change to a craft,
@@ -25,4 +22,5 @@ Jebretary
     }
 
   - indicator by craft in list that show if they are in service (might not be possible as craft can be renammed in flight)
+
   - part count display

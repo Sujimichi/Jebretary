@@ -12,8 +12,14 @@
             .label Created on
             .value= "#{@commit.date.to_formatted_s(:short)}"
         .vblk_1
-        .info= "Restoring to a previous version will create a new version (#{@craft.history_count + 1})."
-        .info= "The current version will be kept (as version #{@craft.history_count}), so you can always come back to it later if you choose."
+        - if @craft.is_changed?
+          %h3 !!This craft has untracked changes!!
+          .info= "You can revert to version (#{@revert_to_version}) but your untracked changes will be lost forever!"
+          .info
+            .small= "If you want to track the changes before doing this revert, hit cancel and then hit the 'commit (save) now' button.  Your current changes will then be kept (as version #{@craft.history_count + 1}) and you can then revert to version #{@revert_to_version}"
+        -else
+          .info= "Restoring to a previous version will create a new version (#{@craft.history_count + 1})."
+          .info= "The current version (#{@craft.history_count}) will be kept, so you can always come back to it later."
 
 
       %h3= "Please confirm that you want to restore this craft to version #{@revert_to_version}"
