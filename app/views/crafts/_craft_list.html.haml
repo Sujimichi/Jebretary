@@ -13,10 +13,18 @@
           = "new"
         -else
           - changed = new_and_changed[:changed].include?("Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft")
-          = changed ? "Untracked changes" : "Tracked"
+          .left
+            = changed ? "Untracked changes" : "Tracked"
+            = " - Number of versions:"
+            = current_project.history_count
+          - if changed
+            .left.with_margin
+              = form_for(current_project, :remote => true) do |f|
+                = hidden_field_tag :force_commit, true
+                = f.submit "Commit (save) Now!"
 
-          = " - Number of versions:"
-          = current_project.history_count
+
+
           .clear
           -version = current_project.history_count
           -version ||= 1

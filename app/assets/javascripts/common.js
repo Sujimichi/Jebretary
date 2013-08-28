@@ -65,6 +65,7 @@ function poll_craft_version(){
   });
 };
 
+
 function change_message(div, current_text, craft_id, commit){
   clearTimeout(craft_version_timer);
   clearTimeout(index_search_timer);

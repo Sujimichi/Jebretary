@@ -2,9 +2,15 @@
 -if @craft
   - version = @craft.history_count
   = "#{@craft.name} has #{version} versions"
+  .clear
   -if @craft.is_changed?
-    .untracked Untracked changes
-
+    .left
+      .untracked Untracked changes
+    .left.with_margin
+      = form_for(@craft, :remote => true) do |f|
+        = hidden_field_tag :force_commit, true
+        = f.submit "Commit (save) Now!"
+  .clear
   .craft_history
     - history.each do |commit|
       .craft_info

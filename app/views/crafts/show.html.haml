@@ -25,4 +25,10 @@
         %h2 This Craft has been deleted!
         %h4 All is lost, will we ever see it again?
         %h4 Oh wait, just click Recover it!
-        %h1= link_to "Recover it!", edit_craft_path(@craft)
+
+        .restore_form
+          = form_tag(:back, :method => :get) do
+            = submit_tag "Cancel"
+          = form_for(@craft) do |f|
+            = hidden_field_tag :recover_deleted, true
+            = f.submit "Recover It!"

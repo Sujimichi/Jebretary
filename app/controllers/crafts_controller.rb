@@ -67,6 +67,9 @@ class CraftsController < ApplicationController
     if @craft.deleted? && params[:recover_deleted]
       @craft.recover
     end
+    if params[:force_commit]
+      @craft.commit
+    end
     respond_with(@craft) do |f|
       f.html{
         if params[:return_to] && params[:return_to] == "campaign"
