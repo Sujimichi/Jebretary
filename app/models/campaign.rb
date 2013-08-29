@@ -43,8 +43,8 @@ class Campaign < ActiveRecord::Base
     path = path_to_flag
     return nil unless path
     begin
-      img = File.open(path, 'r'){|f| f.readlines}.join
-      File.open(File.join([Rails.root, 'public', "flag_for_campaign_#{self.id}.png"]), 'w'){|f| f.write(img)}
+      img = File.open(path, 'rb'){|f| f.readlines}.join
+      File.open(File.join([Rails.root, 'public', "flag_for_campaign_#{self.id}.png"]), 'wb'){|f| f.write(img)}
       "/flag_for_campaign_#{self.id}.png"
     rescue
       nil
@@ -78,7 +78,7 @@ class Campaign < ActiveRecord::Base
   end
 
   def last_changed_craft
-    last_updated = self.craft.where(:deleted => false).order("updated_at").last
+    last_updated = self.craft.where("deleted = ? and name != ?", false, "Auto-Saved Ship").order("updated_at").last
     new = new_and_changed[:new]
     unless new_and_changed[:changed].empty? 
       craft_name = new_and_changed[:changed].first

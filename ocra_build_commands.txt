@@ -1,5 +1,12 @@
 ==Build App
+
+
 ocra jebretary\script\rails jebretary --add-all-core --gemfile jebretary\Gemfile --no-dep-run --gem-full --chdir-first -- server -e production
 
+
+
+
 ==Build Runner
+
+
 ocra jebretary\runner.rb jebretary --add-all-core --gemfile jebretary\Gemfile --no-dep-run --gem-full --chdir-first

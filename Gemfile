@@ -21,13 +21,17 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
-
-#group :test, :development do
+if not defined?(Ocra)
+  group :test, :development do
+    gem 'rspec-rails'
+    gem 'factory_girl_rails'
+    gem 'autotest-rails'
+    gem 'autotest'
+  end
+else  
   gem 'rspec-rails'
   gem 'factory_girl_rails'
-  gem 'autotest-rails'
-  gem 'autotest'
-#end
+end
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

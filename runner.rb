@@ -1,2 +1,2 @@
 puts "Starting Background Monitor(lizard)"
-system "RAILS_ENV=production rake monitor"
+system "bundle exec rake monitor RAILS_ENV=production" 

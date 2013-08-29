@@ -5,9 +5,9 @@ class ApplicationController < ActionController::Base
   private
 
   def ensure_no_db_lock &blk
-    Dir.chdir(File.join([Rails.root, ".."]))
+    Dir.chdir(System.root_path)
     if File.exist?("#{Rails.env}_db_access")
-      status = File.open("#{Rails.env}_db_access", 'r') {|f| f.readlines }.join
+      status = File.open("#{Rails.env}_db_access", 'rb') {|f| f.readlines }.join
       action_when_locked status
     else
       yield

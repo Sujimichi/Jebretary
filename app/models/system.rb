@@ -72,15 +72,15 @@ class System
 
   def self.set_db_flag content
     cur_dir = Dir.getwd
-    Dir.chdir(File.join([Rails.root, ".."]))
-    File.open("#{Rails.env}_db_access", 'w') {|f| f.write(content.to_json) }
+    Dir.chdir(System.root_path)
+    File.open("#{Rails.env}_db_access", 'wb') {|f| f.write(content.to_json) }
     Dir.chdir(cur_dir)
   end
 
   def self.remove_db_flag
     begin
       cur_dir = Dir.getwd
-      Dir.chdir(File.join([Rails.root, ".."]))
+      Dir.chdir(System.root_path)
       File.delete("#{Rails.env}_db_access")
       Dir.chdir(cur_dir)
     rescue
@@ -89,9 +89,28 @@ class System
 
   def self.update_db_flag content 
     cur_dir = Dir.getwd
-    Dir.chdir(File.join([Rails.root, ".."]))
-    File.open("#{Rails.env}_db_access", 'w') {|f| f.write(content.to_json) }
+    Dir.chdir(System.root_path)
+    File.open("#{Rails.env}_db_access", 'wb') {|f| f.write(content.to_json) }
     Dir.chdir(cur_dir)
+  end
+
+  def self.run_monitor
+    s = System.new
+    s.run_monitor
+  end
+
+  #return the path to folder where app or .exe is contained.
+  def self.root_path
+    if ENV["OCRA_EXECUTABLE"]
+      if (RUBY_PLATFORM =~ /mswin|mingw|cygwin/)
+        d = ENV["OCRA_EXECUTABLE"].split("\\")
+      else
+        d = ENV["OCRA_EXECUTABLE"].split("/")
+      end
+        return File.expand_path(File.join(d[0..d.size-2]))
+    else
+      return File.expand_path(File.join([Rails.root, ".."]))
+    end
   end
 
   def self.run_monitor
