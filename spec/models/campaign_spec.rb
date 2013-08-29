@@ -66,6 +66,7 @@ describe Campaign do
   describe "last_changed" do 
     before(:each) do 
       set_up_sample_data
+      File.open("Ships/VAB/Auto-Saved Ship.craft", 'w') {|f| f.write("some test data") }
       verify_craft_for_campaign
       commit_craft_in_campaign
       @campaign.last_changed_craft.name.should == "my_rocket_car"      
@@ -92,7 +93,16 @@ describe Campaign do
       @campaign.reload
       @campaign.last_changed_craft.name.should_not == "my_rocket"
       @campaign.last_changed_craft.name.should == "my_rocket_car"
+    end
 
+    it 'should not return the Auto-Saved Ship as the current project' do 
+      @campaign.last_changed_craft.name.should == "my_rocket_car"    
+      craft = @campaign.craft.where(:name => "my_rocket").first
+      auto_craft = @campaign.craft.where(:name => "Auto-Saved Ship").first
+      change_craft_contents craft, "this craft has different contents"
+      change_craft_contents auto_craft, "this craft was auto saved with diff contents"
+
+      @campaign.last_changed_craft.name.should == "my_rocket"      
     end
 
   end
