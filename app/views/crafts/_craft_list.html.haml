@@ -60,7 +60,7 @@
   .grid_5.push_1
     = link_to_function "show deleted craft", "toggle_deleted_craft()", :class => 'toggle_deleted_craft_link'
   .clear
-  - campaign.craft.group_by{|g| g.craft_type}.each do |type, crafts|
+  - campaign.craft.group_by{|g| g.craft_type}.sort.reverse.each do |type, crafts|
     .grid_5.push_1
       %h4= type
       - sort_by = "updated_at reverse"
