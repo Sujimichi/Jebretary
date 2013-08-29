@@ -21,6 +21,8 @@
           %h3= name
         %a{:href => campaign_path(data["id"]), :class => 'flag_link'}
           .flag_for{:id => "flag_for_campaign_#{data['id']}"}
+            = "<img src='/flag_for_campaign_#{data['id']}.png'>".html_safe
+
         .campaign_info
           = "#{data['total_craft']} Craft"
           -if data["creating_craft_objects"]
@@ -66,5 +68,8 @@
           %h3= link_to campaign.name, campaign_path(campaign)
           %a{:href => campaign_path(campaign), :class => 'flag_link'}
             .flag_for{:id => "flag_for_campaign_#{campaign.id}"}
+              = "<img src='/flag_for_campaign_#{campaign.id}.png'>".html_safe
+
+
           .campaign_info
             = "#{campaign.craft.where(:deleted => false).count} Craft"

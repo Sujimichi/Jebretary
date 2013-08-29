@@ -1,13 +1,12 @@
 if("#{@background_process}" != "waiting"){
-$('#campaigns_list').html("#{j render :partial => 'campaigns/list', :locals => {:instance => @instance, :campaigns => @campaigns, :background_process => @background_process} }");
+$('#temp_holder').html("#{j render :partial => 'campaigns/list', :locals => {:instance => @instance, :campaigns => @campaigns, :background_process => @background_process} }");
 
 
-
-var flags = JSON.parse("#{@flags}")
-
-$.each(flags, function(index, value){
-$('#flag_for_campaign_' + value).html("<img src='/flag_for_campaign_" + value + ".png'>")
-})
+setTimeout(function(){
+$('#campaigns_list').html($('#temp_holder').html())
+},300);
+//partial is rendered into a temp holder and then 300ms later moved into the propper holder
+//this gives the image time to be rendered and reduces the flickering effect seen on Chrome and Safari  (not a problem on FF)
 };
 
 
