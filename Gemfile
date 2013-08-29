@@ -21,7 +21,7 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
-if not defined?(Ocra)
+unless defined?(Ocra) || (RUBY_PLATFORM =~ /mswin|mingw|cygwin/)
   group :test, :development do
     gem 'rspec-rails'
     gem 'factory_girl_rails'

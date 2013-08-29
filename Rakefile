@@ -7,6 +7,9 @@ require File.expand_path('../config/application', __FILE__)
 
 Jebretary::Application.load_tasks
 
+@build_app_command = "ocra jebretary\\script\\rails jebretary --add-all-core --gemfile jebretary\\Gemfile --no-dep-run --gem-full --chdir-first -- server -e production"
+@build_monitor_command = "ocra jebretary\\runner.rb jebretary --add-all-core --gemfile jebretary\\Gemfile --no-dep-run --gem-full --chdir-first"
+
 
 task :reset do
   `rake db:drop:all`
@@ -23,3 +26,74 @@ task :monitor => :environment do
   puts "done"
 
 end
+
+
+task :clean_temps do 
+  if (RUBY_PLATFORM =~ /mswin|mingw|cygwin/) && ENV["OCRA_EXECUTABLE"]
+    cur_dir = Dir.getwd
+    puts "Current temp dir: #{cur_dir}"
+    Dir.chdir File.join([Dir.getwd, "..", ".."])
+
+    past_temp_dirs = Dir.entries(Dir.getwd).select{|dir| dir.match(/ocr[A-Z0-9]{4}.tmp/) && !cur_dir.include?(dir) }
+    unless past_temp_dirs.empty?
+      puts "cleaning up temp dir from previous runs"
+      past_temp_dirs.each{|dir| 
+        puts "removing temp dir #{File.expand_path(dir)}"
+        FileUtils.rm_rf(dir) 
+      }
+    end
+  end
+
+end
+
+
+task :ocra_prepare do 
+
+  puts "This will reset the production database db/production.sqlite3"
+  print "\nYou have 5 seconds to hit ctrl-C before I continue"
+  n = 5
+  n.times {
+    sleep 1
+    print "."
+  }
+  puts "proceeding"
+
+  print "\n\rDopping DB's and rebuilding"
+  Rake::Task["db:drop:all"].execute
+  print "."
+  Rake::Task["db:create:all"].execute
+  print "."
+  `bundle exec rake db:migrate`
+  print "."
+  Rake::Task["db:test:prepare"].execute
+  print "."
+  `bundle exec rake db:migrate RAILS_ENV=production`
+  print "."
+  puts "done"
+
+  puts "\nprecompiling assets"
+  Rake::Task["assets:precompile"].execute
+
+
+  print "\nRemoving log files"
+  Dir.entries(File.join([Rails.root, "log"])).select{|f| f.include?('.log')}.each{|log|
+    File.delete( File.join([Rails.root, "log", log]) )
+    print "."
+  }
+  puts " done"
+  
+  print "\nRemoving any flag images from public"
+  Dir.entries(File.join([Rails.root, "public"])).select{|f| f.include?('flag_for_campaign_')}.each{|flag|
+    File.delete( File.join([Rails.root, "public", flag]) )
+    print "."
+  }
+  puts " done"
+
+  puts "Run these commands in a standard command prompt in the parent directory (#{File.join([Rails.root, ".."])})"
+  puts "\n#{@build_app_command}"
+  puts "\n#{@build_monitor_command}\n"
+
+
+end
+
+
