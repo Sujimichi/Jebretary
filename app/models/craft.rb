@@ -59,9 +59,13 @@ class Craft < ActiveRecord::Base
   #return the commits for the craft (most recent first)
   def history
     return [] if is_new? || deleted?
-    max_history_size = 100000
-    logs = crafts_campaign.repo.log(max_history_size).object(file_name)
-    logs.to_a
+    begin
+      max_history_size = 100000
+      logs = crafts_campaign.repo.log(max_history_size).object(file_name)
+      logs.to_a
+    rescue
+      []
+    end
   end
 
 
