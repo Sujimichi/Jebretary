@@ -4,6 +4,15 @@ $('#campaigns_list').html("#{j render :partial => 'crafts/craft_list', :locals =
 var current_project = $('#content_for_current_project').html()
 $('#current_project').html(current_project)
 
+$('#vab_list').html( $('#content_for_vab_list').html() )
+$('#vab_list').parents('.grid_5').show();
+
+$('#sph_list').html( $('#content_for_sph_list').html() )
+$('#sph_list').parents('.grid_5').show();
+
+$('#loading_holder').hide();
+
+
 var show_del = $('#show_deleted').val()
 if(show_del == "false"){
 $(".deleted_craft").each(function(){$(this).hide()});

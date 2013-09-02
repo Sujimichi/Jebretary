@@ -56,13 +56,9 @@
 
 
   .clear
-  .vblk_2
-  .grid_5.push_1
-    = link_to_function "show deleted craft", "toggle_deleted_craft()", :class => 'toggle_deleted_craft_link'
-  .clear
+
   - campaign.craft.group_by{|g| g.craft_type}.sort.reverse.each do |type, crafts|
-    .grid_5.push_1
-      %h4= type
+    %div{:id => "content_for_#{type}_list"}
       - sort_by = "updated_at reverse"
       - reverse_order = sort_by.include?('reverse')
       - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}

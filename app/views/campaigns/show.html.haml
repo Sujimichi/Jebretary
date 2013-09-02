@@ -16,10 +16,28 @@
   = hidden_field_tag :campaign_id, @campaign.id
   = hidden_field_tag :show_deleted, false
 
-  #campaigns_list
+  .clear
+  .vblk_2
+
+  .grid_5.push_1
+    = link_to_function "show deleted craft", "toggle_deleted_craft()", :class => 'toggle_deleted_craft_link'
+  .clear
+  .grid_5.push_1.hidden
+    %h4 VAB
+    .building_icon= image_tag("icon_for_vab.jpg")
+    #vab_list
+
+  .grid_5.push_1.hidden
+    %h4 SPH
+    .building_icon= image_tag("icon_for_sph.jpg")
+    #sph_list
+
+  #loading_holder
     Please wait...
     loading craft data
     .ajax_loader
+
+  #campaigns_list.hidden
 
 
   :javascript
