@@ -1,7 +1,7 @@
 
 -unless campaign.blank?
   - new_and_changed = campaign.new_and_changed
-  - current_project = campaign.last_changed_craft
+  - current_project = campaign.last_changed_craft(new_and_changed)
 
   - unless current_project.nil?
     #content_for_current_project.hidden

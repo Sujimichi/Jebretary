@@ -77,13 +77,12 @@ class Campaign < ActiveRecord::Base
     }
   end
 
-  def last_changed_craft
+  def last_changed_craft nac = new_and_changed #call new_and_changed just once
     last_updated = self.craft.where("deleted = ? and name != ?", false, "Auto-Saved Ship").order("updated_at").last
-    new = new_and_changed[:new]
-    unless new_and_changed[:changed].empty? 
-      craft_name = new_and_changed[:changed].select{|c| !c.include?("Auto-Saved Ship")}.first
-      craft_name = new.select{|c| !c.include?("Auto-Saved Ship")}..first unless new.empty?
-
+    
+    unless nac[:changed].empty? && nac[:new].empty?
+      craft_name = nac[:changed].select{|c| !c.include?("Auto-Saved Ship")}.first
+      craft_name = nac[:new].select{|c| !c.include?("Auto-Saved Ship")}.first unless nac[:new].empty?
       matched_craft = self.craft.where(:name => craft_name.split("/").last.sub(".craft",""), :deleted => false)
       last_updated = matched_craft.first unless matched_craft.empty?
     end

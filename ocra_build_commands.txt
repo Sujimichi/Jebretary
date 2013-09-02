@@ -4,9 +4,30 @@
 ocra jebretary\script\rails jebretary --add-all-core --gemfile jebretary\Gemfile --no-dep-run --gem-full --chdir-first -- server -e production
 
 
-
-
 ==Build Runner
 
 
 ocra jebretary\runner.rb jebretary --add-all-core --gemfile jebretary\Gemfile --no-dep-run --gem-full --chdir-first
+
+
+
+==Build App with installer (need to build runner first)
+
+Need to build runner first as an inno script build.  Install that innosetup and then build the app using the runner.exe from that installed build.  
+
+1) - Build runner
+ocra jebretary\runner.rb jebretary --add-all-core --gemfile jebretary\Gemfile --no-dep-run --gem-full --chdir-first --innosetup jebretary_installer_script.iss --no-lzma
+
+2) - Build APP
+ocra jebretary\script\rails jebretary --add-all-core --gemfile jebretary\Gemfile --no-dep-run --gem-full --chdir-first --innosetup jebretary_installer_script.iss --no-lzma -- server -e production
+
+
+
+
+
+
+
+
+
+
+
