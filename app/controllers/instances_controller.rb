@@ -50,7 +50,7 @@ class InstancesController < ApplicationController
         @instance = Instance.find(params[:id])
         @instance.prepare_campaigns
         @campaigns = @instance.reload.campaigns
-        #@flags = @campaigns.select{|c| c.exists? && c.set_flag }.map{|c| c.id}.to_json
+        @campaigns.select{|c| c.exists? }.each{|c| c.set_flag}
       }
       f.js  {
         ensure_no_db_lock do 
