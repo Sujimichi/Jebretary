@@ -164,11 +164,37 @@ a
       :repeat repeat-x repeat-y
 
 #footer
-  @extend .grid960
+  //@extend .grid960
   :position relative
-  :min-height 5em
+  :height 112px
   :overflow show
   :text-align center
+  :background
+    :image url(footer_backgrnd_repeat.jpg)
+
+  .left_image
+    :position absolute
+    :left -5em
+    :width 239px
+    :height 112px
+    :background
+      :image url(footer_left.jpg)
+
+  .right_image
+    :position absolute
+    :right 0em
+    :width 269px
+    :height 112px
+    :background
+      :image url(footer_right.jpg)
+
+  .footer_content
+    :position absolute
+    :left 37.5%
+    :width 25%
+    :margin-top 1em
+    :color $site_white
+
 
 .side_divide
   :border-right 1px solid black
@@ -202,28 +228,43 @@ a
   :position relative
 
 .clamp
-  :width 5em
-  :height 4em
-  :background-color red
+  :width 107px
+  :height 53px
+  :background-color transparent
   :position absolute
   :top 7em
 
 .lhs_clamp
   @extend .clamp
-  :left 0
+  :left -4em
+  :background
+    :image url(left_clamp.gif)
 
 .rhs_clamp
   @extend .clamp
-  :right 0
+  :right -4em
+  :background
+    :image url(right_clamp.gif)
 
 .lhs_clamp_body
-  :left -3em
-  :width 3em
+  :left -3.8em
+  :width 37px
   :height 4000em
-  :background-color black
   :position absolute
-  :top 7.5em
+  :top 10em
+  :background
+    :color transparent
+    :image url(girder_section.gif)
 
+.rhs_clamp_body
+  :right -3.8em
+  :width 37px
+  :height 4000em
+  :position absolute
+  :top 10em
+  :background
+    :color transparent
+    :image url(girder_section.gif)
 
 
 #welcome, #standard_page, #instance_page, #campaigns_page, #craft_page, #craft_edit
