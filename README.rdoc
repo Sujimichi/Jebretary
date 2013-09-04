@@ -8,8 +8,6 @@ Jebretary
   - certian chars like be used in commit messages, some result in message update being ignored, others break the ability to update that message
     apply escaping and just strip out know problem chars
 
-  - editing a commit message somehow results in deleted craft that dont have a corresponding craft object to appear and get created resulting in an error as they have :deleted => false and so history throws an error
-    either need to ensure all objects in the repo that have been deleted automattically get a craft object or find out why this happens and prevent it
 
 
 ==Planned/Todo
