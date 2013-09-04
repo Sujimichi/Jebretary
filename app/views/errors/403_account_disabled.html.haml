@@ -1,0 +1,20 @@
+#error_xxx.grid960
+  - content_for :title do
+    Error 403
+
+  .large_code_background
+    403
+  .absolute_content
+    .grid_12.vblk_2
+
+    .grid_10.push_1
+      %h1 Your Account has been disabled.
+      %p Please contact technical support.
+    .grid_12.vblk_4
+
+    .grid_5.push_1
+      %h2
+        = link_to "Help", "/help"
+
+:javascript
+  $(function(){$('.clamp_holder').hide()});

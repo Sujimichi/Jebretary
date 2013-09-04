@@ -1,0 +1,27 @@
+#error_xxx.grid960
+  - content_for :title do
+    Error 401
+
+  .large_code_background
+    401
+  .absolute_content
+    .grid_12.vblk_2
+
+    .grid_10.push_1
+      %h1= @exception.message
+
+      -if Rails.env.eql?("development")
+        = @exception.message
+
+    .grid_12.vblk_3
+
+    .grid_5.push_1
+      %h2
+        = link_to "Dashboard", root_path
+        |
+        = link_to "Help", "/help"
+        |
+        = link_to "Settings", "/settings"
+
+:javascript
+  $(function(){$('.clamp_holder').hide()});

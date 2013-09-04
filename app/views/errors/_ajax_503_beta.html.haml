@@ -1,0 +1,9 @@
+%h2 BETA features are not enabled
+%p= exception.message.gsub("settings",  link_to("settings", settings_path)).html_safe
+
+%h4
+  = link_to "Settings", "/settings"
+  |
+  = link_to "Help", "/help"
+
+= javascript_tag("panels['external_feeds_panel'].hide()")

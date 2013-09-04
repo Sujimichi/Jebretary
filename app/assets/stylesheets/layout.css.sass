@@ -150,18 +150,11 @@ a
 
 #content
   :position relative
-  :background
-    :color $site_white
-    :image url(diagonals-small.png)
-    :repeat repeat-x repeat-y
+  +gradient(#0f1932, #95d3d2)
+  :padding-bottom 4em
+  :min-height 10em
   +clearfix
 
-  .content_base
-    :padding-bottom 4em
-    :background
-      :color $site_white
-      :image url(diagonals-small.png)
-      :repeat repeat-x repeat-y
 
 #footer
   //@extend .grid960
@@ -272,10 +265,12 @@ a
   :padding
     :top 1em
     :bottom 2em
-  :background-color $site_high_tone
   :min-height 15em
   +cast_shadow(0px 2px 30px 5px grey)
-
+  :background
+    :color $site_high_tone
+    :image url(diagonals-small.png)
+    :repeat repeat-x repeat-y
 
 
 .main_content

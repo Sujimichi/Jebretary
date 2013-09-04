@@ -1,0 +1,21 @@
+#error_xxx
+  - content_for :title do
+    Error 500
+
+  .large_code_background
+    500
+  .absolute_content
+    .grid_12.vblk_2
+
+    .grid_10.push_1
+      %h1 Awfully sorry about that.  Something went wrong!
+
+
+    -if Rails.env.eql?("development")
+      .grid_10.push_1.backtrace
+        = @exception.inspect
+        - @exception.backtrace.each do |line|
+          .line=line
+
+:javascript
+  $(function(){$('.clamp_holder').hide()});
