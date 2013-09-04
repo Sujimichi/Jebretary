@@ -29,13 +29,11 @@ module Exceptional
       @exception = exception
       template ||= code
       f.html do 
-        #begin
+        begin
           return render :template => "errors/#{template}", :status => code 
-        #rescue
-          #request.env["HTTP_REFERER"] ||= "/" #
-          
-        #  return redirect_to :root, :alert => exception.message
-        #end
+        rescue
+          return redirect_to :root, :alert => exception.message
+        end
       end
       f.js do
         
