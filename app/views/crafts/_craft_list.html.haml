@@ -58,6 +58,8 @@
               .small{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
                 = current_project.commit_message
               .message_form{:id => "message_form_for_#{commit.to_s}"}
+                .small.info{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
+                  = "click to edit"
 
 
 
