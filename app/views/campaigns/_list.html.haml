@@ -24,7 +24,7 @@
         .campaign_info
           = "#{data['total_craft']} Craft"
           -if data["creating_craft_objects"]
-            .update_action= "creating craft objects, please wait"
+            .update_action= "updating database, please wait"
           -if data["added"] && (data["added"] != data['total_craft'])
             .update_action= "Verifying craft are in repository #{data['added']}/#{data['total_craft']}"
 
@@ -32,8 +32,10 @@
         :javascript
           var bar = "#progress_bar_for_#{data['id']}"
           var max = $(bar).data("max_value")
-
-          //$( bar ).progressbar( "option", "max", max );
+          var cur = $(bar).data("cur_value")
+          if(cur==max){$(bar).hide()};
+          if(cur==0 || cur==undefined){$(bar).hide()};
+          //$( bar ).progressbar({max: max, value: cur} );
 
 
 
