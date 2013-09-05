@@ -19,8 +19,10 @@
   .clear
   .vblk_2
 
-  .grid_5.push_1
+  .show_del_link_container
+    .show_del_craft_marker
     = link_to_function "show deleted craft", "toggle_deleted_craft()", :class => 'toggle_deleted_craft_link'
+
   .clear
   .grid_5.push_1.hidden
     %h4 VAB

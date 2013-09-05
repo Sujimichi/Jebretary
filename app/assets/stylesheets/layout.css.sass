@@ -386,6 +386,21 @@ a
     :margin-top 1em
     :font-size 120%
 
+  .show_del_link_container
+    :background-color $site_low_tone
+    :float right
+    :padding 0.4em
+    +rounded(16px 0px 0px 16px)
+
+  .show_del_craft_marker
+    :float left
+    :border 1px solid $site_dark
+    :height 1em
+    :width 1em
+    +rounded
+
+  .selected_marker
+    :background-color red
 
 .flag_link
   @extend .plain_link

@@ -16,9 +16,11 @@ $('#loading_holder').hide();
 var show_del = $('#show_deleted').val()
 if(show_del == "false"){
 $(".deleted_craft").each(function(){$(this).hide()});
+$('.show_del_craft_marker').removeClass("selected_marker");
 $('.toggle_deleted_craft_link').html("show deleted craft")
 }else{
 $(".deleted_craft").each(function(){$(this).show()});
+$('.show_del_craft_marker').addClass("selected_marker");
 $('.toggle_deleted_craft_link').html("hide deleted craft")
 };
 

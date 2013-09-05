@@ -105,10 +105,12 @@ function toggle_deleted_craft(){
   if(show_del == "false"){
     $(".deleted_craft").show('fast');
     $('#show_deleted').val('true')
+    $('.show_del_craft_marker').addClass("selected_marker");
     $('.toggle_deleted_craft_link').html("hide deleted craft")
   }else{
     $(".deleted_craft").hide('fast');
     $('#show_deleted').val('false')
+    $('.show_del_craft_marker').removeClass("selected_marker");
     $('.toggle_deleted_craft_link').html("show deleted craft")
   };
 };
