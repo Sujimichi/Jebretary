@@ -35,6 +35,9 @@ class Craft < ActiveRecord::Base
     return @repo_status if defined?(@repo_status) && !@repo_status.nil?
     @repo_status = crafts_campaign.repo.status
   end
+  def reset_repo_status
+    @repo_status = nil
+  end
 
   #return true if the craft is not yet in the repo
   def is_new?
@@ -108,7 +111,7 @@ class Craft < ActiveRecord::Base
         else
           repo.add(self.file_name)
         end
-        message << " #{self.commit_message}" unless self.commit_message.blank? || self.commit_message.eql?(message)
+        message << " #{self.commit_message}" unless self.deleted? || self.commit_message.blank? || self.commit_message.eql?(message)
         self.commit_message = message
         repo.commit(message)
         self.last_commit = repo.log.first.to_s
@@ -189,7 +192,8 @@ class Craft < ActiveRecord::Base
 
   def commit_message
     message = super
-    return nil if self.is_changed? && message.eql?(self.history.first.message)
+    hist = self.history
+    return nil if self.is_changed? && !hist.empty? && message.eql?(hist.first.message)
     message
   end
 

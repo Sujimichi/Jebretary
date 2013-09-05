@@ -1,12 +1,10 @@
 Jebretary
 
 ==Issues
-  - cant update commit message while any craft is in a untracked state
-    force save?
-    - better -> store updated message on craft object and auto update the commit message later when all craft have been committed
+  - cant put new line in commit message
 
-  - certian chars like be used in commit messages, some result in message update being ignored, others break the ability to update that message
-    apply escaping and just strip out know problem chars
+
+
 
 
 
@@ -20,3 +18,19 @@ Jebretary
   - indicator by craft in list that show if they are in service (might not be possible as craft can be renammed in flight)
 
   - part count display
+
+
+==0.0.7
+- improved commit message editing.  Now current commit message can be editied while the repo is not in a state to take message updated
+
+==0.0.6
+  - autosaved ships are no longer shown as current project
+  - flags for campaigns are processed sooner
+  - craft previously deleted in the repo are now detected (and craft object assigned as marked as deleted).  Now previously deleted craft can be recovered
+
+==0.0.5
+  - can now choose to revert to a previous commit without commiting the revert.  This allows for a temporary revert without adding more to the timeline
+  - can now revert while there are untracked changes, with a warning to say untracked changes will be lost
+
+==0.0.4
+  Stuff that happened before now

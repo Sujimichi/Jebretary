@@ -212,7 +212,7 @@ describe Campaign do
     it 'should not create a new craft object if one for that name and type already exists' do 
       @campaign.verify_craft
       @campaign.craft.size.should == 3
-      Dir.chdir("SPH")
+      Dir.chdir("Ships/SPH")
       File.open("my_other_rocket.craft",'w'){|f| f.write("slkjlksjfj")} #create a craft in SPH with same name as one in VAB
       @campaign.verify_craft
       @campaign.craft.size.should == 4

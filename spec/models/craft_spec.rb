@@ -17,6 +17,7 @@ describe Craft do
       r = @campaign.repo
       r.add("Ships/VAB/my_rocket.craft")
       r.commit("added craft")
+      @craft.reset_repo_status
       @craft.is_new?.should be_false
     end
 
@@ -42,6 +43,7 @@ describe Craft do
       @repo.add("Ships/VAB/my_rocket.craft")
       @repo.commit("added craft")      
      
+      @craft.reset_repo_status
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write("something different")}
       @craft.is_changed?.should be_true
     end
