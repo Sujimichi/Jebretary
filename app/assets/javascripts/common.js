@@ -76,7 +76,6 @@ function change_message(div, current_text, craft_id, commit){
 function update_message(div, craft_id, commit, original_message){
 
   $(div).find('#message').bind("blur", function(){
-    $('.message_form').hide();
 
     var new_message = $(this).val();
     if(original_message != new_message){

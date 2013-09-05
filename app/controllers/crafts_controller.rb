@@ -53,7 +53,15 @@ class CraftsController < ApplicationController
     history = @craft.history
 
     commit = history.select{|h| h.sha.eql?(params[:sha_id])}.first if params[:sha_id]   
-    @craft.change_commit_message commit, params[:update_message] if params[:update_message]
+    if params[:update_message]    
+      
+      @craft.commit_message = params[:update_message]
+      if @craft.save
+        @craft.change_commit_message commit, params[:update_message] 
+      else
+        @errors = {:update_message => @craft.errors}
+      end
+    end
     @craft.revert_to commit, :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
     @craft.recover if @craft.deleted? && params[:recover_deleted]
     @craft.commit if params[:force_commit]

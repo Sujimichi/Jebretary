@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130503171814) do
+ActiveRecord::Schema.define(:version => 20130905134724) do
 
   create_table "campaigns", :force => true do |t|
     t.integer  "instance_id"
@@ -25,12 +25,13 @@ ActiveRecord::Schema.define(:version => 20130503171814) do
     t.string   "name"
     t.string   "craft_type"
     t.integer  "part_count"
-    t.boolean  "deleted",       :default => false
+    t.boolean  "deleted",        :default => false
     t.integer  "campaign_id"
     t.integer  "history_count"
     t.string   "last_commit"
-    t.datetime "created_at",                       :null => false
-    t.datetime "updated_at",                       :null => false
+    t.datetime "created_at",                        :null => false
+    t.datetime "updated_at",                        :null => false
+    t.text     "commit_message"
   end
 
   create_table "instances", :force => true do |t|

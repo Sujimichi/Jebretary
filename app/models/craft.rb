@@ -1,8 +1,10 @@
 class Craft < ActiveRecord::Base
-  attr_accessible :name, :craft_type, :deleted, :part_count, :history_count, :last_commit
+  attr_accessible :name, :craft_type, :deleted, :part_count, :history_count, :last_commit, :commit_message
   belongs_to :campaign
 
   require 'active_support/builder'
+
+  validates :commit_message, :is_git_compatible => true
 
   #
   ## - Instance Methods
@@ -106,6 +108,8 @@ class Craft < ActiveRecord::Base
         else
           repo.add(self.file_name)
         end
+        message << " #{self.commit_message}" unless self.commit_message.blank? || self.commit_message.eql?(message)
+        self.commit_message = message
         repo.commit(message)
         self.last_commit = repo.log.first.to_s
       end
@@ -131,6 +135,7 @@ class Craft < ActiveRecord::Base
       repo = self.campaign.repo
       index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
       repo.checkout_file(commit, file_name)
+      self.update_attributes(:commit_message => commit.message)
       if options[:commit]
         begin
           repo.commit("reverted #{name} to V#{index}")
@@ -149,6 +154,7 @@ class Craft < ActiveRecord::Base
     self.deleted = false
     self.history_count = self.history.size
     self.last_commit = repo.log.first.to_s
+    self.commit_message = commit.message
     self.save
   end 
 
@@ -179,6 +185,12 @@ class Craft < ActiveRecord::Base
       #clean up - delete the temp branch
       repo.branch(temp_branch_name).delete
     end
+  end
+
+  def commit_message
+    message = super
+    return nil if self.is_changed? && message.eql?(self.history.first.message)
+    message
   end
 
 end
