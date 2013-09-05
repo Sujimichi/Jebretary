@@ -3,6 +3,7 @@ Jebretary
 ==Issues
   - cant put new line in commit message
 
+  - deleting a craft with untracked changes crashes the interface
 
 
 

@@ -38,10 +38,11 @@
             - n = changed ? 0 : 1
             - recent_history = current_project.history[n..(n+2)]
             - version += 1 if changed
-            - recent_history.each_with_index do |prev_version, index|
-              = link_to "V#{version -= 1}", :controller => "crafts", :action => "edit", :id => current_project.id, :sha_id => prev_version.sha, :return_to => :campaign
-              -unless prev_version == recent_history.last
-                |
+            - unless recent_history.nil?
+              - recent_history.each_with_index do |prev_version, index|
+                = link_to "V#{version -= 1}", :controller => "crafts", :action => "edit", :id => current_project.id, :sha_id => prev_version.sha, :return_to => :campaign
+                -unless prev_version == recent_history.last
+                  |
           .left
             - if current_project.history.size > 4
               |
@@ -49,17 +50,18 @@
           .clear
           .message
             - commit = current_project.history.first
-            -if current_project.commit_message.blank?
-              .message_form{:id => "message_form_for_#{commit.to_s}"}
-                %h4
-                  %a{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
-                    Click to Add Notes:
-            -else
-              .small{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
-                = current_project.commit_message
-              .message_form{:id => "message_form_for_#{commit.to_s}"}
-                .small.info{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
-                  = "click to edit"
+            - if commit
+              -if current_project.commit_message.blank?
+                .message_form{:id => "message_form_for_#{commit.to_s}"}
+                  %h4
+                    %a{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
+                      Click to Add Notes:
+              -else
+                .small{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
+                  = current_project.commit_message
+                .message_form{:id => "message_form_for_#{commit.to_s}"}
+                  .small.info{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
+                    = "click to edit"
 
 
 
