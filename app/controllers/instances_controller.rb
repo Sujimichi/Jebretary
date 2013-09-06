@@ -29,9 +29,9 @@ class InstancesController < ApplicationController
       files = Dir.open(File.join(full_path)).to_a
       raise "nothing found" if files.blank?
     rescue
-      @instance.errors.add(:base, "couldn't open directory")
+      @instance.errors.add(:base, "unable to open directory '#{params[:full_path]}'")
     end
-    @instance.errors.add(:base, "Couldn't locate KSP.exe") if !files.blank? && !files.include?("KSP.exe")
+    @instance.errors.add(:base, "couldn't locate KSP.exe") if !files.blank? && !files.include?("KSP.exe")
 
 
     respond_with(@instance) do |f|      
@@ -48,9 +48,11 @@ class InstancesController < ApplicationController
     respond_to do |f|           
       f.html{
         @instance = Instance.find(params[:id])
-        @instance.prepare_campaigns
-        @campaigns = @instance.reload.campaigns
-        @campaigns.select{|c| c.exists? }.each{|c| c.set_flag}
+        unless @instance.campaigns.empty?
+          @instance.prepare_campaigns
+          @campaigns = @instance.reload.campaigns
+          @campaigns.select{|c| c.exists? }.each{|c| c.set_flag}
+        end
       }
       f.js  {
         ensure_no_db_lock do 

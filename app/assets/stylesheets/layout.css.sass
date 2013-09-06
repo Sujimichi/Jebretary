@@ -260,7 +260,7 @@ a
     :image url(girder_section.gif)
 
 
-#welcome, #standard_page, #instance_page, #campaigns_page, #craft_page, #craft_edit
+#welcome, #standard_page, #instance_page, #campaigns_page, #craft_page, #craft_edit, #new_instance_page
   @extend .grid960
   :padding
     :top 1em
@@ -310,6 +310,12 @@ a
       +clearfix
       :width 100%
 
+#new_instance_page
+  input[type="text"]
+    :width 99%
+  input[type="submit"]
+    :width 50%
+    :float right
 
 
 .no_campaigns_message

@@ -1,7 +1,12 @@
 = form_for(instance) do |f|
   - unless instance.errors.empty?
-    Errors;
-    .form_errors= instance.errors.full_messages.inspect
+    %h2 I could not continue
+    .form_errors
+      = instance.errors.full_messages.join
+    .info You need to enter a full file path to a directory where KSP is installed, for example;
+    .info c:\games\ksp_win
 
   = text_field_tag :full_path
-  = f.submit("Go")
+  = content_for :information
+  .clear
+  = f.submit("OK")
