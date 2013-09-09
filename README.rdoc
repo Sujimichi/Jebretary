@@ -10,21 +10,30 @@ Jebretary
 
 
 ==Planned/Todo
+  - quicksave and persistent tracking
+
   - different save modes {
       :agressive  => saves on every change to a craft,
       :laid_back  => saves when change in persistent.sfs is detected (ie on launch),
       :drunk      => no auto saving, leaves that up to the user
     }
 
-  - indicator by craft in list that show if they are in service (might not be possible as craft can be renammed in flight)
 
   - part count display
+
+  - indicator by craft in list that show if they are in service (might not be possible as craft can be renammed in flight)
+
+  - screen shot auto-associating. Given a knowledge of where a players scr-shots go, during a certain period after launch associate any new scr-shots with the craft
+    - this feature would introduce a dependence on the DB, up till now all info is recreatable from the git repo (the DB mearly acts to index).
+    - possibile upload to imgur option?
+
 
 
 ==0.0.7
 - improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update
   + messages from previous commits can still be edited as before
   + messages are edited in a dialog which gets around the page update issue
+- changed how craft are reverted.  Instead of reverting automattically creating a new commit (version), now reverting a craft leaves it as untracked changes.  Makes it easier to quickly check a past version and then return to current state, or check out several past versions one after the other while looking for the right one (without each checkout automatically meaning a new commit).
 
 ==0.0.6
   - autosaved ships are no longer shown as current project
