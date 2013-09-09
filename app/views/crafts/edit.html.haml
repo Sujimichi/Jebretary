@@ -18,11 +18,14 @@
           .info
             .small= "If you want to track the changes before doing this revert, hit cancel and then hit the 'commit (save) now' button.  Your current changes will then be kept (as version #{@craft.history_count + 1}) and you can then revert to version #{@revert_to_version}"
         -else
-          .info= "Restoring to a previous version will create a new version (#{@craft.history_count + 1})."
+          .info= "Reverting this craft will return it how it was at version #{@revert_to_version}."
           .info= "The current version (#{@craft.history_count}) will be kept, so you can always come back to it later."
+          .commit_revert_info.hidden
+            .vblk_1
+            .info= "If you choose this option the reverted craft will automatically be commited, resulting in a new version (#{@craft.history_count + 1})."
 
 
-      %h3= "Please confirm that you want to restore this craft to version #{@revert_to_version}"
+      %h3= "Please confirm that you want to revert this craft to version #{@revert_to_version}"
       .restore_form
         = form_tag(:back, :method => :get) do
           = submit_tag "Cancel"
@@ -31,9 +34,9 @@
           = hidden_field_tag :revert_craft, true
           = hidden_field_tag :return_to, @return_to
           = f.submit "Confirm"
-          .with_margin{:title => "uncheck this to do a temporary revert - the reverted version is not automattically tracked.  Default is checked which will create a new version containing the reverted version"}
+          .with_margin{:title => "automatically commit the reverted craft as a new version"}
             = label_tag :commit_revert, "commit revert"
-            = check_box_tag :commit_revert, true, true
+            = check_box_tag :commit_revert, true, false
 
 
     -else
@@ -47,4 +50,13 @@
           = f.submit "Confirm"
 
 :javascript
-  $(function(){ $('#commit_revert').prop('checked', true) });
+  $(function(){
+    $('#commit_revert').prop('checked', false)
+    $('#commit_revert').bind('click', function(){
+      if($(this).prop('checked')==true){
+        $('.commit_revert_info').show('fast');
+      }else{
+        $('.commit_revert_info').hide('fast');
+      };
+    });
+  });
