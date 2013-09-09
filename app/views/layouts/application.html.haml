@@ -26,4 +26,9 @@
     .right_image
     .footer_content
       %p Jebretary - A Persistent Git
-      %p Katateochi
+      %p
+        - address = Socket.ip_address_list[1].ip_address
+        - port = request.port
+        = "available on #{address}:#{port} on your local network"
+  .right
+    %p Katateochi
