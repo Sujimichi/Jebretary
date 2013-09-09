@@ -90,8 +90,6 @@ function update_message(div, craft_id, commit, original_message){
     };
 
   });
-  $(div).find('#message').focus()
-
 };
 
 function restart_appropriate_poller(){
