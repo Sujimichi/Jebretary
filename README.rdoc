@@ -22,7 +22,8 @@ Jebretary
 
 
 ==0.0.7
-- improved commit message editing.  Now current commit message can be editied while the repo is not in a state to take message updated
+- improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update
+  + messages from previous commits can still be edited as before
 
 ==0.0.6
   - autosaved ships are no longer shown as current project

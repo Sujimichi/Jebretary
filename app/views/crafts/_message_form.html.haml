@@ -1,5 +1,7 @@
 = form_for(craft) do |f|
   .message_errors
-  = text_area_tag :message, craft.commit_message, :rows => 5, :cols => 50
+  - message = commit.message
+  - message = craft.commit_message if craft.commit_message.nil?
+  = text_area_tag :message, message, :rows => 5, :cols => 50
   .small
     hit tab or click outside the textbox to update
