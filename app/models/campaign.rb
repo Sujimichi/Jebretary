@@ -83,11 +83,14 @@ class Campaign < ActiveRecord::Base
     unless nac[:changed].empty? && nac[:new].empty?
       craft_name = nac[:changed].select{|c| !c.include?("Auto-Saved Ship")}.first
       craft_name = nac[:new].select{|c| !c.include?("Auto-Saved Ship")}.first unless nac[:new].empty?
-      matched_craft = self.craft.where(:name => craft_name.split("/").last.sub(".craft",""), :deleted => false)
-      last_updated = matched_craft.first unless matched_craft.empty?
+      if craft_name
+        matched_craft = self.craft.where(:name => craft_name.split("/").last.sub(".craft",""), :deleted => false)
+        last_updated = matched_craft.first unless matched_craft.empty?
+      end
     end
     last_updated
   end
+
 
   def update_persistence_checksum
     Dir.chdir(self.path)
@@ -117,16 +120,20 @@ class Campaign < ActiveRecord::Base
   def verify_craft files = nil
     files = self.instance.identify_craft_in(self.name) if files.nil?
 
-    existing_craft = Craft.where(:campaign_id => self.id, :deleted => false)
+    existing_craft = Craft.where(:campaign_id => self.id)
     present_craft = {:sph => [], :vab => []}
 
     #create a new Craft object for each craft file found, unless a craft object for that craft already exists.
     files.each do |type, craft_files| 
       craft_files.each do |craft_name| 
         name = craft_name.sub(".craft","")
-        if existing_craft.where(:name => name, :craft_type => type).empty?
+        matches = existing_craft.where(:name => name, :craft_type => type)
+        if matches.empty?
           craft = self.craft.create(:name =>  name, :craft_type => type)
           self.persistence_checksum = nil
+        else
+          match = matches.first
+          match.recover if match.deleted?
         end
         present_craft[type] << name
       end
@@ -148,7 +155,7 @@ class Campaign < ActiveRecord::Base
     end
 
     #remove craft from the repo if the file no longer exists and mark the craft as deleted
-    existing_craft.each do |craft|
+    existing_craft.where(:deleted => false).each do |craft|
       next if present_craft[craft.craft_type.to_sym] && present_craft[craft.craft_type.to_sym].include?(craft.name)
       craft.deleted = true #actions in .commit will save this attribute
       craft.commit

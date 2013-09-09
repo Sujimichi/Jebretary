@@ -84,6 +84,7 @@ describe System do
       a = [craft]
       a.stub!(:where => [craft])
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)     
+      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)     
       System.process
     end
 
@@ -95,6 +96,7 @@ describe System do
       a = [craft]
       a.stub!(:where => [craft])
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)     
+      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)     
       b = []
       b.stub!(:where => b)
       Craft.should_receive(:where).with("history_count is not null and campaign_id = #{@campaign_1.id}").at_least(1).times.and_return(b)
@@ -111,7 +113,8 @@ describe System do
       Campaign.should_receive(:where).at_least(1).times.and_return([@campaign_1])
       a = [craft]
       a.stub!(:where => [craft])
-      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)
+      #Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)
+      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)
       System.process
     end
     

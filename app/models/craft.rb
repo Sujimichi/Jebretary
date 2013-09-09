@@ -157,7 +157,7 @@ class Craft < ActiveRecord::Base
     self.deleted = false
     self.history_count = self.history.size
     self.last_commit = repo.log.first.to_s
-    self.commit_message = commit.message
+    self.commit_message = repo.log.first.message
     self.save
   end 
 
