@@ -1,0 +1,10 @@
+- name ||= nil
+- id ||= nil
+.campaigns_list{:id => "campaign_container_for_#{id}"}
+  .grid_5.push_1.campaign
+    %h3= link_to name, campaign_path(id)
+    %a{:href => campaign_path(id), :class => 'flag_link'}
+      .flag_for{:id => "flag_for_campaign_#{id}"}
+        = image_tag "/flag_for_campaign_#{id}.png"
+
+    .campaign_info

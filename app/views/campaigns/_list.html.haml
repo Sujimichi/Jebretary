@@ -11,32 +11,19 @@
 -if background_process && background_process.is_a?(Hash) && background_process.has_key?("campaigns")
 
   - background_process["campaigns"].each do |name, data|
-    .campaigns_list
-      .grid_5.push_1.campaign
-        -if data["id"]
-          %h3= link_to name, campaign_path(data["id"])
-        -else
-          %h3= name
-        %a{:href => campaign_path(data["id"]), :class => 'flag_link'}
-          .flag_for{:id => "flag_for_campaign_#{data['id']}"}
-            = "<img src='/flag_for_campaign_#{data['id']}.png'>".html_safe
+    :javascript
+      if($("#campaign_container_for_#{data["id"]}").html() == undefined){
+        $('#campaigns_list').append("#{j render :partial => 'campaigns/template', :locals => {:name => name, :id => data["id"]} }");
+      };
+      $("#campaign_container_for_#{data['id']}").find('.campaign_info').html("#{data['total_craft']} Craft")
 
-        .campaign_info
-          = "#{data['total_craft']} Craft"
-          -if data["creating_craft_objects"]
-            .update_action= "updating database, please wait"
-          -if data["added"] && (data["added"] != data['total_craft'])
-            .update_action= "Verifying craft are in repository #{data['added']}/#{data['total_craft']}"
+    -if data["creating_craft_objects"]
+      :javascript
+        $("#campaign_container_for_#{data['id']}").find('.campaign_info').append("<div class='update_action'>updating database, please wait</div>")
 
-        .progress_bar{:id => "progress_bar_for_#{data['id']}", "data-max_value" => data['total_craft'], "data-cur_value" => data['added']}
-        :javascript
-          var bar = "#progress_bar_for_#{data['id']}"
-          var max = $(bar).data("max_value")
-          var cur = $(bar).data("cur_value")
-          if(cur==max){$(bar).hide()};
-          if(cur==0 || cur==undefined){$(bar).hide()};
-          //$( bar ).progressbar({max: max, value: cur} );
-
+    -if data["added"] && (data["added"] != data['total_craft'])
+      :javascript
+        $("#campaign_container_for_#{data['id']}").find('.campaign_info').append("<div class='update_action'>Verifying craft are in repository #{data['added']}/#{data['total_craft']}</div>")
 
 
 
@@ -63,13 +50,8 @@
     .clear
   -else
     - campaigns.each do |campaign|
-      .campaigns_list
-        .grid_5.push_1.campaign
-          %h3= link_to campaign.name, campaign_path(campaign)
-          %a{:href => campaign_path(campaign), :class => 'flag_link'}
-            .flag_for{:id => "flag_for_campaign_#{campaign.id}"}
-              = "<img src='/flag_for_campaign_#{campaign.id}.png'>".html_safe
-
-
-          .campaign_info
-            = "#{campaign.craft.where(:deleted => false).count} Craft"
+      :javascript
+        if($("#campaign_container_for_#{campaign.id}").html() == undefined){
+          $('#campaigns_list').append("#{j render :partial => 'campaigns/template', :locals => {:name => campaign.name, :id => campaign.id} }");
+        };
+        $("#campaign_container_for_#{campaign.id}").find('.campaign_info').html("#{campaign.craft.where(:deleted => false).count} Craft")

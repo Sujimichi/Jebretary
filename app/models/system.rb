@@ -26,6 +26,7 @@ class System
       craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns
 
       campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.exists?}
+      campaigns.each{|campaign| campaign.set_flag if campaign.should_process?}
       existing_camps = campaigns.map{|c| {c.name => { :id => c.id}} }.inject{|i,j| i.merge(j)}
 
       craft_in_campaigns.each{ |name, craft| existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size }
@@ -43,7 +44,6 @@ class System
         next unless campaign.exists?
         campaign.cache_instance(instance)
         campaign.git #ensure git repo is present
-        campaign.set_flag if campaign.should_process?
 
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true
