@@ -1,47 +1,53 @@
 #campaigns_page
   #nav-box
     =link_to "back", instance_path(@campaign.instance)
-  .grid_8.alpha
-    .header
-      %h2= @campaign.name
-      .small= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
+  -if @campaign.exists?
+    .grid_8.alpha
+      .header
+        %h2= @campaign.name
+        .small= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
 
-    .grid_8.push_1.alpha
-      #current_project
+      .grid_8.push_1.alpha
+        #current_project
 
-  .grid_4.omega
-    .campaign_image
-      =image_tag("/flag_for_campaign_#{@campaign.id}.png")
+    .grid_4.omega
+      .campaign_image
+        =image_tag("/flag_for_campaign_#{@campaign.id}.png")
 
-  = hidden_field_tag :campaign_id, @campaign.id
-  = hidden_field_tag :show_deleted, false
+    = hidden_field_tag :campaign_id, @campaign.id
+    = hidden_field_tag :show_deleted, false
 
-  .clear
-  .vblk_2
+    .clear
+    .vblk_2
 
-  .show_del_link_container
-    .show_del_craft_marker
-    = link_to_function "show deleted craft", "toggle_deleted_craft()", :class => 'toggle_deleted_craft_link'
+    .show_del_link_container
+      .show_del_craft_marker
+      = link_to_function "show deleted craft", "toggle_deleted_craft()", :class => 'toggle_deleted_craft_link'
 
-  .clear
-  .grid_5.push_1.hidden
-    .building_icon= image_tag("icon_for_vab.jpg")
-    #vab_list
+    .clear
+    .grid_5.push_1.hidden
+      .building_icon= image_tag("icon_for_vab.jpg")
+      #vab_list
 
-  .grid_5.push_1.hidden
-    .building_icon= image_tag("icon_for_sph.jpg")
-    #sph_list
+    .grid_5.push_1.hidden
+      .building_icon= image_tag("icon_for_sph.jpg")
+      #sph_list
 
-  #loading_holder
-    Please wait...
-    loading craft data
-    .ajax_loader
+    #loading_holder
+      Please wait...
+      loading craft data
+      .ajax_loader
 
-  #campaigns_list.hidden
+    #campaigns_list.hidden
 
 
-  :javascript
+    :javascript
 
-    $(function(){
-      poll_for_updated_list();
-    });
+      $(function(){
+        poll_for_updated_list();
+      });
+  - else
+    .grid_8.push_2
+      .vblk_4
+      .header
+        %h2= "The '#{@campaign.name}' Campaign folder cannot be found"
