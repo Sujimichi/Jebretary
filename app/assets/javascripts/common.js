@@ -44,25 +44,29 @@ function poll_for_updated_instance(){
 
 function poll_for_updated_list(){
   var campaign_id = $('#campaign_id').val();
-  var data = {id: campaign_id};
-  ajax_get("/campaigns/"+ campaign_id, data, function(){
-    clearTimeout(index_search_timer);
-    index_search_timer = setTimeout(function(){
-      poll_for_updated_list();
-    }, 2000);
-  });
+  if(campaign_id != undefined){
+    var data = {id: campaign_id};
+    ajax_get("/campaigns/"+ campaign_id, data, function(){
+      clearTimeout(index_search_timer);
+      index_search_timer = setTimeout(function(){
+        poll_for_updated_list();
+      }, 2000);
+    });
+  };
 };
 
 
 function poll_craft_version(){
   var craft_id = $('#craft_id').val();
-  var data = {id: craft_id};
-  ajax_get("/crafts/"+ craft_id, data, function(){
-    clearTimeout(craft_version_timer);
-    craft_version_timer = setTimeout(function(){
-      poll_craft_version();
-    }, 2000);
-  });
+  if(craft_id != undefined){
+    var data = {id: craft_id};
+    ajax_get("/crafts/"+ craft_id, data, function(){
+      clearTimeout(craft_version_timer);
+      craft_version_timer = setTimeout(function(){
+        poll_craft_version();
+      }, 2000);
+    });
+  };
 };
 
 
@@ -76,11 +80,12 @@ function change_message(div, current_text, craft_id, commit){
 function update_message(div, craft_id, commit, original_message){
 
   $(div).find('#message').bind("blur", function(){
-
     var new_message = $(this).val();
     if(original_message != new_message){
       ajax_put("/crafts/" + craft_id, {update_message: new_message, sha_id: commit}, function(){});
     }else{
+      $('.message_form').dialog();
+      $('.message_form').dialog( "close" );
       restart_appropriate_poller()
     };
 

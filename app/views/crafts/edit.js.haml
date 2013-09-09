@@ -1,8 +1,10 @@
 var div = "#message_form_for_#{@commit.to_s}"
+
 $(div).html("#{j render :partial => 'crafts/message_form', :locals =>  {:craft => @craft, :commit => @commit} }");
 
-$('.message_form').hide();
+$('.message_form').dialog();
+$('.message_form').dialog( "close" );
 
-$(div).show();
+$(div).dialog({ height: 250, width: 600 });
 
 update_message(div, "#{@craft.id}", "#{@commit.to_s}", "#{@commit.message}");

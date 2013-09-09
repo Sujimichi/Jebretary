@@ -166,6 +166,7 @@ class Craft < ActiveRecord::Base
   #git rebase temp
   #git branch --delete temp
   def change_commit_message commit, new_message
+    return unless commit
     dont_process_campaign_while do 
       repo = self.campaign.repo
       temp_branch_name = "temp_message_change_branch"

@@ -1,7 +1,8 @@
-if("#{defined?(@errors) == nil}" == "true"){
-$('.message_form').hide();
-restart_appropriate_poller()
-}else{
-var error = "#{@errors.blank? ? '' : @errors[:update_message].full_messages.join}";
-$('.message_errors').html(error);
-};
+- if !defined?(@errors)
+  $('.message_form').hide();
+  //$('.message_form').dialog();
+  $('.message_form').dialog( "destroy" );
+  restart_appropriate_poller();
+-else
+  var error = "#{@errors.blank? ? '' : @errors[:update_message].full_messages.join}";
+  $('.message_errors').html(error);
