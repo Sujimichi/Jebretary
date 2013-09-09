@@ -33,21 +33,12 @@
           = hidden_field_tag :sha_id, @sha_id
           = hidden_field_tag :revert_craft, true
           = hidden_field_tag :return_to, @return_to
-          = f.submit "Confirm"
+          = f.submit "Revert"
           .with_margin{:title => "automatically commit the reverted craft as a new version"}
             = label_tag :commit_revert, "commit revert"
             = check_box_tag :commit_revert, true, false
 
 
-    -else
-      %h2= "Recover #{@craft.name}"
-      %h3 Please confirm that you want to restore this deleted craft
-      .restore_form
-        = form_tag(:back, :method => :get) do
-          = submit_tag "Cancel"
-        = form_for(@craft) do |f|
-          = hidden_field_tag :recover_deleted, true
-          = f.submit "Confirm"
 
 :javascript
   $(function(){
