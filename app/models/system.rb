@@ -113,6 +113,7 @@ class System
     end
   end
 
+  
   def self.run_monitor
     s = System.new
     s.run_monitor
@@ -139,6 +140,55 @@ class System
     Craft.destroy_all
     System.remove_db_flag
   end
+
+  def self.config
+    path = File.join([System.root_path, "settings"])
+
+  end
+  
+  def default_config
+    config = {
+      :seen_elements => []
+    }
+  end
+
+  def get_config 
+    set_config unless File.exists?( File.join([System.root_path, "settings"]) )
+    config_data = File.open(File.join([System.root_path, "settings"]), 'r'){|f| f.readlines}.join
+    JSON.parse(config_data)
+  end
+
+  def set_config new_config = nil
+    new_config ||= default_config
+    @config = nil
+    File.open(File.join([System.root_path, "settings"]),'w'){|f| f.write(new_config.to_json)}
+  end
+
+  def config
+    return @config if defined?(@config) && !@config.nil?
+    @config = get_config
+  end
+
+  def config_get param
+    config[param.to_s]
+  end
+
+  def config_set param, value
+    config[param.to_s] = value
+    set_config @config
+  end
+
+  def show_help_for? element
+    #return true
+    seen_elements = config_get :seen_elements
+    unless seen_elements.include?(element)
+      seen_elements << element
+      config_set :seen_elements, seen_elements
+      return true
+    end
+    return false
+  end
+
 
 end
 

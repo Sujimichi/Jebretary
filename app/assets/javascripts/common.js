@@ -6,7 +6,7 @@ $(function(){
 var index_search_timer = null
 var craft_version_timer = null
 var rails_env = $('#rails_env').val();
-
+var show_setup_poller_help_timer = undefined
 
 
 //AJAX methods GET, POST and DELETE - Generalised methods for making ajax requests
@@ -91,6 +91,71 @@ function update_message(div, craft_id, commit, original_message){
 
   });
 };
+
+
+var open_dialogs = {}
+
+function dialog_open(div_id){
+  if(open_dialogs[div_id] == true){return true}else{return false}
+};
+
+
+function show_help(specific_help, args){
+  var a = 0
+  if( $('#help_holder').html() == "" ){
+    $('#help_holder').height(0)
+  };
+  $('.help_for').each(function(){
+    if(specific_help == undefined){
+      a = a + $(this).height()
+      $('#help_holder').append( $(this).html() );
+      $(this).remove();
+    }else{
+      if($(this).attr("id") == specific_help){
+        a = a + $(this).height()
+        $('#help_holder').append( $(this).html() );
+        $(this).remove();
+      };
+    };
+  })
+
+  var h = 0
+
+  if(dialog_open('#help_holder') == true){
+     $('#help_holder').dialog('option', 'height', 'auto')
+  };
+
+  if($('#help_holder').html() != ""){
+    if(args == undefined){args = {}}
+    if(args['create'] == undefined){args['create'] = function(){}};
+    if(args['close'] == undefined){args['close'] = function(){}};
+
+    if(dialog_open('#help_holder') != true){
+      $('#help_holder').dialog({
+        close: function(){
+          $('#help_holder').html("");
+          open_dialogs['#help_holder'] = false;
+          args['close']()
+        },
+        position: ['center', 150],
+        width: 750,
+        height: 'auto',
+        closeOnEscape: true,
+        buttons: [ { text: "Ok", click: function(){$(this).dialog('close')} } ]
+      });
+      args['create']()
+      open_dialogs['#help_holder'] = true;
+    };
+
+  };
+
+  $('#help_holder').bind("blur", function(){
+    $('#help_holder').dialog("close");
+  });
+
+
+};
+
 
 function restart_appropriate_poller(){
   var campaign = $('#campaign_id').val();

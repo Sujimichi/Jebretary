@@ -25,3 +25,7 @@ $('.toggle_deleted_craft_link').html("hide deleted craft")
 };
 
 };
+
+show_help('craft_list_page_first_view', {close: function(){
+setTimeout(function(){ show_help('craft_list_page_first_view_basic') },200);
+}})

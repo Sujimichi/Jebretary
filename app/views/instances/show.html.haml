@@ -6,6 +6,23 @@
 
   = hidden_field_tag(:available_flags, @flags)
 
+  -if system.show_help_for?('instance_page')
+    .help_for#instance_page_first_view.hidden
+      %h3 This page lists the campaigns found in this install of KSP
+      .info Click on a campaign to view its craft
+      .vblk_1
+
+  -if system.show_help_for?("updating_several_craft_#{@instance.id}")
+    .help_for#updating_several_craft.hidden
+      .vblk_1
+      %h3 The System is now adding your craft to version control...
+      .info The system is doing an initial scan of the saves folder for this install of KSP.
+      .info This will add your existing craft to the repository and the database.
+      .info If you have quite a few craft (100+) this may take a minute or two.
+      .vblk_1
+      .info It's best to just wait for this initial scan to complete before clicking on a campaign.
+
+
 
   #temp_holder
 
@@ -13,5 +30,8 @@
     .loading
       .ajax_loader
       Loading Stuff....
-    :javascript
-      $(function(){poll_for_updated_instance() });
+
+:javascript
+  $(function(){
+    poll_for_updated_instance();
+  });

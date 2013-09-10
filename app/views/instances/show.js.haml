@@ -2,7 +2,6 @@ if($('#campaigns_list').find(".loading").html() != undefined){
 $('#campaigns_list').html("")
 }
 
-
 if("#{@background_process}" != "waiting"){
 $('#temp_holder').html("#{j render :partial => 'campaigns/list', :locals => {:instance => @instance, :campaigns => @campaigns, :background_process => @background_process} }");
 
@@ -10,6 +9,6 @@ $('#temp_holder').html("#{j render :partial => 'campaigns/list', :locals => {:in
 
 
 
+//show_help('updating_several_craft')
 
-
-$(function(){poll_for_updated_instance() });
+poll_for_updated_instance();

@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   
   protect_from_forgery
    
+  helper_method :system
   
   #unless Rails.application.config.consider_all_requests_local #|| Rails.env.eql?("development") 
   rescue_from( Exception                            ) { |error| render_error(500, error) }  #unless Rails.env.eql?("development") 
@@ -27,6 +28,11 @@ class ApplicationController < ActionController::Base
  
   
   private
+
+  def system
+    return @system if defined?(@system) && !@system.nil?
+    @system = System.new
+  end
 
   def ensure_no_db_lock &blk
     Dir.chdir(System.root_path)

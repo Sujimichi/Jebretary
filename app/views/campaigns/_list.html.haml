@@ -6,6 +6,13 @@
         .small Updating data
         .small Please wait.....
       .ajax_loader
+      :javascript
+        if(show_setup_poller_help_timer == undefined){
+          show_setup_poller_help_timer = setTimeout(function(){show_help('updating_several_craft')},3000);
+        };
+    -else
+      :javascript
+        if(show_setup_poller_help_timer != undefined){clearTimeout(show_setup_poller_help_timer)};
 
 -if background_process && background_process.is_a?(Hash) && background_process.has_key?("campaigns")
 
@@ -18,13 +25,12 @@
 
     -if data["creating_craft_objects"]
       :javascript
+
         $("#campaign_container_for_#{data['id']}").find('.campaign_info').append("<div class='update_action'>updating database, please wait</div>")
 
     -if data["added"] && (data["added"] != data['total_craft'])
       :javascript
         $("#campaign_container_for_#{data['id']}").find('.campaign_info').append("<div class='update_action'>Verifying craft are in repository #{data['added']}/#{data['total_craft']}</div>")
-
-
 
 
 -else
@@ -54,3 +60,5 @@
           $('#campaigns_list').append("#{j render :partial => 'campaigns/template', :locals => {:name => campaign.name, :id => campaign.id} }");
         };
         $("#campaign_container_for_#{campaign.id}").find('.campaign_info').html("#{campaign.craft.where(:deleted => false).count} Craft")
+    :javascript
+      show_help('instance_page_first_view');
