@@ -141,4 +141,44 @@ describe System do
     end
 
   end
+
+
+  describe "deleting a craft should not result in it appearing under all other campaigns" do 
+    #This describes the behaviour of a bug found. Where deleting a craft would result in it being listed under all other campaigns.  
+    #Somewhere at the point of marking the craft object as deleted it also gets created in all campaigns
+    before(:each) do 
+      @instance = FactoryGirl.create(:instance)
+      create_sample_data "campaign_1"
+      @campaign_1 = FactoryGirl.create(:campaign, :name => "campaign_1", :instance_id => @instance.id)
+      Dir.chdir @campaign_1.path
+      make_sample_data
+      create_sample_data "campaign_2", :reset => false
+      @campaign_2 = FactoryGirl.create(:campaign, :name => "campaign_2", :instance_id => @instance.id)
+      Dir.chdir @campaign_2.path
+      make_sample_data
+      System.process
+    end
+
+    it 'should mark a craft as deleted in on campaign and not change the craft counts of another campaign.' do 
+      Dir.chdir(@campaign_1.path)
+      File.open("Ships/VAB/my_even_better_rocket.craft", "w"){|f| f.write("some_test_nonsense")}
+      System.process
+
+      @campaign_1.craft.count.should == 4
+      @campaign_2.craft.count.should == 3
+
+      Dir.chdir(@campaign_1.path)
+      File.delete("Ships/VAB/my_even_better_rocket.craft")
+      System.process
+
+      @campaign_1.craft.count.should == 4
+      @campaign_1.craft.where(:deleted => false).count.should == 3
+
+      @campaign_2.craft.count.should == 3 #<<<===Bug causes this to not pass
+      @campaign_2.craft.where(:deleted => false).count.should == 3
+
+    end
+
+
+  end
 end

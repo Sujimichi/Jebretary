@@ -144,7 +144,9 @@ class Campaign < ActiveRecord::Base
     self.discover_deleted_craft.each do |del_inf|
       del_inf[:deleted].each do |craft_data|
         next if ddc.include? [craft_data[:craft_type], craft_data[:name]]
+
         ddc << [craft_data[:craft_type], craft_data[:name]]
+        puts [craft_data[:name], self.name]
         self.craft.create!(
           :name => craft_data[:name].sub(".craft",""), 
           :craft_type => craft_data[:craft_type].downcase, 
@@ -153,6 +155,7 @@ class Campaign < ActiveRecord::Base
         )
       end
     end
+
 
     #remove craft from the repo if the file no longer exists and mark the craft as deleted
     existing_craft.where(:deleted => false).each do |craft|
@@ -175,12 +178,14 @@ class Campaign < ActiveRecord::Base
       "VAB" => self.craft.where(:craft_type => "vab").map{|c| c.name},
       "SPH" => self.craft.where(:craft_type => "sph").map{|c| c.name}
     }
+    logs = self.repo.log.map{|log| log.to_s}
 
     log = log.split("commit ")
         
     log = log.map{|l|
       l.split("\n")
     }.select{|l| !l.empty?}.map{|l|
+      next unless logs.include?(l[0])
       commit_info = {
         :sha => l[0],
         :deleted => l.select{|line| line.include?("delete mode")}.map{|line| line.gsub("delete mode 100644","").strip}.map{|data|
@@ -195,7 +200,6 @@ class Campaign < ActiveRecord::Base
     }.compact
 
     log
-
   end
 
 
