@@ -111,7 +111,7 @@ class Craft < ActiveRecord::Base
         else
           repo.add(self.file_name)
         end
-        message << " #{self.commit_message}" unless self.deleted? || self.commit_message.blank? || self.commit_message.eql?(message)
+        message << " #{self.commit_message.gsub(message,"")}" unless self.deleted? || self.commit_message.blank? || self.commit_message.eql?(message)
         self.commit_message = message
         repo.commit(message)
         self.last_commit = repo.log.first.to_s

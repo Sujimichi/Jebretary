@@ -12,6 +12,8 @@ Jebretary
 ==Planned/Todo
   - quicksave and persistent tracking
 
+  - craft actions like delete and move/copy. delete will delete the craft file, move/copy will move/copy craft files between campaigns.
+
   - different save modes {
       :agressive  => saves on every change to a craft,
       :laid_back  => saves when change in persistent.sfs is detected (ie on launch),
@@ -28,12 +30,24 @@ Jebretary
     - possibile upload to imgur option?
 
 
+    ==MajorFeature- Online System - JebWeb
+      - users sign up for an account online with JebWeb and get a token which they set in Jebretary
+      - Jebretary can use this token to access the users online account and can then transmit craft to the users account
+      - This would enable online, cloud storage of craft and would be a way of sharing craft.
+        - craft will also have more info, including analysis of required mods.
+
+      - A craft posted on JebWb can just be updated with a click from Jerbretary.
+      - option to have private and public craft, like GitHub it will be free to store public craft and it will cost to have more than 5 private craft.
+
+
+
 
 ==0.0.7
-- improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update
-  + messages from previous commits can still be edited as before
-  + messages are edited in a dialog which gets around the page update issue
-- changed how craft are reverted.  Instead of reverting automattically creating a new commit (version), now reverting a craft leaves it as untracked changes.  Makes it easier to quickly check a past version and then return to current state, or check out several past versions one after the other while looking for the right one (without each checkout automatically meaning a new commit).
+  - improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update
+    + messages from previous commits can still be edited as before
+    + messages are edited in a dialog which gets around the page update issue
+  - changed how craft are reverted.  Instead of reverting automattically creating a new commit (version), now reverting a craft leaves it as untracked changes.  Makes it easier to quickly check a past version and then return to current state, or check out several past versions one after the other while looking for the right one (without each checkout automatically meaning a new commit).
+  - added first time use help tips
 
 ==0.0.6
   - autosaved ships are no longer shown as current project
@@ -45,4 +59,4 @@ Jebretary
   - can now revert while there are untracked changes, with a warning to say untracked changes will be lost
 
 ==0.0.4
-  Stuff that happened before now
+  Stuff that happened before

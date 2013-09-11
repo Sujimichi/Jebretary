@@ -53,7 +53,7 @@ class CraftsController < ApplicationController
     history = @craft.history
 
     commit = history.select{|h| h.sha.eql?(params[:sha_id])}.first if params[:sha_id]   
-    if params[:update_message]    
+    if params[:update_message]
       @craft.commit_message = params[:update_message] if commit.eql?(history.first)
       if @craft.save || !commit.eql?(history.first)
         @craft.change_commit_message commit, params[:update_message] 

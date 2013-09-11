@@ -11,7 +11,6 @@
             %a{:href => instance_path(instance)}
               = instance.path
               .small= "#{instance.campaigns.count} Campaigns"
-
     .clear
     - if @instances.empty?
       .vblk_1
@@ -59,3 +58,5 @@
         (ie: tell me where a different version/copy of KSP is installed)
         #new_instance
           = render('instances/form', :instance => Instance.new)
+    .grid_2.push_10
+      = button_to "reset help tips", :controller => :welcome, :action => :update, :method => :put, :reset_help => true
