@@ -47,7 +47,8 @@ Jebretary
     + messages from previous commits can still be edited as before
     + messages are edited in a dialog which gets around the page update issue
   - changed how craft are reverted.  Instead of reverting automattically creating a new commit (version), now reverting a craft leaves it as untracked changes.  Makes it easier to quickly check a past version and then return to current state, or check out several past versions one after the other while looking for the right one (without each checkout automatically meaning a new commit).
-  - added first time use help tips
+  - started adding help tips to appear on first use and on request
+  - added settings file which currently is used to track which help tips the user has seen.
 
 ==0.0.6
   - autosaved ships are no longer shown as current project
