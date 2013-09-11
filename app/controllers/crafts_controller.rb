@@ -38,6 +38,7 @@ class CraftsController < ApplicationController
       history = @craft.history
       @commit = history.select{|commit| commit.sha == @sha_id}.first
       @revert_to_version = history.reverse.index(@commit) + 1
+      @current_version = @craft.history_count
     end
     @return_to = params[:return_to]
     respond_with(@craft) do |f|
