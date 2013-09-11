@@ -2,32 +2,7 @@
   #nav-box
     =link_to "back", instance_path(@campaign.instance)
   -if @campaign.exists?
-
-    -if system.show_help_for?('crafts_list_page')
-      .help_for#craft_list_page_first_view.hidden
-        %h3 This page lists the Craft in this Campaign
-        %p
-          .info As you play this Campaign of KSP, your most recently edited or created craft will be shown at the top as the "Current Project".
-
-        %p
-          .info When you edit a craft and hit save in the VAB/SPH the Current Project and will show 'untracked recent changes'.
-          .info When you launch the craft these untracked changes will be saved as the next version.
-          .small You can also force a save by clicking the save button, or just let it automatically track versions at each launch.
-
-
-      .help_for#craft_list_page_first_view_basic.hidden
-
-        %p
-          .info You can take the Current Project back to its 3 most recent versions (if available) by clicking on them (you won't loose the current version).
-          .info And you can also make notes about the current version.
-
-        %p
-          .info If you want to take the CurrentProject back to an earlier version, then click on its name.
-          .info You can also click on the name of any other craft to see their full history or change their version.
-
-
-
-
+    = render "help"
 
     .grid_8.alpha
       .header

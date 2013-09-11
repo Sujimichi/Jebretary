@@ -30,13 +30,14 @@
 
 
           .clear
-          -version = current_project.history_count
-          -version ||= 1
+          - version = current_project.history_count
+          - version ||= 1
+          - current_project_history = current_project.history
           //- unless version.eql?(1)
           .left Revert to Previous Version:
           .left.with_margin
             - n = changed ? 0 : 1
-            - recent_history = current_project.history[n..(n+2)]
+            - recent_history = current_project_history[n..(n+2)]
             - version += 1 if changed
             - unless recent_history.nil?
               - recent_history.each_with_index do |prev_version, index|
@@ -44,12 +45,14 @@
                 -unless prev_version == recent_history.last
                   |
           .left
-            - if current_project.history.size > 4
+            - if current_project_history.size > 4
               |
               = link_to "more", craft_path(current_project)
+            = "|" unless current_project_history.size.eql?(1) && !changed
+            = link_to_function "Help", "show_current_project_help(#{current_project_history.size})"
           .clear
           .message
-            - commit = current_project.history.first
+            - commit = current_project_history.first
             - if commit
               -if current_project.commit_message.blank?
                 .message_form{:id => "message_form_for_#{commit.to_s}"}

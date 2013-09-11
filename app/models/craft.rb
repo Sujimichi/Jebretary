@@ -138,14 +138,17 @@ class Craft < ActiveRecord::Base
       repo = self.campaign.repo
       index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
       repo.checkout_file(commit, file_name)
-      self.update_attributes(:commit_message => commit.message)
+      self.commit_message = commit.message
       if options[:commit]
         begin
-          repo.commit("reverted #{name} to V#{index}")
+          m = "reverted #{name} to V#{index}"
+          repo.commit(m)
+          self.commit_message = m
         rescue
         end
         update_history_count
       end
+      self.save!
     end
   end
 

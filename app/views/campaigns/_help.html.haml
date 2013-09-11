@@ -1,0 +1,52 @@
+-if system.show_help_for?('crafts_list_page')
+  .help_for#craft_list_page_first_view.hidden
+    %h3 This page lists the Craft in this Campaign
+    %p
+      .info As you play this Campaign of KSP, your most recently edited or created craft will be shown at the top as the "Current Project".
+    %p
+      .info When you edit a craft and hit save in the VAB/SPH, the Current Project will have 'untracked recent changes'.  These are changes not yet in version control.
+      .info When you launch the craft these untracked changes will be saved as the next version.
+      .small You can also force a save by clicking the save button, or just let it automatically track versions at each launch.
+
+  .help_for#craft_list_page_first_view_basic.hidden
+    %p
+      .info From here you can revert the Current Project back to its 3 most recent versions (if available) by clicking on them.
+    %p
+      .info If you want to take the CurrentProject back to an even earlier version, then click on its name to see its full history.  You can access the full history of all the craft by clicking on them.
+    %p
+      .info You can also make notes about the current version of the Current Project from here.
+
+  .help_for#craft_list_page_first_view_summary.hidden
+    %p
+      .info Just Play KSP, edit some craft in this campaign and watch what happens on this page, you'll figure it out.
+      .info When you need to revert a craft just click on a previous version and I'll popup and annoy you again.
+      .info Click help by the Current Project for more info.
+
+.help_for#current_project_one_version.hidden
+  .info This Current Project has just one version so there is little that you can do with it.
+  .info Go and edit (and save) the craft in KSP and the Current Project display will change.
+  .info This help link will also show different (hopefully context relevent) info.
+
+
+.help_for#current_project_several_versions.hidden
+  .info This Current Project has several versions.  You can revert to a previous version by clicking on them and then hitting confirm on the following page.
+
+.help_for#current_project_multiple_versions.hidden
+  .info This Current Project has 4 or more versions.  You can revert to the 3 most recent versions by clicking on them and then hitting confirm on the following page.
+  .info To access older versions click 'more'.
+
+.help_for#current_project_untracked_changes.hidden
+  %p
+    .info This Current Project has "untracked changes".  These are changes that are not yet saved under version control.
+    .info When you launch this craft these changes will be automatically saved as a new version.  Or you can click "Commit (save) Now!" to force a new version now.
+  %p
+    .info If you want to remove the untracked changes, click on the left-most version, click 'Revert' on the following page and then reload the craft in KSP.
+  %p
+    .info You can add notes about these untracked changes by clicking "click to add notes".  If you remove these changes these notes will also be lost.  If you launch or hit save (therefore creating a new version) the notes made now will be part of that version.
+
+
+
+
+.help_for#current_project_commit_message.hidden
+  .vblk_1
+  You can make/edit notes about the current version.  Just click on the text or 'click to edit' and a popup will appear.  When you've made a change, just hit tab to update and close the dialog (iPad users just close the keyboard).

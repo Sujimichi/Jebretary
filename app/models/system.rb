@@ -179,7 +179,7 @@ class System
   end
 
   def show_help_for? element
-    #return true
+    #return true if Rails.env.eql?("development")
     seen_elements = config_get :seen_elements
     unless seen_elements.include?(element)
       seen_elements << element

@@ -100,33 +100,55 @@ function dialog_open(div_id){
 };
 
 
-function show_help(specific_help, args){
-  var a = 0
-  if( $('#help_holder').html() == "" ){
-    $('#help_holder').height(0)
+var help_ref = {}
+
+
+function show_current_project_help(version_count){
+  var h = ""
+  if(version_count == 1){h = "one_version"}else{
+    if(version_count <= 4){h = "several_versions"}else{h = "multiple_versions"};
   };
+  if(version_count == 0){h = "no_versions"};
+
+  if($('#current_project').find('.untracked').is(':visible')){
+    h = "untracked_changes"
+  };
+
+  var help_item = "current_project_" + h;
+  show_help(help_item, {always_show: true});
+
+  if(h != "untracked_changes"){
+    show_help('current_project_commit_message', {always_show: true});
+  };
+};
+
+
+function show_help(specific_help, args){
+  if(args == undefined){args = {}};
+
   $('.help_for').each(function(){
     if(specific_help == undefined){
-      a = a + $(this).height()
       $('#help_holder').append( $(this).html() );
+      help_ref[$(this).attr("id")] = $(this).html();
       $(this).remove();
     }else{
       if($(this).attr("id") == specific_help){
-        a = a + $(this).height()
-        $('#help_holder').append( $(this).html() );
+        if(args['always_show'] != true){$('#help_holder').append( $(this).html() )};
+        help_ref[$(this).attr("id")] = $(this).html();
         $(this).remove();
       };
     };
-  })
+  });
 
-  var h = 0
+  if(args['always_show'] == true && specific_help != undefined){
+    $('#help_holder').append(help_ref[specific_help]);
+  };
 
   if(dialog_open('#help_holder') == true){
      $('#help_holder').dialog('option', 'height', 'auto')
   };
 
   if($('#help_holder').html() != ""){
-    if(args == undefined){args = {}}
     if(args['create'] == undefined){args['create'] = function(){}};
     if(args['close'] == undefined){args['close'] = function(){}};
 
@@ -137,7 +159,7 @@ function show_help(specific_help, args){
           open_dialogs['#help_holder'] = false;
           args['close']()
         },
-        position: ['center', 150],
+        position: ['center', 250],
         width: 750,
         height: 'auto',
         closeOnEscape: true,
