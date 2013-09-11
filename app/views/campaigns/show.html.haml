@@ -78,3 +78,6 @@
       .vblk_4
       .header
         %h2= "The '#{@campaign.name}' Campaign folder cannot be found"
+        .info It seems that someone, (I blame you) has deleted the folder for this campaign from the saves folder in KSP.
+        .info If you can recover the campaigns folder I will start tracking it again.
+        .info= "If you want to remove this campaign go to #{link_to campaigns_path, campaigns_path} and delete it.".html_safe
