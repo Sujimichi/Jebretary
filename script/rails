@@ -13,6 +13,6 @@ rescue Git::GitExecuteError
   else
     puts "\nGo to http://git-scm.com/download, download git and install it"
   end
-  puts "\nThen attempt to run Jebretary again"
+  puts "\nThen run Jebretary again"
 
 end
