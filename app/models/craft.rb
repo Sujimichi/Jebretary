@@ -137,8 +137,9 @@ class Craft < ActiveRecord::Base
 
   def update_repo_message_if_applicable
     message = self.commit_message
+    return if message.blank?
     nac = self.campaign.new_and_changed
-    unless message.blank? || ![nac[:new],nac[:changed]].flatten.empty?
+    if [nac[:new],nac[:changed]].flatten.empty?
       self.change_commit_message(self.history.first, message)
       self.update_attributes(:commit_message => nil)
     end

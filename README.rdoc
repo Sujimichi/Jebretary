@@ -10,6 +10,7 @@ Jebretary
 
 
 ==Planned/Todo
+  - ability to not track a craft (remove from repo)
   - quicksave and persistent tracking
 
   - craft actions like delete and move/copy. delete will delete the craft file, move/copy will move/copy craft files between campaigns.
