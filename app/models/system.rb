@@ -55,9 +55,12 @@ class System
         next unless campaign.should_process?
         craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
         craft.each do |craft_object|
-          craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft
-          next unless craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
-          craft_object.commit
+          craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft          
+          if craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
+            craft_object.commit          
+          else
+            craft_object.update_repo_message_if_applicable
+          end
           data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
           System.update_db_flag(data)
 

@@ -51,17 +51,31 @@ class CraftsController < ApplicationController
 
   def update
     @craft = Craft.find(params[:id])
+    @campaign = @craft.campaign
     history = @craft.history
 
     commit = history.select{|h| h.sha.eql?(params[:sha_id])}.first if params[:sha_id]   
     if params[:update_message]
-      @craft.commit_message = params[:update_message] if commit.eql?(history.first)
-      if @craft.save || !commit.eql?(history.first)
-        @craft.change_commit_message commit, params[:update_message] 
+      #only attempt update to repo commit message if there are no untracked changes anywhere in the campaigns repo,
+      nac = @campaign.new_and_changed
+      if [nac[:new],nac[:changed]].flatten.empty? 
+        @craft.commit_message = params[:update_message] #message may not be saved, but is set so that validations can be used to checks its ok to write to repo.
+        if @craft.valid? #run validations
+          @craft.change_commit_message(commit, params[:update_message]) #update the message to the repo
+          if commit.eql?(history.first) #in the case where this is the current commit then 
+            @craft.commit_message = nil #set the commit message to nil it has been written to the repo
+          else
+            @craft.reload #if not then reload the craft to restore the commit message to how it was before be used in the validation
+          end         
+        end
       else
-        @errors = {:update_message => @craft.errors}
+        #if there are untracked changes in the repo the message is cached on the craft object, to be written to the repo later.
+        @craft.commit_message = params[:update_message] if commit.eql?(history.first)        
       end
+      @craft.save if @craft.valid?
+      @errors = {:update_message => @craft.errors} unless @craft.errors.empty?
     end
+
     @craft.revert_to commit, :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
     @craft.recover if @craft.deleted? && params[:recover_deleted]
     @craft.commit if params[:force_commit]
@@ -69,7 +83,7 @@ class CraftsController < ApplicationController
     respond_with(@craft) do |f|
       f.html{
         if params[:return_to] && params[:return_to] == "campaign"
-          redirect_to @craft.campaign
+          redirect_to @campaign
         else
           redirect_to @craft
         end

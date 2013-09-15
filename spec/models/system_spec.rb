@@ -85,6 +85,7 @@ describe System do
       a.stub!(:where => [craft])
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)     
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)     
+      Craft.should_receive(:where).with("history_count is not null and campaign_id = #{@campaign_1.id}").at_least(1).times.and_return(a)
       System.process
     end
 

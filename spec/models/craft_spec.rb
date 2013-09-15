@@ -294,6 +294,7 @@ describe Craft do
       @craft.commit :m => "second commit"
       File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("third version")}
       @craft.commit :m => "third commit"  
+      System.process #to commit the other craft
     end
 
 

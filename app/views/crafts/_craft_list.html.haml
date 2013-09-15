@@ -53,17 +53,20 @@
           .clear
           .message
             - commit = current_project_history.first
+            - message = current_project.commit_message
+            - message ||= commit.message
+
             - if commit
-              -if current_project.commit_message.blank?
+              -if changed && current_project.commit_message.blank?
                 .message_form{:id => "message_form_for_#{commit.to_s}"}
                   %h4
-                    %a{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
+                    %a{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
                       Click to Add Notes:
               -else
-                .small{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
-                  = current_project.commit_message
+                .small{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
+                  = message
                 .message_form{:id => "message_form_for_#{commit.to_s}"}
-                  .small.info{:onclick => "change_message(this, '#{commit.message}', #{current_project.id}, '#{commit.to_s}')"}
+                  .small.info{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
                     = "click to edit"
 
 

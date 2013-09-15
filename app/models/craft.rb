@@ -112,10 +112,11 @@ class Craft < ActiveRecord::Base
           repo.add(self.file_name)
         end
         message << " #{self.commit_message.gsub(message,"")}" unless self.deleted? || self.commit_message.blank? || self.commit_message.eql?(message)
-        self.commit_message = message
+        self.commit_message = nil
         repo.commit(message)
         self.last_commit = repo.log.first.to_s
       end
+
 
       unless action.eql?(:deleted)    
         self.part_count ||= 1
@@ -123,11 +124,20 @@ class Craft < ActiveRecord::Base
         self.history_count = self.history.size
         self.history_count = 1 if self.history_count.eql?(0)        
       end
-      self.save 
+      self.save if self.changed?
       @repo_status = nil    
 
       return action
     #end
+  end
+
+  def update_repo_message_if_applicable
+    message = self.commit_message
+    nac = self.campaign.new_and_changed
+    unless message.blank? || ![nac[:new],nac[:changed]].flatten.empty?
+      self.change_commit_message(self.history.first, message)
+      self.update_attributes(:commit_message => nil)
+    end
   end
 
 
@@ -138,16 +148,15 @@ class Craft < ActiveRecord::Base
       repo = self.campaign.repo
       index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
       repo.checkout_file(commit, file_name)
-      self.commit_message = commit.message
       if options[:commit]
         begin
           m = "reverted #{name} to V#{index}"
           repo.commit(m)
-          self.commit_message = m
         rescue
         end
         update_history_count
       end
+      self.commit_message = nil
       self.save!
     end
   end
@@ -160,7 +169,7 @@ class Craft < ActiveRecord::Base
     self.deleted = false
     self.history_count = self.history.size
     self.last_commit = repo.log.first.to_s
-    self.commit_message = repo.log.first.message
+    self.commit_message = nil
     self.save
   end 
 
@@ -169,28 +178,33 @@ class Craft < ActiveRecord::Base
   #git rebase temp
   #git branch --delete temp
   def change_commit_message commit, new_message
-    return unless commit
-    dont_process_campaign_while do 
-      repo = self.campaign.repo
-      temp_branch_name = "temp_message_change_branch"
+    nac = self.campaign.new_and_changed
+    if [nac[:new],nac[:changed]].flatten.empty? #message cannot be changed if there are untracked changes in the repo
+      return nil unless commit
+      dont_process_campaign_while do 
+        repo = self.campaign.repo
+        temp_branch_name = "temp_message_change_branch"
 
-      #create a new branch with it head as the commit I want to change (refb)
-      repo.checkout(commit)
-      repo.branch(temp_branch_name).checkout
-      #and switch back to master
-      repo.checkout("master")
+        #create a new branch with it head as the commit I want to change (refb)
+        repo.checkout(commit)
+        repo.branch(temp_branch_name).checkout
+        #and switch back to master
+        repo.checkout("master")
 
-      #This part uses system commands to interact with the git repo as 
-      #I couldn't find a way using the git-gem to do filter-branch actions
-      repo.with_working(campaign.path) do
-        #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
-        `git filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}`
-        #rebase the temp branch back into master
-        `git rebase #{temp_branch_name}`
+        #This part uses system commands to interact with the git repo as 
+        #I couldn't find a way using the git-gem to do filter-branch actions
+          repo.with_working(campaign.path) do
+          #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
+          `git filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}`
+          #rebase the temp branch back into master
+          `git rebase #{temp_branch_name}`
+        end
+
+        #clean up - delete the temp branch
+        repo.branch(temp_branch_name).delete
       end
-
-      #clean up - delete the temp branch
-      repo.branch(temp_branch_name).delete
+    else
+      return false
     end
   end
 
