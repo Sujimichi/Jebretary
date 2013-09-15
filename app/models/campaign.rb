@@ -79,13 +79,14 @@ class Campaign < ActiveRecord::Base
 
   def last_changed_craft nac = new_and_changed #call new_and_changed just once
     last_updated = self.craft.where("deleted = ? and name != ?", false, "Auto-Saved Ship").order("updated_at").last
-    
-    unless nac[:changed].empty? && nac[:new].empty?
-      craft_name = nac[:changed].select{|c| !c.include?("Auto-Saved Ship")}.first
-      craft_name = nac[:new].select{|c| !c.include?("Auto-Saved Ship")}.first unless nac[:new].empty?
-      if craft_name
-        matched_craft = self.craft.where(:name => craft_name.split("/").last.sub(".craft",""), :deleted => false)
-        last_updated = matched_craft.first unless matched_craft.empty?
+
+    if !nac[:changed].empty? || !nac[:new].empty?
+      craft_names = nac[:changed].select{|c| !c.include?("Auto-Saved Ship")}
+      craft_names = nac[:new].select{|c| !c.include?("Auto-Saved Ship")} unless nac[:new].empty?
+      unless craft_names.empty?
+        matched_craft = Craft.where(:name => craft_names.map{|cn| cn.split("/").last.sub(".craft","")}, :deleted => false, :campaign_id => self.id)
+        matched_craft = matched_craft.sort_by{|c| File.mtime(c.file_path)} 
+        last_updated = matched_craft.last unless matched_craft.empty?
       end
     end
     last_updated

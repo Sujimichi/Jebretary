@@ -15,6 +15,10 @@ class Craft < ActiveRecord::Base
     "Ships/#{craft_type.upcase}/#{name}.craft"
   end
 
+  def file_path
+    File.join([self.campaign.path, self.file_name])
+  end
+
   #to be repalced with attribute to enable optional tracking of craft.
   def track?
     true
