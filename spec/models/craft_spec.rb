@@ -323,6 +323,16 @@ describe Craft do
       @craft.reload.history.size.should == 3
     end
 
+    it 'should not try to change the commit message if the repo has untracked changes' do 
+      commit = @craft.history[1]
+      @craft.change_commit_message(commit, "this is a new message").should be_true
+      @other_craft = Craft.where(:campaign_id => @craft.id, :name => "my_other_rocket").first
+      change_craft_contents @other_craft, "this is some different file data"
+
+      @craft.change_commit_message(commit, "this is a new test message").should be_false
+   
+    end
+
   end
 
   describe "dont_process_campaign_while" do 

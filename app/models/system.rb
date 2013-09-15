@@ -2,11 +2,13 @@ class System
 
   def self.process
 
-    System.set_db_flag({:status => :locked})
-    data = {}
+    System.set_db_flag({:status => :locked}) #db_flag is a marker file placed on the HD to flag the DB as being locked.  The server compnent will wait to perform DB actions while the db_flag file exists.  The db_flag file is also used to pass information about long a running set of DB actions here to the server component (for example during the initial setup of a users craft.
+
+    data = {} #the container for information to be passed to the front end. periodicaly updated and written to HD.
 
     instances = Instance.all
 
+    #Console output
     unless instances.count.eql?(0)
       print "\nchecking craft files..." unless Rails.env.eql?("test")
       t = Time.now
@@ -14,42 +16,50 @@ class System
       print "\nWaiting for an instance of KSP to be defined" unless Rails.env.eql?("test")
     end
 
-    instances.each{ |instance| data[instance.id] = {} }
-    craft_in_campaigns_for_instance = {}
 
+    instances.each{ |instance| data[instance.id] = {} } #put instance ids into data to be returned to interface. 
+    #Done as separate step to enable faster return of info to interface
+    craft_in_campaigns_for_instance = {} #container to hold mapping of craft files to campaigns in instances.
+
+    #First main itteration throu instances - fast and provides some basic information to the user interface
+    #determines which campaigns exist in each instance, creates new ones as appropriate
+    #discovers the craft files associated with each campaign
     instances.each do |instance|
-      campaign_names = instance.prepare_campaigns
+      campaign_names = instance.prepare_campaigns #checks the saves folder for campaign folders and creates campaigns where needed, returns array of campaign names
 
-      craft_in_campaigns = campaign_names.map{|name|
-        {name => instance.identify_craft_in(name)}
-      }.inject{|i,j| i.merge(j)}
-      craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns
+      #identify all craft files in VAB and SPH and return as hash of {campaign_name => {:sph => [], :vab => []}} for each campaign
+      craft_in_campaigns = campaign_names.map{|name| {name => instance.identify_craft_in(name)} }.inject{|i,j| i.merge(j)}
+      craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns #store this mapping of craft files in campaigns against the instance id.
 
-      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.exists?}
-      campaigns.each{|campaign| campaign.set_flag if campaign.should_process?}
+      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.exists?} #get all the campaign objects for those campaigns present in the save folder
+      campaigns.each{|campaign| campaign.set_flag if campaign.should_process?}  #set the flag image on campaigns which 'should_process'
+
+      #generate info for interface feedback.  How many total craft each campaign has (based on the files on the SPH and VAB folders)
       existing_camps = campaigns.map{|c| {c.name => { :id => c.id}} }.inject{|i,j| i.merge(j)}
-
       craft_in_campaigns.each{ |name, craft| existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size }
-
       data[instance.id] = {:campaigns => existing_camps}
-      System.update_db_flag(data)
+      System.update_db_flag(data) #update the DB flag file.
   
     end
 
+    #Second main ittereation throu instances - variable, typically skips so is fast, but periodically runs for 10-15 times longer when actions are required.
+    #Checks that each campaign that 'should_process' (ie has persistent.sfs change) has all the craft objects that it needs 
+    #and that changes to those craft objects are tracked.  It also checks that deleted craft files have the relevent craft object deleted and ensure that 
+    #objects that once existed in the repos history have a DB object to represent them (for recovery).
     instances.each do |instance|
       campaigns = Campaign.where(:instance_id => instance.id)   
-      craft_in_campaigns = craft_in_campaigns_for_instance[instance.id]
+      craft_in_campaigns = craft_in_campaigns_for_instance[instance.id] #get the craft files for the campaigns for this instance (generated in first itteration over instances)
 
       campaigns.each do |campaign|
         next unless campaign.exists?
-        campaign.cache_instance(instance)
+        campaign.cache_instance(instance) #put the already loaded instance object into a variable in the campaign object to be used rather than reloading from DB.
         campaign.git #ensure git repo is present
 
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
-        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true
-        System.update_db_flag(data)
-        campaign.verify_craft craft_in_campaigns[campaign.name]
-        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false
+        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
+        System.update_db_flag(data)        
+        campaign.verify_craft craft_in_campaigns[campaign.name] #ensure all present craft files have a matching craft object
+        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remote the markers
         System.update_db_flag(data)
 
         next unless campaign.should_process?
@@ -57,15 +67,15 @@ class System
         craft.each do |craft_object|
           craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft          
           if craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
-            craft_object.commit          
+            craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
           else
-            craft_object.update_repo_message_if_applicable
+            craft_object.update_repo_message_if_applicable #update any craft that are holding commit message info in the temparary store.
           end
+          #inform interface of how many craft have been commited.
           data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
           System.update_db_flag(data)
-
         end       
-        campaign.update_persistence_checksum
+        campaign.update_persistence_checksum #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
       end
     end
 

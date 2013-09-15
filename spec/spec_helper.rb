@@ -90,7 +90,7 @@ end
 
 def change_craft_contents craft, new_content = "this is some different file data"
   cur_dir = Dir.getwd
-  Dir.chdir(craft.craft_type.upcase)
+  Dir.chdir File.join([craft.campaign.path, "Ships", craft.craft_type.upcase])
   File.open("#{craft.name}.craft", 'w') {|f| f.write(new_content) }
   Dir.chdir(cur_dir)
 end
