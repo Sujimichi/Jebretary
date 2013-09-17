@@ -78,8 +78,10 @@ describe System do
 
     it 'should not attempt to commit craft which are already commited (and unchanged)' do 
       craft = @campaign_1.craft.new(:name =>  "my_rocket", :craft_type => "vab")
+      craft.commit #commit to set the craft as being unchanged. new System design means stubbing is_new? and is_changed does not effect which craft are processed.
+      craft.reload
       craft.should_not_receive(:commit)
-      craft.stub!(:is_new? => false, :is_changed? => false, :history_count => 1, :deleted => false)
+      #craft.stub!(:is_new? => false, :is_changed? => false, :history_count => 1, :deleted => false)
 
       a = [craft]
       a.stub!(:where => [craft])

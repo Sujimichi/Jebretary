@@ -121,19 +121,24 @@ class Campaign < ActiveRecord::Base
   def verify_craft files = nil
     files = self.instance.identify_craft_in(self.name) if files.nil?
 
+    present_craft = {:sph => [], :vab => []}    
     existing_craft = Craft.where(:campaign_id => self.id)
-    present_craft = {:sph => [], :vab => []}
 
+    #this rats nest of nested loops is not really that horrible!
+    #it takes the array of craft from the above select and groups them by craft_type. Then for each group it makes an hash of {craft_name => craft}. So it results in a hash
+    #of craft_type => hash of {craft_name => craft}
+    existing_craft_map = existing_craft.to_a.group_by{|c| c.craft_type}.map{|k,v| {k => v.map{|cc| {cc.name => cc}}.inject{|i,j|i.merge(j)} } }.inject{|i,j|i.merge(j)}
+
+    
     #create a new Craft object for each craft file found, unless a craft object for that craft already exists.
     files.each do |type, craft_files| 
       craft_files.each do |craft_name| 
         name = craft_name.sub(".craft","")
-        matches = existing_craft.where(:name => name, :craft_type => type)
-        if matches.empty?
+        match = existing_craft_map[type.to_s][name] if existing_craft_map && !existing_craft_map[type.to_s].nil?
+        if match.nil?
           craft = self.craft.create(:name =>  name, :craft_type => type)
           self.persistence_checksum = nil
         else
-          match = matches.first
           match.recover if match.deleted?
         end
         present_craft[type] << name

@@ -42,6 +42,7 @@ class System
   
     end
 
+    
     #Second main ittereation throu instances - variable, typically skips so is fast, but periodically runs for 10-15 times longer when actions are required.
     #Checks that each campaign that 'should_process' (ie has persistent.sfs change) has all the craft objects that it needs 
     #and that changes to those craft objects are tracked.  It also checks that deleted craft files have the relevent craft object deleted and ensure that 
@@ -63,49 +64,50 @@ class System
         System.update_db_flag(data)
 
         next unless campaign.should_process?
-        craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
 
-=begin #new design for system loop, hopfully less intensive.
         new_and_changed = campaign.new_and_changed
-
-        to_commit = [ #craft which need to be commited
+        craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
+     
+        #craft which need to be commited - anything that is new, changed or does not have a history_count
+        to_commit = [ 
+          #craft.select{|c| c.history_count.nil?}, #did use "craft.where(:history_count => nil).to_a" but in tests this was selecting a craft with a history_count of 1
           craft.where(:history_count => nil).to_a,
-          new_and_changed[:new].map{|file_name| craft.select{|c| c.file_name == file_name}},
-          new_and_changed[:changed].map{|file_name| craft.select{|c| c.file_name == file_name}}
-        ].flatten.compact
-    
-        to_update = [ #craft with outstanding message updates
-          craft.where("commit_message is not null")
-        ]  
+          new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
+          new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}}
+        ].flatten.compact.uniq
 
-        to_commit.each do |craft_object|
-          craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft          
+        #craft with outstanding message updates (used to be; [ ].flatten)        
+        to_update = craft.where("commit_message is not null").to_a
+
+        #pass in already loaded campaign object into craft object.
+        [to_commit, to_update].flatten.each{|craft_object| craft_object.crafts_campaign = campaign }
+          
+        to_commit.each do |craft_object|         
           craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
           data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
-          System.update_db_flag(data)#inform interface of how many craft have been commited.
+          System.update_db_flag(data) #inform interface of how many craft have been commited.
         end
 
-        to_update.each do |craft_object|
-          craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft          
-          craft_object.update_repo_message_if_applicable #update any craft that are holding commit message info in the temparary store.
-        end
+        #update any craft that are holding commit message info in the temparary store.
+        to_update.each{|craft_object| craft_object.update_repo_message_if_applicable }
 
-        campaign.update_persistence_checksum #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
-=end
+        #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
+        campaign.update_persistence_checksum 
 
 
-        craft.each do |craft_object|
-          craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft          
-          if craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
-            craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
-            data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
-            System.update_db_flag(data)
-          else
-            craft_object.update_repo_message_if_applicable #update any craft that are holding commit message info in the temparary store.
-          end
-          #inform interface of how many craft have been commited.
-        end       
-        campaign.update_persistence_checksum #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
+        #craft.each do |craft_object|
+        #  craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft          
+        #  if craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
+        #    craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
+        #    data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
+        #    System.update_db_flag(data)
+        #  else
+        #    craft_object.update_repo_message_if_applicable #update any craft that are holding commit message info in the temparary store.
+        #  end
+        #  #inform interface of how many craft have been commited.
+        #end       
+        #campaign.update_persistence_checksum #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
+
       end
     end
 
