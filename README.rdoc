@@ -1,19 +1,31 @@
 Jebretary
 
 ==Issues
-  - cant put new line in commit message
 
-  - deleting a craft with untracked changes crashes the interface
+  =Editing Commit Messages
+    - cant add/edit commit message during the period where the craft is being added to the repo.
+      + most annoying cos this is in the time while waiting for the game to load to launchpad when u would most want to write a note.
+      +problem is System.process will have updated the craft object in the DB in the time it takes to fill the craft update form.
+
+    - Response from adding/updating a message will sometimes crash the interface. Although most times the update is written.
+  
+    - cant put new line in commit message
 
 
-
+  =General
+    - occasionally shows the no campaigns messages on instances show page when there are campaigns present.
+    - deleting a craft with untracked changes crashes the interface
 
 
 ==Planned/Todo
-  - ability to not track a craft (remove from repo)
   - quicksave and persistent tracking
+    - quicksave will be tracked when ever it is seen to change, or manually
+    - persistent will be tracked when a quicksave is tracked, manually or if the repo needs to have no untracked changes for a message update.
+  - ability to not track a craft (remove from repo)
+  - selectable ordering on craft lists
 
   - craft actions like delete and move/copy. delete will delete the craft file, move/copy will move/copy craft files between campaigns.
+  - ability to set a craft to exist in all (select) campaigns and reflect changes made in either campaign.
 
   - different save modes {
       :agressive  => saves on every change to a craft,
