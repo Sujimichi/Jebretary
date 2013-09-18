@@ -137,12 +137,8 @@ class Craft < ActiveRecord::Base
 
   def update_repo_message_if_applicable
     message = self.commit_message
-    return if message.blank?
-    nac = self.campaign.new_and_changed
-    if [nac[:new],nac[:changed]].flatten.empty?
-      self.change_commit_message(self.history.first, message)
-      self.update_attributes(:commit_message => nil)
-    end
+    return if message.blank?     
+    self.update_attributes(:commit_message => nil) if self.change_commit_message(self.history.first, message)
   end
 
 
@@ -183,9 +179,8 @@ class Craft < ActiveRecord::Base
   #git rebase temp
   #git branch --delete temp
   def change_commit_message commit, new_message
-    nac = self.campaign.new_and_changed
-    if [nac[:new],nac[:changed]].flatten.empty? #message cannot be changed if there are untracked changes in the repo
-      return nil unless commit
+    return nil unless commit
+    if self.campaign.nothing_to_commit? #message cannot be changed if there are untracked changes in the repo
       dont_process_campaign_while do 
         repo = self.campaign.repo
         temp_branch_name = "temp_message_change_branch"

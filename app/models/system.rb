@@ -2,10 +2,11 @@ class System
 
   def self.process
 
-    System.set_db_flag({:status => :locked}) #db_flag is a marker file placed on the HD to flag the DB as being locked.  The server compnent will wait to perform DB actions while the db_flag file exists.  The db_flag file is also used to pass information about long a running set of DB actions here to the server component (for example during the initial setup of a users craft.
+    System.set_db_flag({:status => :locked}) 
+    #db_flag is a marker file placed on the HD to flag the DB as being locked. The server compnent will wait to perform DB actions while the db_flag file exists.  
+    #The db_flag file is also used to pass information about long a running set of DB actions here to the server component (for example during the initial setup of a users craft.
 
     data = {} #the container for information to be passed to the front end. periodicaly updated and written to HD.
-
     instances = Instance.all
 
     #Console output
@@ -15,7 +16,6 @@ class System
     else
       print "\nWaiting for an instance of KSP to be defined" unless Rails.env.eql?("test")
     end
-
 
     instances.each{ |instance| data[instance.id] = {} } #put instance ids into data to be returned to interface. 
     #Done as separate step to enable faster return of info to interface
@@ -93,20 +93,6 @@ class System
 
         #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
         campaign.update_persistence_checksum 
-
-
-        #craft.each do |craft_object|
-        #  craft_object.crafts_campaign = campaign #pass in already loaded campaign into craft          
-        #  if craft_object.is_new? || craft_object.is_changed? || craft_object.history_count.nil? 
-        #    craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
-        #    data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
-        #    System.update_db_flag(data)
-        #  else
-        #    craft_object.update_repo_message_if_applicable #update any craft that are holding commit message info in the temparary store.
-        #  end
-        #  #inform interface of how many craft have been commited.
-        #end       
-        #campaign.update_persistence_checksum #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
 
       end
     end

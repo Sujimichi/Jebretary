@@ -77,6 +77,14 @@ class Campaign < ActiveRecord::Base
     }
   end
 
+  def has_untracked_changed?
+    nac = self.new_and_changed
+    not [nac[:new],nac[:changed]].flatten.empty? 
+  end
+  def nothing_to_commit?
+    not has_untracked_changed?
+  end
+
   def last_changed_craft nac = new_and_changed #call new_and_changed just once
     last_updated = self.craft.where("deleted = ? and name != ?", false, "Auto-Saved Ship").order("updated_at").last
 
