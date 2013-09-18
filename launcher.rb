@@ -9,8 +9,9 @@ rescue
 end
 
 if @cleanup.eql?(:ok)
-  system "start jeb_watch.exe"
-  system "start rails.exe"
+  Dir.chdir("..")
+  system "start liquid.exe"   #start web server
+  system "start oxidizer.exe" #start background monitor
 else
   puts "Appears we have a problem launching"
   puts "Unable to remove tmp files from previous run, possibly another instance is currently still active?"

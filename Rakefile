@@ -7,10 +7,6 @@ require File.expand_path('../config/application', __FILE__)
 
 Jebretary::Application.load_tasks
 
-@build_app_command = "ocra jebretary\\script\\rails jebretary --add-all-core --gemfile jebretary\\Gemfile --no-dep-run --gem-full --chdir-first -- server -e production"
-@build_monitor_command = "ocra jebretary\\runner.rb jebretary --add-all-core --gemfile jebretary\\Gemfile --no-dep-run --gem-full --chdir-first"
-
-
 task :reset do
   `rake db:drop:all`
   `rake db:create:all`
@@ -89,10 +85,12 @@ task :ocra_prepare do
   }
   puts " done"
 
-  puts "Run these commands in a standard command prompt in the parent directory (#{File.join([Rails.root, ".."])})"
-  puts "\n#{@build_app_command}"
-  puts "\n#{@build_monitor_command}\n"
 
+
+  puts "\n\nReady for ISS installer build."   #(#{File.join([Rails.root, ".."])})"
+  puts "make sure the files in jebretary_build are uptodate"
+  puts "run build_runnner.bat and build_launcher.bat if the entry points have changed"
+  puts "run build_app.bat to build the app"
 
 end
 

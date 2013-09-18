@@ -15,6 +15,8 @@ Jebretary
   =General
     - occasionally shows the no campaigns messages on instances show page when there are campaigns present.
     - deleting a craft with untracked changes crashes the interface
+    - deleting a craft caused an interface crash for a short while (i think until System had processed)
+    - attempting to restore to the version where a craft was deleted results in an interface crash (but no changes to state).
 
 
 ==Planned/Todo
@@ -42,6 +44,9 @@ Jebretary
     - this feature would introduce a dependence on the DB, up till now all info is recreatable from the git repo (the DB mearly acts to index).
     - possibile upload to imgur option?
 
+
+  - tracking of subassemblies
+  - tracking of user defined files in GameData
 
     ==MajorFeature- Online System - JebWeb
       - users sign up for an account online with JebWeb and get a token which they set in Jebretary
