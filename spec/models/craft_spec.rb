@@ -357,4 +357,126 @@ describe Craft do
 
   end
 
+
+  describe "deleting craft" do 
+    before(:each) do 
+      set_up_sample_data
+      File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("first version")}
+      @campaign.create_repo
+      @craft = FactoryGirl.create(:craft, :campaign => @campaign, :name => "my_rocket", :craft_type => "vab")
+      @craft.commit
+    end
+
+    it 'should delete the craft file from the campaign' do 
+      File.should be_exists("Ships/VAB/my_rocket.craft")          
+      @craft.delete_craft
+      File.should_not be_exists("Ships/VAB/my_rocket.craft")      
+      @craft.should be_deleted
+    end
+
+    it 'should not call delete on an already deleted craft' do 
+      File.should_receive(:delete).with(File.join([@craft.campaign.path, @craft.file_name])).once
+      @craft.delete_craft
+      File.should_not_receive(:delete).with(File.join([@craft.campaign.path, @craft.file_name]))
+      @craft.delete_craft
+    end
+
+  end
+
+  describe "move_to" do 
+    before(:each) do 
+      create_sample_data "test_campaign_1", :reset => true
+      create_sample_data "test_campaign_2", :reset => false
+      @instance = FactoryGirl.create(:instance)
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
+      make_sample_data
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
+      make_sample_data
+      System.process
+
+      @campaign_1 = Campaign.where(:name => "test_campaign_1").first
+      @campaign_2 = Campaign.where(:name => "test_campaign_2").first
+      make_new_craft_in @campaign_1, "VAB", "some_brand_new_rocket"
+      @craft = @campaign_1.craft.create!(:name => "some_brand_new_rocket", :craft_type => :vab)
+      @craft.commit
+    end
+
+    it 'should move the craft file from one campaign to another' do 
+      @craft.campaign.should == @campaign_1      
+      @campaign_1.craft.map{|c| c.name}.should be_include(@craft.name)
+      @campaign_2.craft.map{|c| c.name}.should_not be_include(@craft.name)
+      Dir.entries(File.join([@campaign_1.path, "Ships", "VAB"])).should be_include("#{@craft.name}.craft")
+      Dir.entries(File.join([@campaign_2.path, "Ships", "VAB"])).should_not be_include("#{@craft.name}.craft")
+
+      @craft.move_to @campaign_2
+
+      Dir.entries(File.join([@campaign_1.path, "Ships", "VAB"])).should_not be_include("#{@craft.name}.craft")
+      Dir.entries(File.join([@campaign_2.path, "Ships", "VAB"])).should be_include("#{@craft.name}.craft")
+      @campaign_1.reload.craft.map{|c| c.name}.should_not be_include(@craft.name)
+      @campaign_2.reload.craft.map{|c| c.name}.should be_include(@craft.name)
+      @craft.campaign.should == @campaign_2     
+    end
+
+    it 'should not move the craft if one is already present' do 
+      File.open(@craft.file_path,'w'){|f| f.write("something particular written in this craft")}
+      make_new_craft_in @campaign_2, "VAB", "some_brand_new_rocket"
+      @craft2 = @campaign_2.craft.create!(:name => "some_brand_new_rocket", :craft_type => :vab)
+      @craft2.commit
+
+      @craft.move_to(@campaign_2).should be_false
+      File.open(@craft2.file_path,'r'){|f| f.readline}.should == "some test data"
+      @craft.campaign.should == @campaign_1
+    end
+
+    it 'should move the craft if one is already present if it is given the replace option' do 
+      File.open(@craft.file_path,'w'){|f| f.write("something particular written in this craft")}
+      make_new_craft_in @campaign_2, "VAB", "some_brand_new_rocket"
+      @craft2 = @campaign_2.craft.create!(:name => "some_brand_new_rocket", :craft_type => :vab)
+      @craft2.commit
+
+      @craft.move_to(@campaign_2, :replace => true).should be_true
+      File.open(@craft2.file_path,'r'){|f| f.readline}.should == "something particular written in this craft"
+      Craft.where(:name => "some_brand_new_rocket").count.should == 1
+      Craft.where(:name => "some_brand_new_rocket").first.campaign.should == @campaign_2
+    end
+
+    it 'should leave the originals in place if given the copy option' do 
+      @craft.campaign.should == @campaign_1      
+      @campaign_1.craft.map{|c| c.name}.should be_include(@craft.name)
+      @campaign_2.craft.map{|c| c.name}.should_not be_include(@craft.name)
+      Dir.entries(File.join([@campaign_1.path, "Ships", "VAB"])).should be_include("#{@craft.name}.craft")
+      Dir.entries(File.join([@campaign_2.path, "Ships", "VAB"])).should_not be_include("#{@craft.name}.craft")
+
+      @craft.move_to @campaign_2, :copy => true
+
+      Dir.entries(File.join([@campaign_1.path, "Ships", "VAB"])).should be_include("#{@craft.name}.craft")
+      Dir.entries(File.join([@campaign_2.path, "Ships", "VAB"])).should be_include("#{@craft.name}.craft")
+      @campaign_1.reload.craft.map{|c| c.name}.should be_include(@craft.name)
+      @campaign_2.reload.craft.map{|c| c.name}.should be_include(@craft.name)
+      @craft.campaign.should == @campaign_1
+      Craft.where(:name => "some_brand_new_rocket").count.should == 2      
+    end
+
+  end
+
+  describe "campaign spanning" do 
+    before(:each) do 
+      create_sample_data "test_campaign_1", :reset => true
+      create_sample_data "test_campaign_2", :reset => false
+      @instance = FactoryGirl.create(:instance)
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
+      make_sample_data
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
+      make_sample_data
+      System.process
+
+      @campaign_1 = Campaign.where(:name => "test_campaign_1").first
+      @campaign_2 = Campaign.where(:name => "test_campaign_2").first
+      make_new_craft_in @campaign_1, "VAB", "some_brand_new_rocket"
+      @craft = @campaign_1.craft.create!(:name => "some_brand_new_rocket", :craft_type => :vab)
+      @craft.commit
+    end
+
+  end
+
 end

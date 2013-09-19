@@ -58,7 +58,8 @@ Jebretary
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost to have more than 5 private craft.
 
 
-
+==0.0.8
+  - added move/copy/delete functionality
 
 ==0.0.7
   - improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update

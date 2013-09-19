@@ -215,4 +215,33 @@ class Craft < ActiveRecord::Base
     message
   end
 
+
+  #deleted the craft file and marks the craft object as being deleted.
+  def delete_craft
+    return unless File.exists?(self.file_path) && !self.deleted?
+    File.delete(self.file_path)
+    self.update_attributes(:deleted => true)
+  end
+
+  def move_to campaign, opts = {}
+    target_path = File.join([campaign.path, self.file_name])
+    return false if File.exists?(target_path) && !opts[:replace]
+    file = File.open(self.file_path, 'r'){|f| f.readlines}.join
+    File.delete(self.file_path) unless opts[:copy]
+    File.open(target_path,'w'){|f| f.write(file)}
+    if opts[:copy] || opts[:replace]
+      existing_craft = campaign.craft.where(:name => self.name).first
+      existing_craft.destroy if existing_craft
+      self.destroy unless opts[:copy]
+      cpy = campaign.craft.create!(:name => self.name, :craft_type => self.craft_type)
+      cpy.commit
+    else
+      self.campaign_id = campaign.id
+      self.save
+    end
+    true
+  end
+
+
+
 end
