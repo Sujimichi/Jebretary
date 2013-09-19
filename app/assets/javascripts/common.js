@@ -161,7 +161,7 @@ function show_help(specific_help, args){
           open_dialogs['#help_holder'] = false;
           args['close']()
         },
-        position: ['center', 250],
+        position: ['center', 100],
         width: 750,
         height: 'auto',
         closeOnEscape: true,

@@ -2,51 +2,43 @@
   .grid_8.push_2
 
     - if @sha_id
-      -if system.show_help_for?('crafts_revert_page_intro')
-        .help_for#craft_revert_page_intro_first_view.hidden
-          %h4 Like a brave Kerbal explorer you have clicked to revert a craft
-
-
-      //-if show_message_type_1
       .help_for#craft_revert_unchanged_first_view
         %h3 Reverting a Craft
         %p
-          .info= "When you revert a craft like this (ie the craft doesn't have untracked changes) the current version (in this case #{@current_version}) will be kept."
+          .info= "When you revert a craft like this, that doesn't have untracked changes, the current version (in this case #{@current_version}) will be kept."
 
-      //-if show_message_type_2
       .help_for#craft_revert_untracked_first_view
         %h3 Reverting a Craft (with untracked changes)
         %p
-          .info= "When you revert a craft like this (ie the craft has untracked changes), the untracked changes will be lost."
+          .info= "When you revert a craft like this, that has untracked changes, the untracked changes will be lost."
 
 
-      //-if show_message_type_3
       .help_for#craft_revert_untracked_current_commit_first_view
         %h3 Reverting a Craft (with untracked changes)
         %p
-          .info= "When you revert a craft like this (ie the craft has untracked changes and you revert to the most recent version) the untracked changes will be lost."
-          .info= "The craft file will be reverted to the latest version (#{@revert_to_version}) and it will be shown as having no new changes."
+          .info= "When you revert a craft to the most recent version when it also has untracked changes, then the untracked changes will be lost."
+          .info= "The craft will be reverted to the latest version (#{@revert_to_version}) and it will be shown as having no new changes."
 
 
-      //-if show_message_type_1 || show_message_type_2
       .help_for#craft_revert_page_common_first_view
         %p
           .info= "The craft <b>file</b> will be returned to how it was at the chosen version (in this case #{@revert_to_version}).".html_safe
-          .info= "The current version will remain as #{@current_version} and it will have new untracked changes."
+          .info= "The current version will remain as #{@current_version} and it will shown has having untracked changes."
         %p
-          .small= "When you launch the craft again (or press the \"Commit (save) Now\" button) a new version with these changes will be created.  If you make edits before you next launch or manualy commit, then those changes will be part of the next version."
+          .small= "When you next launch the craft (or manually commit) a new version with these changes will be created.  If you make edits before you next launch or manualy commit, then those changes will also be part of the next version."
 
 
         %p
           .info= "If you check the 'commit revert' option the untracked changes will be commited straight away resulting in a new version."
-          .small="this is however <b>not</b> recomended".html_safe
+          .small="this is however <b>not</b> recomended for normal use".html_safe
         %p
           %h3= "Just click Revert to go back to Version#{@revert_to_version}"
+          %h4= "Then reload #{@craft.name} in KSP's #{@craft.craft_type.upcase}"
 
-      //-if show_message_type_3
       .help_for#craft_revert_page_ending_first_view
         %p
           %h3= "Just click Revert to reset to your most recent commit"
+          %h4= "Then reload #{@craft.name} in KSP's #{@craft.craft_type.upcase}"
 
 
       %h2= "Revert #{@craft.name} to Version #{@revert_to_version}?"

@@ -1,7 +1,10 @@
 - if !defined?(@errors)
   $('.message_form').hide();
-  //$('.message_form').dialog();
-  $('.message_form').dialog( "destroy" );
+  $('.message_form').dialog();
+  //if($(".message_form").hasClass("ui-dialog")) {
+  $(".message_form").dialog("destroy");
+  //}
+
   restart_appropriate_poller();
 -else
   var error = "#{@errors.blank? ? '' : @errors[:update_message].full_messages.join}";
