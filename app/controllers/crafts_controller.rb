@@ -50,6 +50,7 @@ class CraftsController < ApplicationController
   end
 
   def update
+    #raise params.inspect
     @craft = Craft.find(params[:id])
     @campaign = @craft.campaign
     history = @craft.history
@@ -80,11 +81,21 @@ class CraftsController < ApplicationController
     @craft.recover if @craft.deleted? && params[:recover_deleted]
     @craft.commit if params[:force_commit]
 
+    if params[:move_copy]
+      campaigns = Campaign.find(params[:move_copy_to_select])
+      if params[:commit].downcase.eql?("copy")
+        campaigns.each{|campaign| @craft.move_to campaign, :replace => true, :copy => true}       
+      elsif params[:commit].downcase.eql?("move")
+        campaigns.each{|campaign| @craft.move_to campaign, :replace => true }
+      end
+    end
+
     respond_with(@craft) do |f|
       f.html{
         if params[:return_to] && params[:return_to] == "campaign"
           redirect_to @campaign
         else
+          @craft = campaigns.first.craft.where(:name => @craft.name).first if params[:move_copy] && params[:commit].downcase.eql?("move")
           redirect_to @craft
         end
       }

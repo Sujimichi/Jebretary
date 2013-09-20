@@ -11,6 +11,16 @@
   .vblk_3
   - unless @craft.deleted?
     .grid_10.push_1
+      = link_to_function "Move/Copy Craft", "move_copy_dialog()"
+      #move_copy_dialog.hidden
+        %h3= "Move or Copy #{@craft.name} to 1 or more other campaigns"
+
+        = form_for(@craft) do |f|
+          = hidden_field_tag :move_copy, true
+          = select_tag "move_copy_to_select", options_from_collection_for_select(Campaign.all, "id", "name"), :multiple => true
+          = f.submit "Move", :id => :move_submit, :class => "submit_button"
+          = f.submit "Copy", :id => :copy_submit, :class => "submit_button"
+
       %h3 Version History
       #history_list
         Loading craft History

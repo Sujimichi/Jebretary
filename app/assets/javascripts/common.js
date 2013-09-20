@@ -102,6 +102,21 @@ function dialog_open(div_id){
 };
 
 
+function move_copy_dialog(){
+  $('#move_copy_dialog').dialog({
+    position: ['center', 100],
+    width: 750,
+    height: 'auto',
+    closeOnEscape: true,
+    buttons: [
+      { text: "Move", click: function(){$('#move_submit').click()} },
+      { text: "Copy", click: function(){$('#copy_submit').click()} },
+      { text: "Cancel", click: function(){$(this).dialog('close')} }
+    ]
+  })
+  $('#move_copy_dialog').find(".submit_button").hide();
+};
+
 var help_ref = {}
 
 

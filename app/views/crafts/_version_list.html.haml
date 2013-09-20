@@ -1,6 +1,7 @@
 
 -if @craft
   - version = @craft.history_count
+  - version ||= 1
   = "#{@craft.name} has #{version} versions"
   .clear
   -if @craft.is_changed?

@@ -234,7 +234,7 @@ class Craft < ActiveRecord::Base
       existing_craft.destroy if existing_craft
       self.destroy unless opts[:copy]
       cpy = campaign.craft.create!(:name => self.name, :craft_type => self.craft_type)
-      cpy.commit
+      campaign.update_attributes(:persistence_checksum => nil)
     else
       self.campaign_id = campaign.id
       self.save
