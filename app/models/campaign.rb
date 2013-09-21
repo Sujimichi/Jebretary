@@ -62,7 +62,7 @@ class Campaign < ActiveRecord::Base
     return Git.open(self.path) if Dir.entries(self.path).include?('.git')
     g = Git.init(self.path)
     Dir.chdir(self.path)
-    File.open('.gitignore', 'w'){|f| f.write("") }
+    File.open('.gitignore', 'w'){|f| f.write("*~\n*.swp") }
     g.add('.gitignore')
     g.commit("Initial Commit")
     g

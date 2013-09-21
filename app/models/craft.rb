@@ -232,7 +232,7 @@ class Craft < ActiveRecord::Base
     if opts[:copy] || opts[:replace]
       existing_craft = campaign.craft.where(:name => self.name).first
       existing_craft.destroy if existing_craft
-      self.destroy unless opts[:copy]
+      self.update_attributes(:deleted => true) unless opts[:copy]
       cpy = campaign.craft.create!(:name => self.name, :craft_type => self.craft_type)
       campaign.update_attributes(:persistence_checksum => nil)
     else

@@ -17,22 +17,23 @@
         %h3 Reverting a Craft (with untracked changes)
         %p
           .info= "When you revert a craft to the most recent version when it also has untracked changes, then the untracked changes will be lost."
-          .info= "The craft will be reverted to the latest version (#{@revert_to_version}) and it will be shown as having no new changes."
+          .info= "The craft file and version will return to #{@revert_to_version}."
 
 
       .help_for#craft_revert_page_common_first_view
         %p
-          .info= "The craft <b>file</b> will be returned to how it was at the chosen version (in this case #{@revert_to_version}).".html_safe
-          .info= "The current version will remain as #{@current_version} and it will shown has having untracked changes."
+          .info= "The craft <b>file</b> will be returned to how it was at the chosen version (#{@revert_to_version}).".html_safe
+          .info= "The current version will remain as #{@current_version} and it will have untracked changes."
+          .small= "The untracked changes are the edits to the .craft file to change it from v#{@current_version} to how it was at v#{@revert_to_version}."
         %p
-          .small= "When you next launch the craft (or manually commit) a new version with these changes will be created.  If you make edits before you next launch or manualy commit, then those changes will also be part of the next version."
+          .small= "When you next launch (or manually commit) the craft, a new version with these changes will be created.  If you make edits before then, those changes will also be part of the next version."
 
 
         %p
-          .info= "If you check the 'commit revert' option the untracked changes will be commited straight away resulting in a new version."
-          .small="this is however <b>not</b> recomended for normal use".html_safe
+          .info= "If you check the 'commit revert' option the untracked changes will be commited and a new version will be created straight away."
+          .small="this is <b>not</b> recomended for normal use".html_safe
         %p
-          %h3= "Just click Revert to go back to Version#{@revert_to_version}"
+          %h3= "Just click Revert to go back to Version #{@revert_to_version}"
           %h4= "Then reload #{@craft.name} in KSP's #{@craft.craft_type.upcase}"
 
       .help_for#craft_revert_page_ending_first_view

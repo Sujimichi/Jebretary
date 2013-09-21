@@ -84,7 +84,7 @@
         - craft.crafts_campaign = campaign
         .craft_container{:class => (craft.deleted? ? 'deleted_craft' : '')}
           .craft
-            .name= link_to(craft.name, craft_path(craft))
+            .name= truncated_link_to craft.name, craft_path(craft), :truncate => 50
             .clear
             .git_info
               - unless craft.deleted?

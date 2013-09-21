@@ -1,7 +1,7 @@
 #craft_page
   #nav-box
     =link_to "return to campaign", campaign_path(@craft.campaign)
-  .grid_12
+  .grid_10
     - history = @craft.history
     = hidden_field_tag :craft_id, @craft.id
     %h1= @craft.name
@@ -13,11 +13,15 @@
     .grid_10.push_1
       = link_to_function "Move/Copy Craft", "move_copy_dialog()"
       #move_copy_dialog.hidden
-        %h3= "Move or Copy #{@craft.name} to 1 or more other campaigns"
+        %h3= "Move or Copy craft to 1 or more other campaigns"
 
         = form_for(@craft) do |f|
           = hidden_field_tag :move_copy, true
-          = select_tag "move_copy_to_select", options_from_collection_for_select(Campaign.all, "id", "name"), :multiple => true
+          .info select another campaign to move or copy this craft to
+          .small hold ctrl to select multiple campaigns
+          - campaigns = (Campaign.all - [@craft.campaign]).sort_by{|c| c.instance_id}
+
+          = select_tag "move_copy_to_select", options_from_collection_for_select(campaigns, "id", "path"), :multiple => true
           = f.submit "Move", :id => :move_submit, :class => "submit_button"
           = f.submit "Copy", :id => :copy_submit, :class => "submit_button"
 
