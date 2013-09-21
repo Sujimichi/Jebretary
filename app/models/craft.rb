@@ -220,8 +220,10 @@ class Craft < ActiveRecord::Base
   def delete_craft
     return unless File.exists?(self.file_path) && !self.deleted?
     File.delete(self.file_path)
-    self.update_attributes(:deleted => true)
+    self.deleted = true
+    self.commit
   end
+
 
   def move_to campaign, opts = {}
     target_path = File.join([campaign.path, self.file_name])

@@ -117,6 +117,20 @@ function move_copy_dialog(){
   $('#move_copy_dialog').find(".submit_button").hide();
 };
 
+function delete_craft_dialog(){
+  $('#delete_craft_dialog').dialog({
+    position: ['center', 100],
+    width: 750,
+    height: 'auto',
+    closeOnEscape: true,
+    buttons: [
+      { text: "Delete!", click: function(){$('#delete_submit').click()} },
+      { text: "Cancel", click: function(){$(this).dialog('close')} }
+    ]
+  })
+  $('#delete_craft_dialog').find(".submit_button").hide();
+};
+
 var help_ref = {}
 
 

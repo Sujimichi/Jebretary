@@ -83,10 +83,9 @@ class CraftsController < ApplicationController
 
     if params[:move_copy]
       campaigns = Campaign.find(params[:move_copy_to_select])
-      if params[:commit].downcase.eql?("copy")
-        campaigns.each{|campaign| @craft.move_to campaign, :replace => true, :copy => true}       
-      elsif params[:commit].downcase.eql?("move")
-        campaigns.each{|campaign| @craft.move_to campaign, :replace => true }
+      unless campaigns.empty?
+        campaigns.each{|campaign| @craft.move_to campaign, :replace => true, :copy => true} #for either copy or move perform the copy to all selected campaigns
+        @craft.move_to(campaigns.last, :replace => true, :copy => false) if params[:commit].downcase.eql?("move") #if it was a move, redo the move to the last campaign with copy=>false.  Using copy=>false for a group of campaigns won't work as the first one would delete the craft file and set the craft object as deleted.
       end
     end
 
@@ -102,5 +101,11 @@ class CraftsController < ApplicationController
       f.js {}
     end
 
+  end
+
+  def destroy
+    @craft = Craft.find(params[:id])
+    @craft.delete_craft
+    redirect_to @craft.campaign
   end
 end
