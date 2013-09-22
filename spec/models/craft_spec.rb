@@ -436,8 +436,11 @@ describe Craft do
 
       @craft.move_to(@campaign_2, :replace => true).should be_true
       File.open(@craft2.file_path,'r'){|f| f.readline}.should == "something particular written in this craft"
-      Craft.where(:name => "some_brand_new_rocket").count.should == 1
-      Craft.where(:name => "some_brand_new_rocket").first.campaign.should == @campaign_2
+      Craft.where(:name => "some_brand_new_rocket").count.should == 2
+      Craft.where(:name => "some_brand_new_rocket").first.campaign.should == @campaign_1
+      Craft.where(:name => "some_brand_new_rocket").first.should be_deleted
+      Craft.where(:name => "some_brand_new_rocket").last.campaign.should == @campaign_2
+
     end
 
     it 'should leave the originals in place if given the copy option' do 
@@ -476,6 +479,8 @@ describe Craft do
       @craft = @campaign_1.craft.create!(:name => "some_brand_new_rocket", :craft_type => :vab)
       @craft.commit
     end
+
+    it 'should enable a craft to exist in multiple campaigns and relect changes made in one campaign over all selected campaigns'
 
   end
 

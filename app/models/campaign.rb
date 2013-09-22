@@ -85,6 +85,7 @@ class Campaign < ActiveRecord::Base
     not has_untracked_changed?
   end
 
+  #return the craft which was most recently modified
   def last_changed_craft nac = new_and_changed #call new_and_changed just once
     last_updated = self.craft.where("deleted = ? and name != ?", false, "Auto-Saved Ship").order("updated_at").last
 
@@ -108,7 +109,8 @@ class Campaign < ActiveRecord::Base
   end
 
 
-
+  #returns true or false.  should_process is used by System.process to determine if this campaign should be skipped or not.
+  #returns true if there are different numbers of craft files to craft.where(:deleted => false) OR if the persistent.sfs checksum no longer matches.
   def should_process?
     #return false if it has been set to skip processing
     return false if self.persistence_checksum.eql?("skip")
@@ -139,34 +141,30 @@ class Campaign < ActiveRecord::Base
 
     
     #create a new Craft object for each craft file found, unless a craft object for that craft already exists.
-    files.each do |type, craft_files| 
+    files.each do |type, craft_files| #files is grouped by craft_type
       craft_files.each do |craft_name| 
-        name = craft_name.sub(".craft","")
+        name = craft_name.sub(".craft","") #get the name of the craft 
+        #and determine if a craft by that name already exists in that craft_type.
         match = existing_craft_map[type.to_s][name] if existing_craft_map && !existing_craft_map[type.to_s].nil?
         if match.nil?
-          craft = self.craft.create(:name =>  name, :craft_type => type)
-          self.persistence_checksum = nil
-        else
-          match.recover if match.deleted?
+          craft = self.craft.create(:name =>  name, :craft_type => type) #if the match is nil, create a Craft object
+          self.persistence_checksum = nil #set checksum to nil so next pass of System.process will process this campaign.
+        elsif match.deleted?
+          match.update_attributes(:deleted => false) #if the craft object was marked as deleted, but the file was restored, then un-mark the DB object.
+          self.persistence_checksum = nil #set checksum to nil so next pass of System.process will process this campaign.
         end
-        present_craft[type] << name
+        present_craft[type] << name #add name to list which is used later to indicate which crafts to NOT mark as deleted 
       end
     end
-    self.save
+    self.save if self.changed?
 
-    ddc = []
+    ddc = [] #track to ensure each deleted craft is only processed once (in cases where a craft has been deleted multiple times)
     self.discover_deleted_craft.each do |del_inf|
       del_inf[:deleted].each do |craft_data|
-        next if ddc.include? [craft_data[:craft_type], craft_data[:name]]
-
-        ddc << [craft_data[:craft_type], craft_data[:name]]
-        puts [craft_data[:name], self.name]
-        self.craft.create!(
-          :name => craft_data[:name].sub(".craft",""), 
-          :craft_type => craft_data[:craft_type].downcase, 
-          :deleted => true,
-          :last_commit => del_inf[:sha]
-        )
+        next if ddc.include? [craft_data[:craft_type], craft_data[:name]] #skip if a craft of this craft_type and name has already been processed
+        ddc << [craft_data[:craft_type], craft_data[:name]] #otherwise add entry to store 
+        #and create a craft object for the deleted craft.
+        self.craft.create!(:name => craft_data[:name].sub(".craft",""), :craft_type => craft_data[:craft_type].downcase, :deleted => true, :last_commit => del_inf[:sha])
       end
     end
 
@@ -181,41 +179,46 @@ class Campaign < ActiveRecord::Base
 
 
 
+  #find craft in the git repo which have already been deleted - in the case of Jebretary being setup on an existing git repo
+  #Craft which hae been previously deleted will still get a Craft object assigned to enable recovery of them.
+  #This uses command line git interface as the git-gem could not do --diff-filter commands (at least I couldn't find how to do it).
   def discover_deleted_craft
 
+    #In the root of the campaigns git repo run the --diff-filter command and then return to the current working dir.
     cur_dir = Dir.getwd
     Dir.chdir(self.path)  
-    log = `git log --diff-filter=D --summary`
+    log = `git log --diff-filter=D --summary` #find the commits in which a file was deleted.
     Dir.chdir(cur_dir)
     
+    #Select the craft already present in the DB
     existing_craft = {
       "VAB" => self.craft.where(:craft_type => "vab").map{|c| c.name},
       "SPH" => self.craft.where(:craft_type => "sph").map{|c| c.name}
     }
+
+    #get all the SHA_ID's used in the campaigns repo
     logs = self.repo.log.map{|log| log.to_s}
 
-    log = log.split("commit ")
-        
-    log = log.map{|l|
-      l.split("\n")
-    }.select{|l| !l.empty?}.map{|l|
-      next unless logs.include?(l[0])
+    #split logs so that each element contains one commit and each commit is an array, the 1st element of which is the SHA_ID
+    log = log.split("commit ").map{|l| l.split("\n") }.select{|l| !l.empty?}
+
+    log.map{|l|
+      next unless logs.include?(l[0]) #perhaps un-nessesary, a security step to ensure this only examines commits whos SHA_ID matches one in this repo.
       commit_info = {
-        :sha => l[0],
+        :sha => l[0], #first element is the SHA_ID
+        #select lines which include "delete mode" and remove the "delete mode" text.  Each line (of which there maybe 1 or more) is a file which was deleted.
         :deleted => l.select{|line| line.include?("delete mode")}.map{|line| line.gsub("delete mode 100644","").strip}.map{|data|
-          s = data.sub("Ships/","").split("/")
-          d = {:craft_type => s[0], :name => s[1]}
+          s = data.sub("Ships/","").split("/")      #assume the file path has 'Ships/' and remove it and split on '/'
+          d = {:craft_type => s[0], :name => s[1]}  #assuming the file is a craft, the first element will be VAB or SPH and the 2nd element will be the name.craft
+          d = nil unless d[:name].include?('.craft')#set d to nil 'skip' if the name does not include .craft
+          #second skip clause, skip if the craft type is not either VAB or SPH and skip if the existing craft already contain a craft by that name (for that craft_type).
           d = nil if !["SPH","VAB"].include?(d[:craft_type]) || existing_craft[d[:craft_type]].include?(d[:name].sub(".craft",""))
           d
-        }.compact
+        }.compact #remove the nil'ed entries
       }
-      commit_info = nil if commit_info[:deleted].compact.empty?
+      commit_info = nil if commit_info[:deleted].compact.empty? #if all the entries were nil'ed then skip this commit
       commit_info
-    }.compact
-
-    log
+    }.compact #remove the nil'ed commits.
   end
-
-
 
 end

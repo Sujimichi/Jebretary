@@ -53,10 +53,10 @@
           .clear
           .message
             - commit = current_project_history.first
-            - message = current_project.commit_message
-            - message ||= commit.message
 
             - if commit
+              - message = current_project.commit_message
+              - message ||= commit.message
               -if changed && current_project.commit_message.blank?
                 .message_form{:id => "message_form_for_#{commit.to_s}"}
                   %h4

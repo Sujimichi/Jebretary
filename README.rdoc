@@ -26,7 +26,6 @@ Jebretary
   - ability to not track a craft (remove from repo)
   - selectable ordering on craft lists
 
-  - craft actions like delete and move/copy. delete will delete the craft file, move/copy will move/copy craft files between campaigns.
   - ability to set a craft to exist in all (select) campaigns and reflect changes made in either campaign.
 
   - different save modes {
@@ -59,7 +58,8 @@ Jebretary
 
 
 ==0.0.8
-  - added move/copy/delete functionality
+  - added ability to move/copy craft file to another campaign in the same or other instance.
+  - added ability to delete craft files.
 
 ==0.0.7
   - improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update
