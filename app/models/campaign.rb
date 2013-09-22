@@ -150,7 +150,7 @@ class Campaign < ActiveRecord::Base
           craft = self.craft.create(:name =>  name, :craft_type => type) #if the match is nil, create a Craft object
           self.persistence_checksum = nil #set checksum to nil so next pass of System.process will process this campaign.
         elsif match.deleted?
-          match.update_attributes(:deleted => false) #if the craft object was marked as deleted, but the file was restored, then un-mark the DB object.
+          match.update_attributes(:deleted => false, :history_count => nil) #if the craft object was marked as deleted, but the file was restored, then un-mark the DB object.
           self.persistence_checksum = nil #set checksum to nil so next pass of System.process will process this campaign.
         end
         present_craft[type] << name #add name to list which is used later to indicate which crafts to NOT mark as deleted 

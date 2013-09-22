@@ -70,22 +70,24 @@ class System
      
         #craft which need to be commited - anything that is new, changed or does not have a history_count
         to_commit = [ 
-          #craft.select{|c| c.history_count.nil?}, #did use "craft.where(:history_count => nil).to_a" but in tests this was selecting a craft with a history_count of 1
           craft.where(:history_count => nil).to_a,
           new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
           new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}}
         ].flatten.compact.uniq
 
-        #craft with outstanding message updates (used to be; [ ].flatten)        
+
+        #craft with outstanding message updates 
         to_update = craft.where("commit_message is not null").to_a
 
         #pass in already loaded campaign object into craft object.
         [to_commit, to_update].flatten.each{|craft_object| craft_object.crafts_campaign = campaign }
           
         to_commit.each do |craft_object|         
+          print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
           craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
           data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
           System.update_db_flag(data) #inform interface of how many craft have been commited.
+          puts "done" unless Rails.env.eql?("test")
         end
 
         #update any craft that are holding commit message info in the temparary store.
