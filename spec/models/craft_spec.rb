@@ -385,8 +385,8 @@ describe Craft do
 
   describe "move_to" do 
     before(:each) do 
-      create_sample_data "test_campaign_1", :reset => true
-      create_sample_data "test_campaign_2", :reset => false
+      make_campaign_dir "test_campaign_1", :reset => true
+      make_campaign_dir "test_campaign_2", :reset => false
       @instance = FactoryGirl.create(:instance)
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
       make_sample_data
@@ -464,8 +464,8 @@ describe Craft do
 
   describe "campaign spanning" do 
     before(:each) do 
-      create_sample_data "test_campaign_1", :reset => true
-      create_sample_data "test_campaign_2", :reset => false
+      make_campaign_dir "test_campaign_1", :reset => true
+      make_campaign_dir "test_campaign_2", :reset => false
       @instance = FactoryGirl.create(:instance)
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
       make_sample_data

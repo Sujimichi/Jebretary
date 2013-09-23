@@ -4,8 +4,8 @@ describe System do
 
   describe "creating campaigns" do 
   before(:each) do 
-    create_sample_data "test_campaign_1", :reset => true
-    create_sample_data "test_campaign_2", :reset => false
+    make_campaign_dir "test_campaign_1", :reset => true
+    make_campaign_dir "test_campaign_2", :reset => false
     @instance = FactoryGirl.create(:instance)
     Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
     make_sample_data
@@ -25,8 +25,8 @@ describe System do
 
   describe "with created campaigns" do 
     before(:each) do 
-      create_sample_data "test_campaign_1", :reset => true
-      create_sample_data "test_campaign_2", :reset => false
+      make_campaign_dir "test_campaign_1", :reset => true
+      make_campaign_dir "test_campaign_2", :reset => false
       @instance = FactoryGirl.create(:instance)
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
       make_sample_data
@@ -57,7 +57,7 @@ describe System do
   
   describe "commiting the craft" do 
     before(:each) do 
-      create_sample_data "test_campaign_1", :reset => true
+      make_campaign_dir "test_campaign_1", :reset => true
       @instance = FactoryGirl.create(:instance)
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
       make_sample_data
@@ -152,11 +152,11 @@ describe System do
     #Somewhere at the point of marking the craft object as deleted it also gets created in all campaigns
     before(:each) do 
       @instance = FactoryGirl.create(:instance)
-      create_sample_data "campaign_1"
+      make_campaign_dir "campaign_1"
       @campaign_1 = FactoryGirl.create(:campaign, :name => "campaign_1", :instance_id => @instance.id)
       Dir.chdir @campaign_1.path
       make_sample_data
-      create_sample_data "campaign_2", :reset => false
+      make_campaign_dir "campaign_2", :reset => false
       @campaign_2 = FactoryGirl.create(:campaign, :name => "campaign_2", :instance_id => @instance.id)
       Dir.chdir @campaign_2.path
       make_sample_data
@@ -182,7 +182,22 @@ describe System do
       @campaign_2.craft.where(:deleted => false).count.should == 3
 
     end
+  end
+
+  describe "tracking saves" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+      @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
+      @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
+    end
+
+    it 'should add the quicksave.sfs and persistent.sfs files to the repo' do 
+      System.process
+      @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
+      @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
+    end
 
 
   end
+
 end

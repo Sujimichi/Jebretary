@@ -56,7 +56,7 @@ class Campaign < ActiveRecord::Base
     Git.open(self.path)
   end
   alias repo git
-
+  
   #initialise the git repo and add a .gitignore to ignore the AutoSaved craft
   def create_repo
     return Git.open(self.path) if Dir.entries(self.path).include?('.git')
@@ -68,7 +68,37 @@ class Campaign < ActiveRecord::Base
     g
   end
 
+  def within_dir dir, &blk
+    cur_dir = Dir.getwd
+    Dir.chdir(dir)
+    yield
+    Dir.chdir(cur_dir)
+  end
 
+  #add or update either the quicksave.sfs or persistent.sfs file to the repo.
+  def track_save save_type = :quicksave, args = {}
+    file = (save_type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs'
+    within_dir(self.path) do 
+      return unless File.exists?(file) && changed_save?(save_type)
+      message = "updated #{file}"   
+      message = "added #{file}" if repo.status.untracked.keys.include?(file)
+      message = args[:message] unless args[:message].blank?     
+      repo.add(file)
+      repo.commit(message)
+    end
+  end
+
+  #return true or false depending state of given save ie;
+  #changed_save?(:quicksave) => true if the quicksave.sfs is either untracked or has changes.
+  def changed_save? save_type
+    save_type = save_type.to_s << '.sfs'
+    status = self.repo.status
+    status.untracked.keys.include?(save_type) || status.changed.keys.include?(save_type)
+  end
+
+
+  #return hash containing :new and :changed keys, each entailing an array of craft file paths
+  #for craft that are either untracked or which have changes.
   def new_and_changed
     status = repo.status
     {
@@ -77,12 +107,14 @@ class Campaign < ActiveRecord::Base
     }
   end
 
-  def has_untracked_changed?
-    nac = self.new_and_changed
-    not [nac[:new],nac[:changed]].flatten.empty? 
+  def has_untracked_changes?
+    status = self.repo.status
+    not [status.untracked.keys, status.changed.keys].flatten.select do |k| 
+      (k.include?("Ships") && k.include?(".craft")) || k.include?(".sfs") 
+    end.empty?
   end
   def nothing_to_commit?
-    not has_untracked_changed?
+    not has_untracked_changes?
   end
 
   #return the craft which was most recently modified

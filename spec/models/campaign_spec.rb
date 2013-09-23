@@ -62,6 +62,53 @@ describe Campaign do
 
   end
 
+  describe "has_untracked_changes?" do 
+    before(:each) do 
+      set_up_sample_data
+      verify_craft_for_campaign
+      commit_craft_in_campaign      
+      @campaign.track_save(:quicksave)
+      @campaign.track_save(:persistent)
+
+    end
+
+    it 'should return true if there are untracked craft' do 
+      @campaign.should_not have_untracked_changes
+      make_new_craft_in @campaign, "VAB", "rocket_thing"
+      @campaign.should have_untracked_changes
+      @campaign.new_and_changed[:new].should_not be_empty
+      @campaign.new_and_changed[:changed].should be_empty      
+    end
+
+    it 'should return true if there are changed craft' do 
+      File.open(File.join([@campaign.path, @campaign.craft.first.file_name]),'w'){|f| f.write("foobar")}
+      @campaign.should have_untracked_changes
+      @campaign.new_and_changed[:new].should be_empty
+      @campaign.new_and_changed[:changed].should_not be_empty
+    end
+
+    it 'should return false if all craft are up-to-date' do 
+      File.open(File.join([@campaign.path, @campaign.craft.first.file_name]),'w'){|f| f.write("foobar")}     
+      @campaign.should have_untracked_changes
+      @campaign.craft.first.commit
+      @campaign.should_not have_untracked_changes
+    end
+
+    it 'should return true if the quicksave.sfs is changed' do 
+      @campaign.should_not have_untracked_changes
+      File.open('quicksave.sfs','w'){|f| f.write("foobar")}           
+      @campaign.should have_untracked_changes
+    end
+
+    it 'should return true if the persistent.sfs is changed' do 
+      @campaign.should_not have_untracked_changes
+      File.open('persistent.sfs','w'){|f| f.write("foobar")}           
+      @campaign.should have_untracked_changes
+    end
+
+
+  end
+
 
   describe "last_changed" do 
     before(:each) do 
@@ -151,17 +198,17 @@ describe Campaign do
       @campaign.update_attributes(:persistence_checksum => nil)
       @campaign.should_process?.should be_true
     end
-    
+
     it "should return false if the persistence_checksum is set to 'skip'" do 
       @campaign.update_attributes(:persistence_checksum => "skip")
       @campaign.should_process?.should be_false
     end
 
     it 'should return true if one of its craft have been deleted' do 
-      
+
       @campaign.update_persistence_checksum
       @campaign.should_process?.should be_false
-      
+
       File.delete("Ships/VAB/my_rocket.craft")
       @campaign.should_process?.should be_true
     end
@@ -256,7 +303,7 @@ describe Campaign do
       File.delete("Ships/VAB/my_other_rocket.craft")
       repo.remove("Ships/VAB/my_other_rocket.craft")
       repo.commit("removed my_other_rocket")     
-      
+
       discovered = @campaign.discover_deleted_craft
       discovered.size.should == 2
       discovered[0][:deleted][0][:name].should == "my_other_rocket.craft"
@@ -265,7 +312,7 @@ describe Campaign do
       discovered[1][:deleted][0][:craft_type].should == "VAB"
 
     end
-    
+
     it 'should not include details if the deleted craft has a Craft object' do 
       repo = @campaign.repo
       @craft = @campaign.craft.create!(:name => "my_rocket", :craft_type => :vab)
@@ -275,7 +322,7 @@ describe Campaign do
       File.delete("Ships/VAB/my_rocket.craft")
       @craft.deleted = true
       @craft.commit   
-          
+
       File.delete("Ships/VAB/my_other_rocket.craft")
       repo.remove("Ships/VAB/my_other_rocket.craft")
       repo.commit("removed my_other_rocket")     
@@ -296,7 +343,7 @@ describe Campaign do
       repo.remove("Ships/VAB/my_rocket.craft")
       repo.remove("Ships/VAB/my_other_rocket.craft")
       repo.commit("removed my_other_rocket")     
-      
+
       discovered = @campaign.discover_deleted_craft
       discovered.size.should == 1
       discovered[0][:deleted][0][:name].should == "my_other_rocket.craft"
@@ -342,6 +389,59 @@ describe Campaign do
 
 
   end
-   
+
+  describe "quicksave tracking" do 
+
+    describe "track save" do 
+      before(:each) do 
+        @campaign = set_up_sample_data
+      end
+
+      describe "quicksave" do 
+        it 'should add the quicksave.sfs file to the repo with a commit message that saying that quicksave.sfs was added' do 
+          @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
+          @campaign.track_save :quicksave
+          @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
+          @campaign.repo.log.first.message.should == "added quicksave.sfs"
+        end
+
+        it 'should update the quicksave.sfs file in the repo if it has changed with a commit message that saying that quicksave.sfs was updated' do 
+          @campaign.track_save :quicksave
+          File.open("quicksave.sfs", 'w'){|f| f.write("not the save it was before")}
+          @campaign.repo.status.changed.keys.should be_include("quicksave.sfs")
+          @campaign.track_save :quicksave
+          @campaign.repo.status.changed.keys.should_not be_include("quicksave.sfs")
+          @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
+          @campaign.repo.log.first.message.should == "updated quicksave.sfs"
+        end
+      end
+
+      describe "persistent" do 
+        it 'should add the persistent.sfs file to the repo with a commit message that saying that persistent.sfs was added' do 
+          @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
+          @campaign.track_save :persistent
+          @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
+          @campaign.repo.log.first.message.should == "added persistent.sfs"
+        end
+
+        it 'should update the persistent.sfs file in the repo if it has changed with a commit message that saying that persistent.sfs was updated' do 
+          @campaign.track_save :persistent
+          File.open("persistent.sfs", 'w'){|f| f.write("not the save it was before")}
+          @campaign.repo.status.changed.keys.should be_include("persistent.sfs")
+          @campaign.track_save :persistent
+          @campaign.repo.status.changed.keys.should_not be_include("persistent.sfs")
+          @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
+          @campaign.repo.log.first.message.should == "updated persistent.sfs"
+        end
+      end
+
+      it 'should set a custom commit message if one is supplied' do 
+        @campaign.track_save :quicksave, :message => "and all was good"
+        @campaign.repo.log.first.message.should == "and all was good"
+      end
+
+    end
+
+  end
 
 end

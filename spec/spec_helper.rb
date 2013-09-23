@@ -103,7 +103,7 @@ def in_test_dir &blk
 end
 
 def set_up_sample_data campaign_name = "test_campaign"
-  create_sample_data campaign_name
+  make_campaign_dir campaign_name
   @instance = FactoryGirl.create(:instance)
   @campaign = FactoryGirl.create(:campaign, :name => campaign_name, :instance_id => @instance.id)
   Dir.chdir @campaign.path
@@ -111,7 +111,7 @@ def set_up_sample_data campaign_name = "test_campaign"
   @campaign
 end
 
-def create_sample_data campaign_name = "test_campaign", args = {:reset => true}
+def make_campaign_dir campaign_name = "test_campaign", args = {:reset => true}
   if args[:reset]
     set_test_dir
     in_test_dir { set_basic_mock_KSP_dir }
