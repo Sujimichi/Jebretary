@@ -58,16 +58,16 @@
               - message = current_project.commit_message
               - message ||= commit.message
               -if changed && current_project.commit_message.blank?
-                .message_form{:id => "message_form_for_#{commit.to_s}"}
-                  %h4
-                    %a{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
-                      Click to Add Notes:
+                %h4
+                  %a{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
+                    Click to Add Notes:
+                .message_form{:id => "message_form_for_#{commit.to_s}", :class => "untracked_change"}
               -else
                 .small{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
                   = message
+                .small.info{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
+                  = "click to edit"
                 .message_form{:id => "message_form_for_#{commit.to_s}"}
-                  .small.info{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
-                    = "click to edit"
 
 
 

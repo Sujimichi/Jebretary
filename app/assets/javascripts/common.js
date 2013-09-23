@@ -2,11 +2,14 @@ $(function(){
   clearTimeout(index_search_timer);
 });
 
-
+var setup_timer = null
 var index_search_timer = null
 var craft_version_timer = null
 var rails_env = $('#rails_env').val();
 var show_setup_poller_help_timer = undefined
+
+var open_dialogs = {}
+var help_ref = {}
 
 
 //AJAX methods GET, POST and DELETE - Generalised methods for making ajax requests
@@ -35,7 +38,7 @@ function ajax_send(url, data, callback, type){
   $.ajax({ url: url, data: data, type: type, success: callback, error: wrapped_error, dataType: 'script' });
 };
 
-var setup_timer = null
+
 function poll_for_updated_instance(){
   clearTimeout(setup_timer);
   setup_timer = setTimeout(function(){
@@ -73,8 +76,8 @@ function poll_craft_version(){
 
 
 function change_message(div, current_text, craft_id, commit){
-  clearTimeout(craft_version_timer);
-  clearTimeout(index_search_timer);
+  //clearTimeout(craft_version_timer);
+  //clearTimeout(index_search_timer);
   ajax_get("/crafts/" + craft_id + "/edit", {data: "message_form", sha_id: commit}, function(){
   });
 };
@@ -88,14 +91,13 @@ function update_message(div, craft_id, commit, original_message){
     }else{
       $('.message_form').dialog();
       $('.message_form').dialog( "close" );
-      restart_appropriate_poller()
+      //restart_appropriate_poller()
     };
 
   });
 };
 
 
-var open_dialogs = {}
 
 function dialog_open(div_id){
   if(open_dialogs[div_id] == true){return true}else{return false}
@@ -131,7 +133,7 @@ function delete_craft_dialog(){
   $('#delete_craft_dialog').find(".submit_button").hide();
 };
 
-var help_ref = {}
+
 
 
 function show_current_project_help(version_count){

@@ -55,12 +55,16 @@ class CraftsController < ApplicationController
     @campaign = @craft.campaign
     history = @craft.history
 
-    commit = history.select{|h| h.sha.eql?(params[:sha_id])}.first if params[:sha_id]   
+    if params[:sha_id] 
+      commit = history.first if params[:sha_id].eql?("most_recent")
+      commit ||= history.select{|h| h.sha.eql?(params[:sha_id])}.first 
+    end
+
     if params[:update_message]
       #only attempt update to repo commit message if there are no untracked changes anywhere in the campaigns repo,
         
       if @campaign.nothing_to_commit?
-        @craft.commit_message = params[:update_message] #message may not be saved, but is set so that validations can be used to checks its ok to write to repo.
+        @craft.commit_message = params[:update_message] #message may not be saved, but is set so that validations can be used to check its ok to write to repo.
         if @craft.valid? #run validations
           @craft.change_commit_message(commit, params[:update_message]) #update the message to the repo
           if commit.eql?(history.first) #in the case where this is the current commit then 
