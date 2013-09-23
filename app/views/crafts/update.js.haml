@@ -4,8 +4,6 @@
   //if($(".message_form").hasClass("ui-dialog")) {
   $(".message_form").dialog("destroy");
   //}
-
-  //restart_appropriate_poller();
 -else
   var error = "#{@errors.blank? ? '' : @errors[:update_message].full_messages.join}";
   $('.message_errors').html(error);

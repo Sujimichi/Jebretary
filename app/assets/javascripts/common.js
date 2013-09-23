@@ -76,13 +76,12 @@ function poll_craft_version(){
 
 
 function change_message(div, current_text, craft_id, commit){
-  //clearTimeout(craft_version_timer);
-  //clearTimeout(index_search_timer);
   ajax_get("/crafts/" + craft_id + "/edit", {data: "message_form", sha_id: commit}, function(){
   });
 };
 
 function update_message(div, craft_id, commit, original_message){
+  if($("#content_for_current_project").find("untracked") != undefined){commit = "most_recent"};
 
   $(div).find('#message').bind("blur", function(){
     var new_message = $(this).val();
@@ -91,9 +90,7 @@ function update_message(div, craft_id, commit, original_message){
     }else{
       $('.message_form').dialog();
       $('.message_form').dialog( "close" );
-      //restart_appropriate_poller()
     };
-
   });
 };
 

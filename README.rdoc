@@ -3,12 +3,7 @@ Jebretary
 ==Issues
 
   =Editing Commit Messages
-    - cant add/edit commit message during the period where the craft is being added to the repo.
-      + most annoying cos this is in the time while waiting for the game to load to launchpad when u would most want to write a note.
-      +problem is System.process will have updated the craft object in the DB in the time it takes to fill the craft update form.
-
     - Response from adding/updating a message will sometimes crash the interface. Although most times the update is written.
-
     - cant put new line in commit message
 
 
@@ -60,6 +55,7 @@ Jebretary
 ==0.0.8
   - added ability to move/copy craft file to another campaign in the same or other instance.
   - added ability to delete craft files.
+  - Fixed - editing a commit message at the same time as the craft is automatically commited no longer looses the message
 
 ==0.0.7
   - improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update

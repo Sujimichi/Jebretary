@@ -13,9 +13,4 @@ var v = $(div).find('#message').val();
 $(div).find('#message').val("Go Jeb Go");
 $(div).find('#message').val(v + " ");
 
-
-if($(div).hasClass("untracked_change")){
-update_message(div, "#{@craft.id}", "most_recent", "#{@commit.message}");
-}else{
 update_message(div, "#{@craft.id}", "#{@commit.to_s}", "#{@commit.message}");
-};
