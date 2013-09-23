@@ -49,7 +49,7 @@
               |
               = link_to "more", craft_path(current_project)
             = "|" unless current_project_history.size.eql?(1) && !changed
-            = link_to_function "Help", "show_current_project_help(#{current_project_history.size})"
+            = link_to_function "info", "show_current_project_help(#{current_project_history.size})"
           .clear
           .message
             - commit = current_project_history.first
