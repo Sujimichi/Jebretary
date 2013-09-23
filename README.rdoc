@@ -18,8 +18,10 @@ Jebretary
   - quicksave and persistent tracking
     - quicksave will be tracked when ever it is seen to change, or manually
     - persistent will be tracked when a quicksave is tracked, manually or if the repo needs to have no untracked changes for a message update.
+
   - ability to not track a craft (remove from repo)
-  - selectable ordering on craft lists
+
+  - sort and ordering on craft list
 
   - ability to set a craft to exist in all (select) campaigns and reflect changes made in either campaign.
 
@@ -30,17 +32,19 @@ Jebretary
     }
 
 
+  - tracking of subassemblies
+  - tracking of user defined files in GameData
+
+
+==Later
   - part count display
 
   - indicator by craft in list that show if they are in service (might not be possible as craft can be renammed in flight)
 
-  - screen shot auto-associating. Given a knowledge of where a players scr-shots go, during a certain period after launch associate any new scr-shots with the craft
-    - this feature would introduce a dependence on the DB, up till now all info is recreatable from the git repo (the DB mearly acts to index).
+  - screen shot auto-associating. Given a knowledge of where a players scr-shots go, during a certain period after launch or on demand, associate any new scr-shots with the craft
+    - this feature would introduce a dependence on the DB, up till now all info is recreatable from the git repo (the DB just acts to index).
     - possibile upload to imgur option?
 
-
-  - tracking of subassemblies
-  - tracking of user defined files in GameData
 
     ==MajorFeature- Online System - JebWeb
       - users sign up for an account online with JebWeb and get a token which they set in Jebretary
