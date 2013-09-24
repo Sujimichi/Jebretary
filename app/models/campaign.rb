@@ -82,29 +82,31 @@ class Campaign < ActiveRecord::Base
     else
       files = [(save_type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs']
     end
-    status = repo.status
+    r = self.repo
+    status = r.status
     within_dir(self.path) do 
       files.each do |file|
-        next unless File.exists?(file) #&& changed_save?(save_type)
-        message = "updated #{file}"   
-        message = "added #{file}" if status.untracked.keys.include?(file)
-        message = args[:message] unless args[:message].blank?     
-        repo.add(file)
-        begin
-          repo.commit(message)
-        rescue
-          #just carry on, this is incase there aren't any changes to the save, rather than call repo.status again (which has mem leak)
+        changed_file = status.changed.keys.include?(file)
+        if File.exists?(file) && (changed_file || status.untracked.keys.include?(file))
+          message = "added #{file}" 
+          message = "updated #{file}" if changed_file
+          message = args[:message] unless args[:message].blank?     
+          r.add(file)
+          #begin
+            r.commit(message)
+          #rescue
+            #just carry on, this is incase there aren't any changes to the save, rather than call repo.status again (which has mem leak)
+          #end
         end
       end
     end
   end
 
   #return true or false depending state of given save ie;
-  #changed_save?(:quicksave) => true if the quicksave.sfs is either untracked or has changes.
-  def changed_save? save_type
-    save_type = save_type.to_s << '.sfs'
-    status = self.repo.status
-    status.untracked.keys.include?(save_type) || status.changed.keys.include?(save_type)
+  #changed_save?(:quicksave) => true if the quicksave.sfs has changes.
+  def changed_save? save_type, status = self.repo.status
+    #save_type = save_type.to_s << '.sfs'
+    status.changed.keys.include?(save_type)
   end
 
 
@@ -120,7 +122,7 @@ class Campaign < ActiveRecord::Base
 
   def has_untracked_changes?
     status = self.repo.status
-    not [status.untracked.keys, status.changed.keys].flatten.select do |k| 
+    not [status.changed.keys].flatten.select do |k| 
       (k.include?("Ships") && k.include?(".craft")) || k.include?(".sfs") 
     end.empty?
   end
@@ -177,9 +179,9 @@ class Campaign < ActiveRecord::Base
     present_craft = {:sph => [], :vab => []}    
     existing_craft = Craft.where(:campaign_id => self.id)
 
-    #this rats nest of nested loops is not really that horrible!
-    #it takes the array of craft from the above select and groups them by craft_type. Then for each group it makes an hash of {craft_name => craft}. So it results in a hash
-    #of craft_type => hash of {craft_name => craft}
+    #this rats nest of chained loops is not really that horrible!
+    #it takes the array of craft from the above select and groups them by craft_type. Then for each group it makes an hash of {craft_name => craft}. 
+    #So it results in a hash of; craft_type => hash of {craft_name => craft}
     existing_craft_map = existing_craft.to_a.group_by{|c| c.craft_type}.map{|k,v| {k => v.map{|cc| {cc.name => cc}}.inject{|i,j|i.merge(j)} } }.inject{|i,j|i.merge(j)}
 
     

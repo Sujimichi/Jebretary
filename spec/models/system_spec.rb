@@ -193,7 +193,6 @@ describe System do
       @campaign.craft.each{|c| c.commit}
       @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
       @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
-      @campaign.update_persistence_checksum
     end
 
     it 'should add the quicksave.sfs and persistent.sfs files to the repo' do 
@@ -204,7 +203,7 @@ describe System do
 
     it 'should not track the save files when there are craft being tracked' do 
       @campaign.track_save(:both) #to get saves files tracked
-      @campaign.update_attributes(:persistence_checksum => nil)
+
       change_craft_contents @campaign.craft.first, "some different file data"
 
       File.open(File.join([@campaign.path, 'quicksave.sfs']),'w'){|f| f.write("test data type stuff")}
@@ -217,7 +216,7 @@ describe System do
 
     it 'should track the save files when craft are not being updated' do 
       @campaign.track_save(:both) #to get saves files tracked
-
+      
       File.open(File.join([@campaign.path, 'quicksave.sfs']),'w'){|f| f.write("test data type stuff")}
       File.open(File.join([@campaign.path, 'persistent.sfs']),'w'){|f| f.write("test data type stuff")}
       System.process

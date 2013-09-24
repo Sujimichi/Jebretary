@@ -63,17 +63,20 @@ class System
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remote the markers
         System.update_db_flag(data)
 
-
         craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
 
         #update repo for any craft that are holding commit message info in the temparary store.
-        craft.where("commit_message is not null").each{|craft_object| 
-          craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
-          craft_object.update_repo_message_if_applicable 
-        }
+        to_update = craft.where("commit_message is not null")
+        unless to_update.empty?
+          campaign.track_save(:both) #track the save files so there aren't untracked changes preventing the message from updating
+          to_update.each{|craft_object| 
+            craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
+            craft_object.update_repo_message_if_applicable 
+          }
+        end
+
 
         if campaign.should_process?
-
           new_and_changed = campaign.new_and_changed         
           #craft which need to be commited - anything that is new, changed or does not have a history_count
           to_commit = [ 
@@ -93,10 +96,9 @@ class System
 
           #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
           campaign.update_persistence_checksum 
-          
-          campaign.track_save(:both) if to_commit.empty? 
+          campaign.track_save(:both) if to_commit.empty?
         else
-          campaign.track_save(:both)
+          campaign.track_save(:quicksave)
         end
 
       end

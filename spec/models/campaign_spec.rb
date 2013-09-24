@@ -69,15 +69,7 @@ describe Campaign do
       commit_craft_in_campaign      
       @campaign.track_save(:quicksave)
       @campaign.track_save(:persistent)
-
-    end
-
-    it 'should return true if there are untracked craft' do 
-      @campaign.should_not have_untracked_changes
-      make_new_craft_in @campaign, "VAB", "rocket_thing"
-      @campaign.should have_untracked_changes
-      @campaign.new_and_changed[:new].should_not be_empty
-      @campaign.new_and_changed[:changed].should be_empty      
+      Dir.chdir(@campaign.path)
     end
 
     it 'should return true if there are changed craft' do 
