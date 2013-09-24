@@ -16,6 +16,8 @@ Jebretary
 
 ==Planned/Todo
   * quicksave and persistent tracking
+  
+  -call git gc periodically to compress repo
 
   - ability to not track a craft (remove from repo)
 
