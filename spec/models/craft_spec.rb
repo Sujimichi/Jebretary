@@ -288,6 +288,7 @@ describe Craft do
       set_up_sample_data
       File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("first version")}
       @campaign.create_repo
+      @campaign.track_save(:both)
       @craft = FactoryGirl.create(:craft, :campaign => @campaign, :name => "my_rocket", :craft_type => "vab")
       @craft.commit :m => "first commit"
       File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("second version")}

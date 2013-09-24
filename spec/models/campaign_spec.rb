@@ -440,6 +440,14 @@ describe Campaign do
         @campaign.repo.log.first.message.should == "and all was good"
       end
 
+      it 'should track both if given :both instead of :quicksave or :persistent' do 
+        @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
+        @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
+        @campaign.track_save :both
+        @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
+        @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
+      end
+
     end
 
   end

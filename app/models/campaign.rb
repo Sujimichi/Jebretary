@@ -77,14 +77,25 @@ class Campaign < ActiveRecord::Base
 
   #add or update either the quicksave.sfs or persistent.sfs file to the repo.
   def track_save save_type = :quicksave, args = {}
-    file = (save_type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs'
+    if save_type.eql?(:both)
+      files = ['persistent.sfs', 'quicksave.sfs']
+    else
+      files = [(save_type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs']
+    end
+    status = repo.status
     within_dir(self.path) do 
-      return unless File.exists?(file) && changed_save?(save_type)
-      message = "updated #{file}"   
-      message = "added #{file}" if repo.status.untracked.keys.include?(file)
-      message = args[:message] unless args[:message].blank?     
-      repo.add(file)
-      repo.commit(message)
+      files.each do |file|
+        next unless File.exists?(file) #&& changed_save?(save_type)
+        message = "updated #{file}"   
+        message = "added #{file}" if status.untracked.keys.include?(file)
+        message = args[:message] unless args[:message].blank?     
+        repo.add(file)
+        begin
+          repo.commit(message)
+        rescue
+          #just carry on, this is incase there aren't any changes to the save, rather than call repo.status again (which has mem leak)
+        end
+      end
     end
   end
 
