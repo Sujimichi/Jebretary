@@ -33,10 +33,11 @@ class CraftsController < ApplicationController
 
   def edit
     @craft = Craft.find(params[:id])
-    unless @craft.deleted?
-      @sha_id = params[:sha_id]
-      history = @craft.history
-      @commit = history.select{|commit| commit.sha == @sha_id}.first
+    @sha_id = params[:sha_id]
+    history = @craft.history     
+    @commit = history.select{|commit| commit.sha == @sha_id}.first
+
+    unless @craft.deleted? || params[:message_form]      
       @revert_to_version = history.reverse.index(@commit) + 1
       @current_version = @craft.history_count
     end

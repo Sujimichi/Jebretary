@@ -76,8 +76,7 @@ function poll_craft_version(){
 
 
 function change_message(div, current_text, craft_id, commit){
-  ajax_get("/crafts/" + craft_id + "/edit", {data: "message_form", sha_id: commit}, function(){
-  });
+  ajax_get("/crafts/" + craft_id + "/edit", {message_form: true, sha_id: commit}, function(){});
 };
 
 function update_message(div, craft_id, commit, original_message){
