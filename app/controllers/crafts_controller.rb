@@ -92,7 +92,6 @@ class CraftsController < ApplicationController
           else
             message = ["Could not update message at this time.  "]
             message << (system_monitor_running? ? "The repo is being written to, wait a couple seconds and try again." : "There are untracked changes in the repo, make sure everything is commited and try again.")
-
             @errors = {:update_message => message.join } 
             @craft.reload
           end

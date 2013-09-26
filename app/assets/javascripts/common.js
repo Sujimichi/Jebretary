@@ -42,8 +42,7 @@ function ajax_send(url, data, callback, type){
 function poll_for_updated_instance(){
   clearTimeout(setup_timer);
   setup_timer = setTimeout(function(){
-    instance_id = $('#instance_id').val();
-    ajax_get(instance_id, {}, function(){});
+    ajax_get($('#instance_id').val(), {}, function(){});
   }, 1000);
 };
 
@@ -71,6 +70,16 @@ function poll_craft_version(){
         poll_craft_version();
       }, 2000);
     });
+  };
+};
+
+function restart_appropriate_poller(){
+  alert("fudgewick")
+  var campaign = $('#campaign_id').val();
+  if(campaign == undefined){
+    poll_craft_version();
+  }else{
+    poll_for_updated_list()
   };
 };
 
@@ -212,15 +221,7 @@ function show_help(specific_help, args){
 };
 
 
-function restart_appropriate_poller(){
-  var campaign = $('#campaign_id').val();
-  if(campaign == undefined){
-    poll_craft_version();
-  }else{
-    poll_for_updated_list()
-  };
 
-};
 
 function toggle_deleted_craft(){
   var show_del = $('#show_deleted').val()

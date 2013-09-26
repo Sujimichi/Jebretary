@@ -4,7 +4,8 @@
   - version ||= 1
   = "#{@craft.name} has #{version} versions"
   .clear
-  -if @craft.is_changed?
+  - changed = @craft.is_changed?
+  -if changed
     .left
       .untracked Plus Untracked changes
     .left.with_margin
@@ -21,12 +22,13 @@
             .hidden.sha_id= commit.sha
           .date= commit.date.to_formatted_s(:short)
           .restore_link
-            - unless commit == history.first && !@craft.is_changed?
+            - unless commit == history.first && !changed
               = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha_id => commit.sha
             -else
               Current Version
 
         .message
-          .message_text.small{:onclick => "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"}
+          - onclick = changed ? "" : "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"
+          .message_text.small{:onclick => onclick}
             = commit.message
           .message_form{:id => "message_form_for_#{commit.to_s}"}
