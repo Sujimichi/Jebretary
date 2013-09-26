@@ -50,7 +50,6 @@ class CraftsController < ApplicationController
   end
 
   def update
-    #raise params.inspect
     @craft = Craft.find(params[:id])
     @campaign = @craft.campaign
     history = @craft.history
@@ -60,25 +59,27 @@ class CraftsController < ApplicationController
       commit ||= history.select{|h| h.sha.eql?(params[:sha_id])}.first 
     end
 
+    #updating commit message
     if params[:update_message]
-      #only attempt update to repo commit message if there are no untracked changes anywhere in the campaigns repo,
-        
-      if @campaign.nothing_to_commit?
-        @craft.commit_message = params[:update_message] #message may not be saved, but is set so that validations can be used to check its ok to write to repo.
-        if @craft.valid? #run validations
-          @craft.change_commit_message(commit, params[:update_message]) #update the message to the repo
-          if commit.eql?(history.first) #in the case where this is the current commit then 
-            @craft.commit_message = nil #set the commit message to nil it has been written to the repo
+      @craft.commit_message = params[:update_message] #message may not be saved, but is set so that validations can be used to check its ok to write to repo.
+      if @craft.valid? #run validations
+        if !system_monitor_running? && @craft.change_commit_message(commit, params[:update_message]) #update the message to the repo, or return false if unable to.
+          #in the case where this is the current commit then set the commit message to nil as it has been written to the repo
+          #if not then reload the craft to restore the commit message to how it was before being used in the validation
+          @craft.send *commit.eql?(history.first) ? ["commit_message=", nil] : ["reload"]
+
+        else
+          #if there are untracked changes in the repo the message is cached on the craft object, to be written to the repo later.
+          if commit.to_s.eql?(history.first.to_s)
+            @craft.commit_message = params[:update_message] 
           else
-            @craft.reload #if not then reload the craft to restore the commit message to how it was before being used in the validation
-          end         
+            @errors = {:update_message => "Could not update message at this time, fuck off and try again" } 
+          end
         end
+        @craft.save if @craft.changed?
       else
-        #if there are untracked changes in the repo the message is cached on the craft object, to be written to the repo later.
-        @craft.commit_message = params[:update_message] if commit.to_s.eql?(history.first.to_s)
+        @errors = {:update_message => @craft.errors} unless @craft.errors.empty?
       end
-      @craft.save if @craft.valid?
-      @errors = {:update_message => @craft.errors} unless @craft.errors.empty?
     end
 
     @craft.revert_to commit, :commit => params[:commit_revert].eql?("true") if params[:revert_craft]

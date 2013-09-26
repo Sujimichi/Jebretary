@@ -81,7 +81,7 @@ function change_message(div, current_text, craft_id, commit){
 };
 
 function update_message(div, craft_id, commit, original_message){
-  if($("#content_for_current_project").find("untracked") != undefined){commit = "most_recent"};
+  if($(div).hasClass("with_untracked_changes")){commit = "most_recent"};
 
   $(div).find('#message').bind("blur", function(){
     var new_message = $(this).val();

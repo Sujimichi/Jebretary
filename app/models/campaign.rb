@@ -68,6 +68,7 @@ class Campaign < ActiveRecord::Base
     g
   end
 
+  #notes the current dir, switches to given dir to run block and then returns to current dir.
   def within_dir dir, &blk
     cur_dir = Dir.getwd
     Dir.chdir(dir)
@@ -77,11 +78,7 @@ class Campaign < ActiveRecord::Base
 
   #add or update either the quicksave.sfs or persistent.sfs file to the repo.
   def track_save save_type = :quicksave, args = {}
-    if save_type.eql?(:both)
-      files = ['persistent.sfs', 'quicksave.sfs']
-    else
-      files = [(save_type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs']
-    end
+    files = save_type.eql?(:both) ? ['persistent.sfs', 'quicksave.sfs'] : [(save_type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs']
     r = self.repo
     status = r.status
     within_dir(self.path) do 
@@ -92,11 +89,7 @@ class Campaign < ActiveRecord::Base
           message = "updated #{file}" if changed_file
           message = args[:message] unless args[:message].blank?     
           r.add(file)
-          #begin
-            r.commit(message)
-          #rescue
-            #just carry on, this is incase there aren't any changes to the save, rather than call repo.status again (which has mem leak)
-          #end
+          r.commit(message)
         end
       end
     end
@@ -120,6 +113,7 @@ class Campaign < ActiveRecord::Base
     }
   end
 
+  #return true if objects (.craft or .sfs) that are tracked by the repo have changes.
   def has_untracked_changes?
     status = self.repo.status
     not [status.changed.keys].flatten.select do |k| 
@@ -145,7 +139,6 @@ class Campaign < ActiveRecord::Base
     end
     last_updated
   end
-
 
   def update_persistence_checksum
     Dir.chdir(self.path)

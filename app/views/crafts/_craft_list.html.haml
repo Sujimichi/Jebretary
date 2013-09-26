@@ -61,7 +61,7 @@
                 %h4
                   %a{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
                     Click to Add Notes:
-                .message_form{:id => "message_form_for_#{commit.to_s}"}
+                .message_form{:id => "message_form_for_#{commit.to_s}", :class => "with_untracked_changes"}
               -else
                 .small{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
                   = message

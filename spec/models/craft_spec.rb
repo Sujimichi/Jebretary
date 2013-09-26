@@ -331,7 +331,6 @@ describe Craft do
       change_craft_contents @other_craft, "this is some different file data"
 
       @craft.change_commit_message(commit, "this is a new test message").should be_false
-   
     end
 
   end

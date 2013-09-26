@@ -96,9 +96,9 @@ class System
 
           #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
           campaign.update_persistence_checksum 
-          campaign.track_save(:both) if to_commit.empty?
+          campaign.track_save(:both) if to_commit.empty? #track both, as P has been seen to change, but not if there are craft to commit.  If there are craft to commit then it is launch and we don't want to track the P and Q files for every single launch.  
         else
-          campaign.track_save(:quicksave)
+          campaign.track_save(:quicksave) #if the persistence.sfs has changed then campaign.should_process? will return true so we won't be here with changed P file.
         end
 
       end
