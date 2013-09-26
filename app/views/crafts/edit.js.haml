@@ -5,7 +5,7 @@ $(div).html("#{j render :partial => 'crafts/message_form', :locals =>  {:craft =
 $('.message_form').dialog();
 $('.message_form').dialog( "close" );
 
-$(div).dialog({ height: 250, width: 600 });
+$(div).dialog({ height: 'auto', width: 600 });
 
 
 $(div).find('#message').focus();

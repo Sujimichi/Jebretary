@@ -27,6 +27,6 @@
               Current Version
 
         .message
-          .small{:onclick => "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"}
+          .message_text.small{:onclick => "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"}
             = commit.message
           .message_form{:id => "message_form_for_#{commit.to_s}"}
