@@ -39,10 +39,10 @@ class System
       craft_in_campaigns.each{ |name, craft| existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size }
       data[instance.id] = {:campaigns => existing_camps}
       System.update_db_flag(data) #update the DB flag file.
-  
+
     end
 
-    
+
     #Second main ittereation throu instances - variable, typically skips so is fast, but periodically runs for 10-15 times longer when actions are required.
     #Checks that each campaign that 'should_process' (ie has persistent.sfs change) has all the craft objects that it needs 
     #and that changes to those craft objects are tracked.  It also checks that deleted craft files have the relevent craft object deleted and ensure that 
@@ -63,41 +63,43 @@ class System
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remote the markers
         System.update_db_flag(data)
 
-        campaign.track_save(:quicksave)
-
-        next unless campaign.should_process?
-
-        new_and_changed = campaign.new_and_changed
         craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
-     
-        #craft which need to be commited - anything that is new, changed or does not have a history_count
-        to_commit = [ 
-          craft.where(:history_count => nil).to_a,
-          new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
-          new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}}
-        ].flatten.compact.uniq
 
-
-        #craft with outstanding message updates 
-        to_update = craft.where("commit_message is not null").to_a
-
-        #pass in already loaded campaign object into craft object.
-        [to_commit, to_update].flatten.each{|craft_object| craft_object.crafts_campaign = campaign }
-          
-        to_commit.each do |craft_object|         
-          print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
-          craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
-          data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
-          System.update_db_flag(data) #inform interface of how many craft have been commited.
-          puts "done" unless Rails.env.eql?("test")
+        #update repo for any craft that are holding commit message info in the temparary store.
+        to_update = craft.where("commit_message is not null")
+        unless to_update.empty?
+          campaign.track_save(:both) #track the save files so there aren't untracked changes preventing the message from updating
+          to_update.each{|craft_object| 
+            craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
+            craft_object.update_repo_message_if_applicable 
+          }
         end
 
-        #update any craft that are holding commit message info in the temparary store.
-        to_update.each{|craft_object| craft_object.update_repo_message_if_applicable }
 
-        campaign.track_save(:persistent)
-        #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
-        campaign.update_persistence_checksum 
+        if campaign.should_process?
+          new_and_changed = campaign.new_and_changed         
+          #craft which need to be commited - anything that is new, changed or does not have a history_count
+          to_commit = [ 
+            craft.where(:history_count => nil).to_a,
+            new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
+            new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}}
+          ].flatten.compact.uniq
+
+          to_commit.each do |craft_object|        
+            craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
+            print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
+            craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
+            data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
+            System.update_db_flag(data) #inform interface of how many craft have been commited.
+            puts "done" unless Rails.env.eql?("test")
+          end
+
+          #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
+          campaign.update_persistence_checksum 
+          campaign.track_save(:both) if to_commit.empty? #track both, as P has been seen to change, but not if there are craft to commit.  If there are craft to commit then it is launch and we don't want to track the P and Q files for every single launch.  
+        else
+          campaign.track_save(:quicksave) #if the persistence.sfs has changed then campaign.should_process? will return true so we won't be here with changed P file.
+        end
 
       end
     end
@@ -143,13 +145,13 @@ class System
       else
         d = ENV["OCRA_EXECUTABLE"].split("/")
       end
-        return File.expand_path(File.join(d[0..d.size-2]))
+      return File.expand_path(File.join(d[0..d.size-2]))
     else
       return File.expand_path(File.join([Rails.root, ".."]))
     end
   end
 
-  
+
   def self.run_monitor
     s = System.new
     s.run_monitor
@@ -181,7 +183,7 @@ class System
     path = File.join([System.root_path, "settings"])
 
   end
-  
+
   def default_config
     config = {
       :seen_elements => []

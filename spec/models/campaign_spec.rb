@@ -69,15 +69,7 @@ describe Campaign do
       commit_craft_in_campaign      
       @campaign.track_save(:quicksave)
       @campaign.track_save(:persistent)
-
-    end
-
-    it 'should return true if there are untracked craft' do 
-      @campaign.should_not have_untracked_changes
-      make_new_craft_in @campaign, "VAB", "rocket_thing"
-      @campaign.should have_untracked_changes
-      @campaign.new_and_changed[:new].should_not be_empty
-      @campaign.new_and_changed[:changed].should be_empty      
+      Dir.chdir(@campaign.path)
     end
 
     it 'should return true if there are changed craft' do 
@@ -438,6 +430,14 @@ describe Campaign do
       it 'should set a custom commit message if one is supplied' do 
         @campaign.track_save :quicksave, :message => "and all was good"
         @campaign.repo.log.first.message.should == "and all was good"
+      end
+
+      it 'should track both if given :both instead of :quicksave or :persistent' do 
+        @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
+        @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
+        @campaign.track_save :both
+        @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
+        @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
       end
 
     end

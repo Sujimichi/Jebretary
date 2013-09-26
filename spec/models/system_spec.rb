@@ -119,6 +119,7 @@ describe System do
       a.stub!(:where => [craft])
       #Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)
+      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)
       System.process
     end
     
@@ -132,6 +133,7 @@ describe System do
     end
 
     it 'should create a new commit when a craft file is removed' do 
+      System.process
       @campaign.new_and_changed[:new].size.should == 0
       files = @instance.identify_craft_in @campaign.name
       files.map{|k,v| v}.flatten.size.should == 3
@@ -187,6 +189,8 @@ describe System do
   describe "tracking saves" do 
     before(:each) do 
       @campaign = set_up_sample_data
+      @campaign.verify_craft
+      @campaign.craft.each{|c| c.commit}
       @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
       @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
     end
@@ -195,6 +199,29 @@ describe System do
       System.process
       @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
       @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
+    end
+
+    it 'should not track the save files when there are craft being tracked' do 
+      @campaign.track_save(:both) #to get saves files tracked
+
+      change_craft_contents @campaign.craft.first, "some different file data"
+
+      File.open(File.join([@campaign.path, 'quicksave.sfs']),'w'){|f| f.write("test data type stuff")}
+      File.open(File.join([@campaign.path, 'persistent.sfs']),'w'){|f| f.write("test data type stuff")}
+      System.process
+      @campaign.repo.status.untracked.keys.should be_empty
+      @campaign.repo.status.changed.keys.sort.should == [ 'persistent.sfs', 'quicksave.sfs'].sort
+
+    end
+
+    it 'should track the save files when craft are not being updated' do 
+      @campaign.track_save(:both) #to get saves files tracked
+      
+      File.open(File.join([@campaign.path, 'quicksave.sfs']),'w'){|f| f.write("test data type stuff")}
+      File.open(File.join([@campaign.path, 'persistent.sfs']),'w'){|f| f.write("test data type stuff")}
+      System.process
+      @campaign.repo.status.untracked.keys.should be_empty
+      @campaign.repo.status.changed.keys.should == []
     end
 
 

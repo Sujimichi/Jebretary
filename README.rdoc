@@ -15,15 +15,15 @@ Jebretary
 
 
 ==Planned/Todo
-  - quicksave and persistent tracking
-    - quicksave will be tracked when ever it is seen to change, or manually
-    - persistent will be tracked when a quicksave is tracked, manually or if the repo needs to have no untracked changes for a message update.
+  * quicksave and persistent tracking
+  
+  -call git gc periodically to compress repo
 
   - ability to not track a craft (remove from repo)
 
   - sort and ordering on craft list
 
-  - ability to set a craft to exist in all (select) campaigns and reflect changes made in either campaign.
+  - ability to set a craft to exist in all (or select) campaigns and reflect changes made in either campaign.
 
   - different save modes {
       :agressive  => saves on every change to a craft,
@@ -57,6 +57,7 @@ Jebretary
 
 
 ==0.0.8
+  - added quicksave and persistent file tracking.
   - added ability to move/copy craft file to another campaign in the same or other instance.
   - added ability to delete craft files.
   - Fixed - editing a commit message at the same time as the craft is automatically commited no longer looses the message

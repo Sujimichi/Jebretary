@@ -5,5 +5,5 @@
   $(".message_form").dialog("destroy");
   //}
 -else
-  var error = "#{@errors.blank? ? '' : @errors[:update_message].full_messages.join}";
+  var error = "#{@errors.blank? ? '' : @errors[:update_message]}";
   $('.message_errors').html(error);

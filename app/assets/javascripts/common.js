@@ -76,17 +76,20 @@ function poll_craft_version(){
 
 
 function change_message(div, current_text, craft_id, commit){
-  ajax_get("/crafts/" + craft_id + "/edit", {data: "message_form", sha_id: commit}, function(){
-  });
+  ajax_get("/crafts/" + craft_id + "/edit", {message_form: true, sha_id: commit}, function(){});
 };
 
 function update_message(div, craft_id, commit, original_message){
-  if($("#content_for_current_project").find("untracked") != undefined){commit = "most_recent"};
+  if($(div).hasClass("with_untracked_changes")){commit = "most_recent"};
 
   $(div).find('#message').bind("blur", function(){
     var new_message = $(this).val();
     if(original_message != new_message){
-      ajax_put("/crafts/" + craft_id, {update_message: new_message, sha_id: commit}, function(){});
+      $(".updating_message").show();
+      ajax_put("/crafts/" + craft_id, {update_message: new_message, sha_id: commit}, function(){
+        $(".updating_message").hide();
+        $(div).parents('.message').find(".message_text").append("<br/>updating<div class='left ajax_loader'></div><div class='clear'></div>")
+      });
     }else{
       $('.message_form').dialog();
       $('.message_form').dialog( "close" );

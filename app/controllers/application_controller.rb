@@ -36,7 +36,7 @@ class ApplicationController < ActionController::Base
 
   def ensure_no_db_lock &blk
     Dir.chdir(System.root_path)
-    if File.exist?("#{Rails.env}_db_access")
+    if system_monitor_running?
       status = File.open("#{Rails.env}_db_access", 'rb') {|f| f.readlines }.join
       action_when_locked status
     else
@@ -46,6 +46,10 @@ class ApplicationController < ActionController::Base
 
   def action_when_locked status
     @background_process = "waiting"
+  end
+
+  def system_monitor_running?
+    File.exist?("#{Rails.env}_db_access")
   end
 
 
