@@ -146,12 +146,20 @@ class TestCraft
   end 
 
   def edit_p_file
-    path = File.join([@campaign.path, "persistent.sfs"])
-    p_file = File.open(path, 'r'){|f| f.readlines}
-    e_line = p_file.select{|line| line.include?("CanQuickSave")}.first
-    i = p_file.index(e_line)
-    p_file[i] = p_file[i].sub("True", "True#{(10*rand).round}")
-    File.open(path, 'w'){|f| f.write p_file.join}
+    edit_file type = :persistent
+  end
+  def edit_s_file
+    edit_file type = :quicksave
+  end
+
+  def edit_file type = :persistent
+    save_file = (type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs'
+    path = File.expand_path(File.join([@campaign.path, save_file]))
+    file_data = File.open(path, 'r'){|f| f.readlines}
+    e_line = file_data.select{|line| line.include?("CanQuickSave")}.first
+    i = file_data.index(e_line)
+    file_data[i] = file_data[i].sub("True", "True#{(10*rand).round}")
+    File.open(path, 'w'){|f| f.write file_data.join}
   end
 
   def test
