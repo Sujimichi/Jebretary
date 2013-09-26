@@ -73,17 +73,6 @@ function poll_craft_version(){
   };
 };
 
-function restart_appropriate_poller(){
-  alert("fudgewick")
-  var campaign = $('#campaign_id').val();
-  if(campaign == undefined){
-    poll_craft_version();
-  }else{
-    poll_for_updated_list()
-  };
-};
-
-
 function change_message(div, current_text, craft_id, commit){
   ajax_get("/crafts/" + craft_id + "/edit", {message_form: true, sha_id: commit}, function(){});
 };
