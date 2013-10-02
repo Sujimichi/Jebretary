@@ -88,6 +88,7 @@ class Campaign < ActiveRecord::Base
           message = "added #{file}" 
           message = "updated #{file}" if changed_file
           message = args[:message] unless args[:message].blank?     
+          puts message unless Rails.env.eql?("test")
           r.add(file)
           r.commit(message)
         end

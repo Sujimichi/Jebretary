@@ -32,15 +32,16 @@ class System
       craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns #store this mapping of craft files in campaigns against the instance id.
 
       campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.exists?} #get all the campaign objects for those campaigns present in the save folder
-      campaigns.each{|campaign| campaign.set_flag if campaign.should_process?}  #set the flag image on campaigns which 'should_process'
+      campaigns.each{|campaign| campaign.set_flag if campaign.should_process? }  #set the flag image on campaigns which 'should_process'
 
-      #generate info for interface feedback.  How many total craft each campaign has (based on the files on the SPH and VAB folders)
+      #generate info for interface feedback.  How many total craft each campaign has (based on the files in the SPH and VAB folders)
       existing_camps = campaigns.map{|c| {c.name => { :id => c.id}} }.inject{|i,j| i.merge(j)}
       craft_in_campaigns.each{ |name, craft| existing_camps[name][:total_craft] = [craft[:vab], craft[:sph]].flatten.size }
       data[instance.id] = {:campaigns => existing_camps}
       System.update_db_flag(data) #update the DB flag file.
 
     end
+
 
 
     #Second main ittereation throu instances - variable, typically skips so is fast, but periodically runs for 10-15 times longer when actions are required.
@@ -85,6 +86,7 @@ class System
             new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}}
           ].flatten.compact.uniq
 
+          puts "\n" unless to_commit.empty? || Rails.env.eql?("test")
           to_commit.each do |craft_object|        
             craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
             print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
@@ -96,7 +98,8 @@ class System
 
           #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
           campaign.update_persistence_checksum 
-          campaign.track_save(:both) if to_commit.empty? #track both, as P has been seen to change, but not if there are craft to commit.  If there are craft to commit then it is launch and we don't want to track the P and Q files for every single launch.  
+          campaign.track_save(:both) if to_commit.empty? #track both, as P has been seen to change, but not if there are craft to commit.  
+          #If there are craft to commit then it is launch and we don't want to track the P and Q files for every single launch.  
         else
           campaign.track_save(:quicksave) #if the persistence.sfs has changed then campaign.should_process? will return true so we won't be here with changed P file.
         end
@@ -159,13 +162,17 @@ class System
 
   def run_monitor
     @heart_rate = 10
+    @repeat_error_count = 0
     while @heart_rate do
       begin
         System.process
+        @repeat_error_count = 0
       rescue Exception => e 
         System.remove_db_flag
-        puts "!!Monitor Error!! - Please Restart me!"
-        puts e.message unless Rails.env.eql?("production")
+        puts "!!Monitor Error!!"
+        puts e.message #unless Rails.env.eql?("production")
+        @repeat_error_count += 1
+        raise "System has error'd #{@repeat_error_count} times in a row, shutting down" if @repeat_error_count >= 5
       end
       sleep @heart_rate 
     end
