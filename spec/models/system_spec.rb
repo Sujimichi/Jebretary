@@ -3,24 +3,23 @@ require 'spec_helper'
 describe System do
 
   describe "creating campaigns" do 
-  before(:each) do 
-    make_campaign_dir "test_campaign_1", :reset => true
-    make_campaign_dir "test_campaign_2", :reset => false
-    @instance = FactoryGirl.create(:instance)
-    Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
-    make_sample_data
-    Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
-    make_sample_data
-  end
+    before(:each) do 
+      make_campaign_dir "test_campaign_1", :reset => true
+      make_campaign_dir "test_campaign_2", :reset => false
+      @instance = FactoryGirl.create(:instance)
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
+      make_sample_data
+      Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
+      make_sample_data
+    end
 
 
-  it "should discover and create Campaign objects for each campaign" do 
-    Campaign.all.should be_empty
-    System.process
-
-    Campaign.count.should == 2
-    Campaign.all.map{|c| c.name}.should == ["test_campaign_1", "test_campaign_2"]
-  end
+    it "should discover and create Campaign objects for each campaign" do 
+      Campaign.all.should be_empty
+      System.process
+      Campaign.count.should == 2
+      Campaign.all.map{|c| c.name}.should == ["test_campaign_1", "test_campaign_2"]
+    end
   end
 
   describe "with created campaigns" do 
@@ -54,7 +53,7 @@ describe System do
     end
 
   end
-  
+
   describe "commiting the craft" do 
     before(:each) do 
       make_campaign_dir "test_campaign_1", :reset => true
@@ -69,7 +68,7 @@ describe System do
       uncommitted_craft.size.should == 3
       @campaign_1.craft.map{|c| c.history.empty?}.all?.should be_true
       @campaign_1.update_attributes(:persistence_checksum => nil)
-  
+
       System.process
       uncommitted_craft = @campaign_1.reload.new_and_changed[:new]
       uncommitted_craft.size.should == 0
@@ -112,7 +111,7 @@ describe System do
       craft = @campaign_1.craft.new(:name =>  "my_rocket", :craft_type => "vab")
       craft.should_not_receive(:commit)
       craft.stub!(:is_new? => false, :is_changed? => true, :history_count => 1, :deleted => false)
-      
+
       @campaign_1.stub!(:should_process? => false)
       Campaign.should_receive(:where).at_least(1).times.and_return([@campaign_1])
       a = [craft]
@@ -122,7 +121,7 @@ describe System do
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)
       System.process
     end
-    
+
   end
 
   describe "tracking deleted craft" do 
@@ -147,7 +146,6 @@ describe System do
     end
 
   end
-
 
   describe "deleting a craft should not result in it appearing under all other campaigns" do 
     #This describes the behaviour of a bug found. Where deleting a craft would result in it being listed under all other campaigns.  
@@ -189,6 +187,7 @@ describe System do
   describe "tracking saves" do 
     before(:each) do 
       @campaign = set_up_sample_data
+      @campaign.create_repo
       @campaign.verify_craft
       @campaign.craft.each{|c| c.commit}
       @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
@@ -203,9 +202,7 @@ describe System do
 
     it 'should not track the save files when there are craft being tracked' do 
       @campaign.track_save(:both) #to get saves files tracked
-
       change_craft_contents @campaign.craft.first, "some different file data"
-
       File.open(File.join([@campaign.path, 'quicksave.sfs']),'w'){|f| f.write("test data type stuff")}
       File.open(File.join([@campaign.path, 'persistent.sfs']),'w'){|f| f.write("test data type stuff")}
       System.process
@@ -216,15 +213,14 @@ describe System do
 
     it 'should track the save files when craft are not being updated' do 
       @campaign.track_save(:both) #to get saves files tracked
-      
+
       File.open(File.join([@campaign.path, 'quicksave.sfs']),'w'){|f| f.write("test data type stuff")}
       File.open(File.join([@campaign.path, 'persistent.sfs']),'w'){|f| f.write("test data type stuff")}
       System.process
       @campaign.repo.status.untracked.keys.should be_empty
       @campaign.repo.status.changed.keys.should == []
     end
-
-
   end
+
 
 end
