@@ -1,10 +1,10 @@
 class Craft < ActiveRecord::Base
-  attr_accessible :name, :craft_type, :deleted, :part_count, :history_count, :last_commit, :commit_message
+  attr_accessible :name, :craft_type, :deleted, :part_count, :history_count, :last_commit
   belongs_to :campaign
 
   require 'active_support/builder'
 
-  validates :commit_message, :is_git_compatible => true
+  #validates :commit_messages, :git_compatible => true
 
   #
   ## - Instance Methods
@@ -115,8 +115,11 @@ class Craft < ActiveRecord::Base
         else
           repo.add(self.file_name)
         end
-        message << " #{self.commit_message.gsub(message,"")}" unless self.deleted? || self.commit_message.blank? || self.commit_message.eql?(message)
-        self.commit_message = nil
+
+        active_message = self.commit_messages[:latest]
+        message << " #{active_message.gsub(message,"")}" unless self.deleted? || active_message.blank? || active_message.eql?(message)
+        self.remove_message_from_temp_store(:latest)
+        
         repo.commit(message)
         self.last_commit = repo.log.first.to_s
       end
@@ -136,9 +139,11 @@ class Craft < ActiveRecord::Base
   end
 
   def update_repo_message_if_applicable
-    message = self.commit_message
-    return if message.blank?     
-    self.update_attributes(:commit_message => nil) if self.change_commit_message(self.history.first, message)
+    puts "WARNING - update_repo_message_if_applicable is depricated and flushed down the toilet"
+    return false
+    #message = self.commit_message
+    #return if message.blank?     
+    #self.update_attributes(:commit_message => nil) if self.change_commit_message(self.history.first, message)
   end
 
 
@@ -157,7 +162,6 @@ class Craft < ActiveRecord::Base
         end
         update_history_count
       end
-      self.commit_message = nil
       self.save!
     end
   end
@@ -170,7 +174,6 @@ class Craft < ActiveRecord::Base
     self.deleted = false
     self.history_count = self.history.size
     self.last_commit = repo.log.first.to_s
-    self.commit_message = nil
     self.save
   end 
 
@@ -212,11 +215,22 @@ class Craft < ActiveRecord::Base
     end
   end
 
-  def commit_message
-    message = super
-    hist = self.history
-    return nil if self.is_changed? && !hist.empty? && message.eql?(hist.first.message)
-    message
+  def commit_messages
+    messages = super
+    return {} if messages.blank?
+    h = JSON.parse(messages)
+    HashWithIndifferentAccess.new(h)
+  end
+
+  def commit_messages= messages
+    messages = messages.to_json unless messages.nil?
+    super messages
+  end
+
+  def remove_message_from_temp_store key
+    messages = self.commit_messages
+    messages.delete(key)
+    commit_messages = messages
   end
 
 

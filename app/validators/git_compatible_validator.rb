@@ -1,4 +1,4 @@
-class IsGitCompatibleValidator < ActiveModel::EachValidator
+class GitCompatibleValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     return if value.blank?
     illegal_chars = %w[' " ` \[ \] { } ]

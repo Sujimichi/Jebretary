@@ -1,14 +1,14 @@
 = form_for(craft) do |f|
   .message_errors
-  -if craft.is_changed? && craft.commit_message.blank?
+  -if craft.is_changed? && craft.commit_message[commit.to_s].blank?
     - message = nil
   -else
-    - message = craft.commit_message
+    - message = craft.commit_messages[commit.to_s]
     - message ||= commit.message
   = text_area_tag :message, message, :rows => 5, :cols => 50
   .small hit tab or click outside the textbox to update
   .small (iPad users, close the keyboard)
   .updating_message.hidden
     .vblk_1
-    writting commit message to git repo...
+    updating commit message...
     .ajax_loader

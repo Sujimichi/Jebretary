@@ -65,6 +65,8 @@ class CraftsController < ApplicationController
     @craft.recover if @craft.deleted? && params[:recover_deleted]
     @craft.commit if params[:force_commit]
 
+
+    #TODO move this to separate controller 
     if params[:move_copy]
       campaigns = Campaign.find(params[:move_copy_to_select])
       unless campaigns.empty?
@@ -75,33 +77,14 @@ class CraftsController < ApplicationController
       end
     end
 
-
-    #updating commit message
+    #updating commit message - prob also move this to spearate controller
     if params[:update_message]
-      @craft.commit_message = params[:update_message] #message may not be saved, but is set so that validations can be used to check its ok to write to repo.
-      if @craft.valid? #run validations
-
-        if !system_monitor_running? && @craft.change_commit_message(commit, params[:update_message]) #update the message to the repo, or return false if unable to.
-          #in the case where this is the current commit then set the commit message to nil as it has been written to the repo
-          #if not then reload the craft to restore the commit message to how it was before being used in the validation       
-          @craft.send *commit.eql?(history.first) ? ["commit_message=", nil] : ["reload"]   
-        else
-          #if there are untracked changes in the repo the message is cached on the craft object, to be written to the repo later.
-          if commit.to_s.eql?(history.first.to_s)
-            @craft.commit_message = params[:update_message] 
-          else
-            message = ["Could not update message at this time.  "]
-            message << (system_monitor_running? ? "The repo is being written to, wait a couple seconds and try again." : "There are untracked changes in the repo, make sure everything is commited and try again.")
-            @errors = {:update_message => message.join } 
-            @craft.reload
-          end
-        end
-        @craft.save if @craft.changed?
-      else
-        @errors = {:update_message => @craft.errors.full_messages.join} unless @craft.errors.empty?
-      end
+      messages = @craft.commit_messages
+      messages[commit] = params[:update_message]
+      @craft.commit_messages = messages
+      @craft.save! if @craft.valid? 
+      @errors = {:update_message => @craft.errors.full_messages.join} unless @craft.errors.empty?      
     end
-
 
     respond_with(@craft) do |f|
       f.html{

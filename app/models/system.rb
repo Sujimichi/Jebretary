@@ -66,16 +66,7 @@ class System
 
         craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
 
-        #update repo for any craft that are holding commit message info in the temparary store.
-        to_update = craft.where("commit_message is not null")
-        unless to_update.empty?
-          campaign.track_save(:both) #track the save files so there aren't untracked changes preventing the message from updating
-          to_update.each{|craft_object| 
-            craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
-            craft_object.update_repo_message_if_applicable 
-          }
-        end
-
+ 
 
         if campaign.should_process?
           new_and_changed = campaign.new_and_changed         
@@ -103,6 +94,35 @@ class System
         else
           campaign.track_save(:quicksave) #if the persistence.sfs has changed then campaign.should_process? will return true so we won't be here with changed P file.
         end
+
+
+        #write commit messages which are stored on the Craft objects into the Git repo.
+        #This is the most high risk part of the system! Commit messages are not written at the time of the actual commit and so are 
+        #written to the repo post commit.  This mean actually re-writing the repo history, something that goes against the grain of 
+        #normal git usage.  
+        #The action of updating a commit from the past involves rebasing the repo from the commit which is being updated.  If it goes 
+        #wrong the whole repo can get reset to that commit, lossing everything that has happened afterwards.  
+        #It HAS to be done at a time where there are no untracked changes or the rebase will fail and leave the repo half way thou a 
+        #rebase process and unless a skilled Git'er is able to manually sort the repo all kinda nasty things can happen.  
+        #
+        #At this point everything should be commited, all craft and the saves, and no other git activity should be happening.
+        unless campaign.has_untracked_changes? || campaign.persistence_checksum != "skip"
+          #update repo for any craft that are holding commit message info in the temparary store.
+          to_update = craft.where("commit_messages is not null")
+          unless to_update.empty?
+            r = campaign.repo
+            to_update.each do |craft_object| 
+              craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
+              craft_object.commit_messages.each do |sha_id, message|
+                commit = r.gcommit(sha_id) #get the actual commit object from the sha_id string
+                craft_object.change_commit_message(commit, message)
+              end             
+              craft_object.commit_messages = nil
+              craft_object.save
+            end
+          end
+        end
+
 
       end
     end

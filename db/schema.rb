@@ -25,13 +25,13 @@ ActiveRecord::Schema.define(:version => 20130905134724) do
     t.string   "name"
     t.string   "craft_type"
     t.integer  "part_count"
-    t.boolean  "deleted",        :default => false
+    t.boolean  "deleted",         :default => false
     t.integer  "campaign_id"
     t.integer  "history_count"
     t.string   "last_commit"
-    t.datetime "created_at",                        :null => false
-    t.datetime "updated_at",                        :null => false
-    t.text     "commit_message"
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
+    t.text     "commit_messages"
   end
 
   create_table "instances", :force => true do |t|
