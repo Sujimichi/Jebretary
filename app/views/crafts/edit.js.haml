@@ -1,5 +1,4 @@
 var div = "#message_form_for_#{@commit.to_s}"
-
 $(div).html("#{j render :partial => 'crafts/message_form', :locals =>  {:craft => @craft, :commit => @commit} }");
 
 $('.message_form').dialog();
@@ -11,6 +10,7 @@ $(div).dialog({ height: 'auto', width: 600 });
 $(div).find('#message').focus();
 var v = $(div).find('#message').val();
 $(div).find('#message').val("Go Jeb Go");
-$(div).find('#message').val(v + " ");
+$(div).find('#message').val(v);
 
-update_message(div, "#{@craft.id}", "#{@commit.to_s}", "#{@commit.message}");
+- commit = @commit.message if @commit.respond_to?("message")
+update_message(div, "#{@craft.id}", "#{@commit.to_s}", "#{commit}");

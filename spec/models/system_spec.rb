@@ -222,5 +222,146 @@ describe System do
     end
   end
 
+  describe "commit messages" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+      @campaign.create_repo
+      @campaign.verify_craft
+      @campaign.craft.each{|c| c.commit}
+      System.process
+      @craft = @campaign.craft.first
+    end
+    after(:each) do 
+      $this_test = false      
+    end
+
+    it 'should write messages which are on craft objects to the repo' do 
+      commit = @craft.history.first
+      commit.message.should == "added #{@craft.name}"
+      @craft.commit_messages = {commit.to_s=> "this is a message apparently"}
+      @craft.save
+
+      System.process
+      @craft.reload
+      @craft.history.first.message.should == "this is a message apparently"
+    end
+
+    it 'should update multiple commit messages held on a single carft' do 
+      change_craft_contents @craft, "foobar"
+      @craft.commit
+
+      @craft.history.size.should == 2
+      @craft.history.map{|h| h.message}.should == ["updated #{@craft.name}", "added #{@craft.name}"]
+
+      @craft.commit_messages = {@craft.history[0] => "change to update message", @craft.history[1] => "change to add message"}
+      @craft.save
+
+      System.process
+      @craft.history.map{|h| h.message}.should == ["change to update message", "change to add message"]
+    end
+
+
+    it 'should update messages from multiple craft' do 
+      @craft2 = @campaign.craft.last
+      
+      @craft.commit_messages = {@craft.history.first   => "this is a message on craft 1"}
+      @craft2.commit_messages = {@craft2.history.first => "this is a message on craft 2"}
+      [@craft, @craft2].each{|c| c.save}
+
+      System.process
+      [@craft, @craft2].each{|c| c.reload}
+
+      @craft.history.first.message.should == "this is a message on craft 1"
+      @craft.commit_messages.should == {}
+      @craft2.history.first.message.should == "this is a message on craft 2"
+      @craft2.commit_messages.should == {}
+
+    end
+
+    it 'should not update commit messages if there is a change on the craft' do 
+      @craft.commit_messages = {@craft.history.first.to_s=> "this is a message apparently"}
+      @craft.save
+      change_craft_contents @craft, "foobar"
+
+      System.process
+      @craft.reload
+      @craft.history.first.message.should == "added #{@craft.name}"
+    end
+
+    it 'should not update commit message if there is a change on another craft' do 
+      @craft.commit_messages = {@craft.history.first.to_s=> "this is a message apparently"}
+      @craft.save
+      change_craft_contents @campaign.craft.last, "foobar"
+
+      System.process
+      @craft.reload
+      @craft.history.first.message.should == "added #{@craft.name}"
+    end
+
+    it 'should not matter which order craft have been updated in' do 
+      @craft2 = @campaign.craft.last
+
+      [@craft, @craft2].sort_by{rand}.each{|craft|
+        change_craft_contents craft, "foobar"
+        craft.commit
+        sleep(1)
+      }    
+            
+      @craft.commit_messages = {@craft.history.first   => "this is a message on craft 1"}
+      @craft2.commit_messages = {@craft2.history.first => "this is a message on craft 2"}
+      [@craft, @craft2].each{|c| c.save}
+      
+      System.process
+      [@craft, @craft2].each{|c| c.reload}
+
+      @craft.history.first.message.should == "this is a message on craft 1"
+      @craft2.history.first.message.should == "this is a message on craft 2"
+    end
+
+    it 'should set the most_recent message update on the most recent commit' do 
+      $this_test = true
+      @craft.history.count.should == 1
+
+      change_craft_contents @craft, "foobar"
+      @craft.commit_messages = {"most_recent" => "this is a message apparently"}
+      @craft.save
+
+      #File.open("persistent.sfs", 'w') {|f| f.write("some different test data") }
+      @campaign.stub(:should_process? => true)
+      Campaign.stub(:where => [@campaign])
+
+      System.process
+
+      @craft.reload
+
+      @craft.history.count.should == 2
+      @craft.history.first.message.should == "this is a message apparently"
+
+    end
+
+  end
+
+  describe "general usage" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+      @campaign.create_repo
+      @campaign.verify_craft
+      @campaign.craft.each{|c| c.commit}
+      System.process
+      @craft1 = @campaign.craft[0]
+      @craft2 = @campaign.craft[1]
+    end
+
+    it 'should do things' do 
+
+      #make a change to 1 craft and set a commit message
+      change_craft_contents @craft1, "first version"
+      @craft
+
+
+
+
+    end
+  end
 
 end

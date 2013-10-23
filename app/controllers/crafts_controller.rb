@@ -37,6 +37,10 @@ class CraftsController < ApplicationController
     history = @craft.history     
     @commit = history.select{|commit| commit.sha == @sha_id}.first
 
+    if params[:message_form] && @commit.nil?
+      @commit = "most_recent"
+    end
+
     unless @craft.deleted? || params[:message_form]      
       @revert_to_version = history.reverse.index(@commit) + 1
       @current_version = @craft.history_count
@@ -55,11 +59,7 @@ class CraftsController < ApplicationController
     @campaign = @craft.campaign
     history = @craft.history
 
-    if params[:sha_id] 
-      commit = history.first if params[:sha_id].eql?("most_recent")
-      commit ||= history.select{|h| h.sha.eql?(params[:sha_id])}.first 
-    end
-
+    commit = @campaign.repo.gcommit(params[:sha_id])
 
     @craft.revert_to commit, :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
     @craft.recover if @craft.deleted? && params[:recover_deleted]
@@ -79,11 +79,13 @@ class CraftsController < ApplicationController
 
     #updating commit message - prob also move this to spearate controller
     if params[:update_message]
-      messages = @craft.commit_messages
-      messages[commit] = params[:update_message]
-      @craft.commit_messages = messages
-      @craft.save! if @craft.valid? 
-      @errors = {:update_message => @craft.errors.full_messages.join} unless @craft.errors.empty?      
+      unless history.first.message == params[:update_message]
+        messages = @craft.commit_messages
+        messages[commit] = params[:update_message]
+        @craft.commit_messages = messages
+        @craft.save! if @craft.valid? 
+        @errors = {:update_message => @craft.errors.full_messages.join} unless @craft.errors.empty?      
+      end
     end
 
     respond_with(@craft) do |f|

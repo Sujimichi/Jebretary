@@ -54,8 +54,14 @@
           .message
             - commit = current_project_history.first
             - if commit
+
+              - commit = "most_recent" if changed
               - message = current_project.commit_messages[commit.to_s]
-              - message ||= commit.message
+              - message ||= commit.message unless changed
+
+
+
+
               -if changed && current_project.commit_messages[commit.to_s].blank?
                 %h4
                   %a{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}

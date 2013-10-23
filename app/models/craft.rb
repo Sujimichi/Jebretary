@@ -184,7 +184,7 @@ class Craft < ActiveRecord::Base
   def change_commit_message commit, new_message
     return nil unless commit
     if self.campaign.nothing_to_commit? #message cannot be changed if there are untracked changes in the repo
-      dont_process_campaign_while do 
+      #dont_process_campaign_while do 
 
         repo = self.campaign.repo
         temp_branch_name = "temp_message_change_branch"
@@ -209,7 +209,7 @@ class Craft < ActiveRecord::Base
 
         #clean up - delete the temp branch
         repo.branch(temp_branch_name).delete
-      end
+      #end
     else
       return false
     end
@@ -223,7 +223,8 @@ class Craft < ActiveRecord::Base
   end
 
   def commit_messages= messages
-    messages = messages.to_json unless messages.nil?
+    messages = messages.to_json unless messages.blank?
+    messages = nil if messages.blank?
     super messages
   end
 

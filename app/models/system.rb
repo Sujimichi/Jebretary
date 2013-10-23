@@ -83,13 +83,28 @@ class System
             print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
             craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed?)
             data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
+
+
+            #if the craft has a commit message for the most recent (and until now uncommited) change. 
+            #Then replace the most_recent key with the sha_id for the latest commit
+            if craft_object.commit_messages["most_recent"]
+              message = craft_object.commit_messages["most_recent"]
+              messages = craft_object.commit_messages
+              messages.delete("most_recent")
+              messages[craft_object.history.first] = message
+              craft_object.commit_messages = messages
+              craft_object.save
+            end
+
             System.update_db_flag(data) #inform interface of how many craft have been commited.
             puts "done" unless Rails.env.eql?("test")
           end
 
           #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
-          campaign.update_persistence_checksum 
-          campaign.track_save(:both) if to_commit.empty? #track both, as P has been seen to change, but not if there are craft to commit.  
+          if to_commit.empty? #track both, as P has been seen to change, but not if there are craft to commit.  
+            campaign.update_persistence_checksum 
+            campaign.track_save(:both) 
+          end
           #If there are craft to commit then it is launch and we don't want to track the P and Q files for every single launch.  
         else
           campaign.track_save(:quicksave) #if the persistence.sfs has changed then campaign.should_process? will return true so we won't be here with changed P file.
@@ -106,22 +121,25 @@ class System
         #rebase process and unless a skilled Git'er is able to manually sort the repo all kinda nasty things can happen.  
         #
         #At this point everything should be commited, all craft and the saves, and no other git activity should be happening.
-        unless campaign.has_untracked_changes? || campaign.persistence_checksum != "skip"
+        unless campaign.has_untracked_changes? || campaign.persistence_checksum == "skip"
           #update repo for any craft that are holding commit message info in the temparary store.
-          to_update = craft.where("commit_messages is not null")
+          to_update = craft.where("commit_messages is not null").select{|c| !c.history.empty? }.sort_by{|c| c.history.first.date }.reverse
           unless to_update.empty?
-            r = campaign.repo
             to_update.each do |craft_object| 
               craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
-              craft_object.commit_messages.each do |sha_id, message|
-                commit = r.gcommit(sha_id) #get the actual commit object from the sha_id string
-                craft_object.change_commit_message(commit, message)
+              commit_messages = craft_object.commit_messages
+              commit_messages.each do |sha_id, message|
+                next if sha_id.eql?("most_recent")
+                commit = campaign.repo.gcommit(sha_id) #get the actual commit object from the sha_id string
+                message_changed = craft_object.change_commit_message(commit, message)
+                commit_messages.delete(sha_id) if message_changed
               end             
-              craft_object.commit_messages = nil
-              craft_object.save
+              craft_object.commit_messages = commit_messages
+              craft_object.save            
             end
           end
         end
+
       end
     end
 
@@ -181,16 +199,23 @@ class System
   def run_monitor
     @heart_rate = 10
     @repeat_error_count = 0
+    @loop_count = 0
     while @heart_rate do
       begin
         System.process
         @repeat_error_count = 0
+        @loop_count += 1
       rescue Exception => e 
         System.remove_db_flag
         puts "!!Monitor Error!!"
         puts e.message #unless Rails.env.eql?("production")
         @repeat_error_count += 1
         raise "System has error'd #{@repeat_error_count} times in a row, shutting down" if @repeat_error_count >= 5
+      end
+      if @loop_count >= 50
+        puts "Running garbage collector"
+        Campaign.each{|c| c.repo.gc}
+        @loop_count = 0
       end
       sleep @heart_rate 
     end
