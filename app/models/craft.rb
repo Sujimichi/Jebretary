@@ -228,6 +228,16 @@ class Craft < ActiveRecord::Base
     super messages
   end
 
+  def replace_most_recent_key_with_latest_commit_sha
+    msgs = commit_messages
+    return unless msgs.has_key?("most_recent")
+    m = msgs["most_recent"]
+    msgs.delete("most_recent")
+    msgs[history.first] = m
+    self.commit_messages = msgs
+    self.save
+  end
+
   def remove_message_from_temp_store key
     messages = self.commit_messages
     messages.delete(key)

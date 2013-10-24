@@ -63,7 +63,14 @@ class CraftsController < ApplicationController
 
     @craft.revert_to commit, :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
     @craft.recover if @craft.deleted? && params[:recover_deleted]
-    @craft.commit if params[:force_commit]
+
+    if params[:force_commit]
+      @craft.commit :m => @craft.commit_messages["most_recent"]
+      msgs = @craft.commit_messages
+      msgs.delete("most_recent")
+      @craft.commit_messages = msgs
+      @craft.save
+    end
 
 
     #TODO move this to separate controller 

@@ -84,17 +84,9 @@ class System
             craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed? in the rails sense)
             data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
 
-
             #if the craft has a commit message for the most recent (and until now uncommited) change. 
             #Then replace the most_recent key with the sha_id for the latest commit
-            if craft_object.commit_messages.has_key?("most_recent")
-              message = craft_object.commit_messages["most_recent"]
-              messages = craft_object.commit_messages
-              messages.delete("most_recent")
-              messages[craft_object.history.first] = message
-              craft_object.commit_messages = messages
-              craft_object.save
-            end
+            craft_object.replace_most_recent_key_with_latest_commit_sha
 
             System.update_db_flag(data) #inform interface of how many craft have been commited.
             puts "done" unless Rails.env.eql?("test")
@@ -129,13 +121,11 @@ class System
               craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
               commit_messages = craft_object.commit_messages
 
-              commit_messages = commit_messages.map{|sha_id, message| 
+              commit_messages.map{|sha_id, message| 
                 next if sha_id.eql?("most_recent")
                 commit = campaign.repo.gcommit(sha_id) #get the actual commit object from the sha_id string
                 [sha_id, message, commit, commit.date] 
-              }.compact.sort_by{|sha, m, com, date| date}.reverse
-
-              commit_messages.each do |sha_id, message, commit, date|
+              }.compact.sort_by{|sha, m, com, date| date}.reverse.each do |sha_id, message, commit, date|
                 message_changed = craft_object.change_commit_message(commit, message)
                 commit_messages.delete(sha_id) if message_changed
               end             
@@ -219,7 +209,7 @@ class System
       end
       if @loop_count >= 50
         puts "Running garbage collector"
-        Campaign.each{|c| c.repo.gc}
+        Campaign.all.each{|c| c.repo.gc}
         @loop_count = 0
       end
       sleep @heart_rate 
