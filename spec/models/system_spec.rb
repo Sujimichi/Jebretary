@@ -247,13 +247,21 @@ describe System do
     end
 
     it 'should update multiple commit messages held on a single carft' do 
+      sleep(0.5)
       change_craft_contents @craft, "foobar"
       @craft.commit
 
       @craft.history.size.should == 2
       @craft.history.map{|h| h.message}.should == ["updated #{@craft.name}", "added #{@craft.name}"]
 
-      @craft.commit_messages = {@craft.history[0] => "change to update message", @craft.history[1] => "change to add message"}
+      msgs = {}
+      
+      msgs[@craft.history[0]] = "change to update message"
+      msgs[@craft.history[1]] = "change to add message"
+      
+      
+
+      @craft.commit_messages = msgs
       @craft.save
 
       System.process
@@ -353,12 +361,59 @@ describe System do
     end
 
     it 'should do things' do 
+      @craft1.history.size.should == 1 #initial state of play
 
       #make a change to 1 craft and set a commit message
       change_craft_contents @craft1, "first version"
-      @craft
+      @craft1.commit_messages = {"most_recent" => "first version"}
+      @craft1.save
+
+      #edit P file to simulate craft being launched
+      File.open("persistent.sfs", 'w') {|f| f.write("some different test data") }
+
+      System.process
+      @craft1.reload
+
+      @craft1.history.size.should == 2
+      @craft1.history.first.message.should == "updated #{@craft1.name}" #message will not have been changed in he repo yet
+      
+      #raise @craft1.commit_messages.inspect
+      @craft1.commit_messages.keys.size.should == 1
+      @craft1.commit_messages.keys.should_not be_include("most_recent") #most_recent should be replaced with correct sha_id
+      @craft1.commit_messages.keys.should be_include(@craft1.history.first.to_s)
 
 
+      #2nd set of changes and launch
+      change_craft_contents @craft1, "second version"
+      msgs = @craft1.commit_messages
+      msgs["most_recent"] = "second version"
+      @craft1.commit_messages = msgs
+      @craft1.save
+
+      #edit P file to simulate craft being launched
+      File.open("persistent.sfs", 'w') {|f| f.write("some more different test data") }
+
+      System.process
+      @craft1.reload
+
+
+      @craft1.history.size.should == 3
+      @craft1.history.first.message.should == "updated #{@craft1.name}" #message will not have been changed in he repo yet
+
+      @craft1.commit_messages.keys.size.should == 2 #should now be two commit messages not yet written to repo
+      @craft1.commit_messages.keys.should_not be_include("most_recent") #most_recent should be replaced with correct sha_id
+      @craft1.commit_messages.keys.should be_include(@craft1.history.first.to_s)
+
+
+
+
+      #edit P file to simulate craft autosave
+      File.open("persistent.sfs", 'w') {|f| f.write("autowash") }
+      System.process
+      @craft1.reload
+
+      @craft1.commit_messages.should be_empty #messages should now be written to repo and no longer stored on craft
+      @craft1.history.map{|h| h.message}.should == ["second version", "first version", "added #{@craft1.name}"]
 
 
     end
