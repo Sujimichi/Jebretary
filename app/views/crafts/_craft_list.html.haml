@@ -60,17 +60,15 @@
               - message ||= commit.message unless changed
 
 
-
-
               -if changed && current_project.commit_messages[commit.to_s].blank?
                 %h4
                   %a{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
                     Click to Add Notes:
               -else
-                .message_text.small{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
-                  = message
-                .small.info{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
-                  = "click to edit"
+                .message_text{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
+                  - message.split("<br>").each do |m|
+                    .small= m
+                  .small.label= "click text to edit"
               .message_form{:id => "message_form_for_#{commit.to_s}", :class => (changed ? "with_untracked_changes" : "")}
 
 

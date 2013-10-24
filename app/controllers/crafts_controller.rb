@@ -86,6 +86,7 @@ class CraftsController < ApplicationController
 
     #updating commit message - prob also move this to spearate controller
     if params[:update_message]
+      params[:update_message].gsub!("\n","<br>") #replace new line tags with line break tags (\n won't commit to repo)
       unless history.first.message == params[:update_message]
         messages = @craft.commit_messages
         messages[commit] = params[:update_message]

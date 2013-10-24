@@ -28,7 +28,12 @@
               Current Version
 
         .message
-          - onclick = changed ? "" : "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"
-          .message_text.small{:onclick => onclick}
-            = commit.message
+          - onclick = "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"
+          - message = @craft.commit_messages[commit.to_s]
+          - message ||= commit.message
+
+          .message_text{:onclick => onclick}
+            - message.split("<br>").each do |m|
+              .small= m
+
           .message_form{:id => "message_form_for_#{commit.to_s}"}
