@@ -4,7 +4,7 @@ class Craft < ActiveRecord::Base
 
   require 'active_support/builder'
 
-  #validates :commit_messages, :git_compatible => true
+  validates :commit_messages, :git_compatible => true
 
   #
   ## - Instance Methods
