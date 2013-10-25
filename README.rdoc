@@ -18,19 +18,12 @@ Jebretary
     - ability to write commit messages for saves
     - ability to restore a previous version of a persistent file as a quicksave (enabling user to load an autosave with f9).
 
+  - tracking of subassemblies
 
   - sort and ordering on craft list
 
   - ability to set a craft to exist in all (or select) campaigns and reflect changes made in either campaign.
 
-  - different save modes {
-      :agressive  => saves on every change to a craft,
-      :laid_back  => saves when change in persistent.sfs is detected (ie on launch),
-      :drunk      => no auto saving, leaves that up to the user
-    }
-
-
-  - tracking of subassemblies
   - tracking of user defined files in GameData
 
 
