@@ -12,15 +12,7 @@ gem 'haml-rails'
 gem 'git'
 
 
-
-unless defined?(Ocra) || (RUBY_PLATFORM =~ /mswin|mingw|cygwin/)
-
-  group :test, :development do
-    gem 'rspec-rails'
-    gem 'factory_girl_rails'
-    gem 'autotest-rails'
-    gem 'autotest'
-  end
+unless defined?(Ocra) #|| (RUBY_PLATFORM =~ /mswin|mingw|cygwin/)
 
   # Gems used only for assets and not required
   # in production environments by default.
@@ -30,7 +22,14 @@ unless defined?(Ocra) || (RUBY_PLATFORM =~ /mswin|mingw|cygwin/)
     gem 'therubyracer', :platforms => :ruby
     gem 'uglifier', '>= 1.0.3'
   end
- 
+
+  group :test, :development do
+    gem 'rspec-rails'
+    gem 'factory_girl_rails'
+    gem 'autotest-rails'
+    gem 'autotest'
+  end
+
 else  
 
   gem 'rspec-rails'
