@@ -9,9 +9,12 @@
         %h2= @campaign.name
         .small= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
 
-      .grid_8.push_1.alpha
+      = link_to_function "Current Project", "show_current_project()"
+      |
+      = link_to_function "Saves", "show_campaign_saves()"
+      .grid_9.push_1.alpha
+        #campaign_saves.hidden
         #current_project
-        #campaign_saves
         #edit_save_holder
 
     .grid_4.omega
@@ -20,6 +23,8 @@
 
     = hidden_field_tag :campaign_id, @campaign.id
     = hidden_field_tag :show_deleted, false
+    = hidden_field_tag :active_display, "current_project"
+    = hidden_field_tag :active_save_display, "quicksave"
 
     .clear
     .vblk_2

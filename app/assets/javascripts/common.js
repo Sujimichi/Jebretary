@@ -218,8 +218,39 @@ function show_help(specific_help, args){
 
 };
 
+function toggle_save_display(){
+  var vis = $('#quicksave_display').is(":visible")
+  if(vis == true){
+    $('#quicksave_display').hide();
+    $('#persistent_display').show();
+    $('#active_save_display').val('persistent')
+  }else{
+    $('#persistent_display').hide();
+    $('#quicksave_display').show();
+    $('#active_save_display').val('quicksave')
+  };
 
+};
 
+function toggle_active_display(){
+  var vis = $('#current_project').is(":visible")
+  if(vis == true){
+    show_campaign_saves();
+  }else{
+    show_current_project();
+  };
+};
+
+function show_current_project(){
+  $('#campaign_saves').hide();
+  $('#current_project').show();
+  $('#active_display').val('current_project')
+};
+function show_campaign_saves(){
+  $('#current_project').hide();
+  $('#campaign_saves').show();
+  $('#active_display').val('saves')
+};
 
 function toggle_deleted_craft(){
   var show_del = $('#show_deleted').val()

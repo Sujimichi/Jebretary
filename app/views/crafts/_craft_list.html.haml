@@ -4,24 +4,44 @@
   - current_project = campaign.last_changed_craft(new_and_changed)
 
   #content_for_campaign_saves
-    .grid_5.alpha
+    - saves = campaign.save_history
+    .grid_8.alpha
       %h3 Saves
-      - saves = campaign.save_history
-      .label Quicksaves;
-      -unless saves[:quicksave].empty?
-        - latest = saves[:quicksave].first
-        - saves[:quicksave][0..4].each_with_index do |qsave, index|
-          .small
-            .left= qsave.date.to_formatted_s(:short)
-            .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
-            .right
-              - unless index.eql?(0)
-
-                = link_to("restore", edit_save_path(:id => campaign.id, :sha_id => qsave.to_s, :save_type => :quicksave), :remote => true)
-              -else
-                current quicksave
-          .clear
-
+    .clear
+    .grid_6.alpha
+      #quicksave_display
+        - saves = campaign.save_history
+        .left.label= "Quicksaves |"
+        .left= link_to_function "Persistent", "toggle_save_display()"
+        .clear
+        -unless saves[:quicksave].empty?
+          - latest = saves[:quicksave].first
+          - saves[:quicksave][0..4].each_with_index do |qsave, index|
+            .small.small
+              .left= qsave.date.to_formatted_s(:short)
+              .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
+              .right
+                - unless index.eql?(0)
+                  = link_to("restore", edit_save_path(:id => campaign.id, :sha_id => qsave.to_s, :save_type => :quicksave), :remote => true)
+                -else
+                  current quicksave
+              .clear
+      #persistent_display.hidden
+        .left= link_to_function "Quicksaves", "toggle_save_display()"
+        .left.label= "| Persistent"
+        .clear
+        - unless saves[:persistent].empty?
+          - latest = saves[:persistent].first
+          - saves[:persistent][0..4].each_with_index do |qsave, index|
+            .small.small
+              .left= qsave.date.to_formatted_s(:short)
+              .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
+              .right
+                - unless index.eql?(0)
+                  = link_to("restore", edit_save_path(:id => campaign.id, :sha_id => qsave.to_s, :save_type => :persistent ), :remote => true)
+                -else
+                  current persistent file
+              .clear
 
 
   - unless current_project.nil?
@@ -47,8 +67,6 @@
               = form_for(current_project, :remote => true) do |f|
                 = hidden_field_tag :force_commit, true
                 = f.submit "Commit (save) Now!"
-
-
 
           .clear
           - version = current_project.history_count
@@ -80,7 +98,6 @@
               - message = current_project.commit_messages[commit.to_s]
               - message ||= commit.message unless changed
 
-
               -if changed && current_project.commit_messages[commit.to_s].blank?
                 %h4
                   %a{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')", :href => '#'}
@@ -95,7 +112,6 @@
 
 
   .clear
-
   - campaign.craft.group_by{|g| g.craft_type}.sort.reverse.each do |type, crafts|
     %div{:id => "content_for_#{type}_list"}
       - sort_by = "updated_at reverse"

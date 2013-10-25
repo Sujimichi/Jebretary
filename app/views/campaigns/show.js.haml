@@ -2,8 +2,22 @@ if("#{@background_process}" != "waiting"){
 $('#campaigns_list').html("#{j render :partial => 'crafts/craft_list', :locals => {:campaign => @campaign} }");
 
 
-
 $('#campaign_saves').html($('#content_for_campaign_saves').html());
+$('#content_for_campaign_saves').html('')
+if($('#active_save_display').val() == 'persistent'){
+$('#quicksave_display').hide();
+$('#persistent_display').show();
+};
+
+if($('#active_display').val() == 'saves'){
+$('#current_project').hide();
+$('#campaign_saves').show();
+}else{
+$('#campaign_saves').hide();
+$('#current_project').show();
+};
+
+
 
 var current_project = $('#content_for_current_project').html()
 $('#current_project').html(current_project)
