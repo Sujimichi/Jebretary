@@ -6,8 +6,10 @@
 .small= "(made #{time_ago_in_words(commit.date)} ago)"
 
 
-= button_to_function "Cancel", "$('#edit_save_holder').dialog( 'close' );"
-= form_tag("/saves/#{campaign.id}", :method => "put") do |f|
-  = hidden_field_tag :sha_id, commit.to_s
-  = hidden_field_tag :save_type, save_type
-  = submit_tag("OK")
+.revert_save_form
+  .left
+    = form_tag("/saves/#{campaign.id}", :method => "put") do |f|
+      = hidden_field_tag :sha_id, commit.to_s
+      = hidden_field_tag :save_type, save_type
+      = submit_tag("OK")
+  .right= button_to_function "Cancel", "$('#edit_save_holder').dialog( 'close' );"

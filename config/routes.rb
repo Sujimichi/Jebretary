@@ -7,6 +7,7 @@ Jebretary::Application.routes.draw do
   resources :crafts
   resources :saves
 
+  match 'campaigns/:id/saves' => 'saves#index'
 
 
   # The priority is based upon order of creation:

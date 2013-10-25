@@ -7,6 +7,8 @@
     - saves = campaign.save_history
     .grid_8.alpha
       %h3 Saves
+      = link_to "view full save history", saves_path(:id => campaign.id)
+
     .clear
     .grid_6.alpha
       #quicksave_display
@@ -42,7 +44,7 @@
                 -else
                   current persistent file
               .clear
-
+  .clear
 
   - unless current_project.nil?
     #content_for_current_project.hidden
