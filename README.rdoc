@@ -4,7 +4,6 @@ Jebretary
 
   =Editing Commit Messages
     - Response from adding/updating a message will sometimes crash the interface. Although most times the update is written.
-    - cant put new line in commit message
 
 
   =General
@@ -15,11 +14,10 @@ Jebretary
 
 
 ==Planned/Todo
-  * quicksave and persistent tracking
-  
-  -call git gc periodically to compress repo
+  * quicksave and persistent tracking - inprogress
+    - ability to write commit messages for saves
+    - ability to restore a previous version of a persistent file as a quicksave (enabling user to load an autosave with f9).
 
-  - ability to not track a craft (remove from repo)
 
   - sort and ordering on craft list
 
@@ -45,19 +43,27 @@ Jebretary
     - this feature would introduce a dependence on the DB, up till now all info is recreatable from the git repo (the DB just acts to index).
     - possibile upload to imgur option?
 
+   - ability to not track a craft (remove from repo)
+    - possibly, this may be problematic
 
     ==MajorFeature- Online System - JebWeb
-      - users sign up for an account online with JebWeb and get a token which they set in Jebretary
-      - Jebretary can use this token to access the users online account and can then transmit craft to the users account
+      - users sign up for a free account online with JebWeb and get a token which they set in Jebretary
+      - Jebretary can use this token to access the users online account and can then upload craft to the users account
       - This would enable online, cloud storage of craft and would be a way of sharing craft.
-        - craft will also have more info, including analysis of required mods.
+        - craft will also have more info, including automatic analysis of required mods.
 
       - A craft posted on JebWb can just be updated with a click from Jerbretary.
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost to have more than 5 private craft.
 
 
+==0.0.9
+  - major change to how commit messages are updated into the repo.  User can now edit commit messages while there are untracked changes in the repo.  The messages will be stored on the craft object and will be written to the repo later, once all changes have been tracked.
+  - quicksave and persistent files can now be reverted from interface
+  - interface automattically displays either current project or saves depending on which has been most recently changed. While editing a craft the current project is show, once the user does a quicksave it will switch to displaying saves.
+  - git garbage collector is called periodically to ensure the repo is kept compressed.
+
 ==0.0.8
-  - added quicksave and persistent file tracking.
+  - added quicksave and persistent file tracking (but no facility to revert as yet).
   - added ability to move/copy craft file to another campaign in the same or other instance.
   - added ability to delete craft files.
   - Fixed - editing a commit message at the same time as the craft is automatically commited no longer looses the message
