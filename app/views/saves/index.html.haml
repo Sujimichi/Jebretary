@@ -1,6 +1,6 @@
 #campaign_save_index
   #nav-box
-    =link_to "back", campaign_path(@campaign)
+    =link_to "back to campaign", campaign_path(@campaign)
   #edit_save_holder.hidden
   .grid_12
     %h2= "Saves for #{@campaign.name}"
@@ -17,7 +17,7 @@
         .save_list{:class => klass}
           %h3= save_type
           - latest = saves[save_type].first
-          - saves[save_type][0..4].each_with_index do |qsave, index|
+          - saves[save_type].each_with_index do |qsave, index|
             .left= qsave.date.to_formatted_s(:short)
             .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
             .right

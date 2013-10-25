@@ -5,13 +5,8 @@
   - saves = campaign.save_history
 
   - most_recent_commit = campaign.latest_commit(current_project, saves, new_and_changed)
-  -if most_recent_commit.eql?(:current_project)
-    :javascript
-      if(auto_switch_display == true){show_current_project()};
-
-  -elsif most_recent_commit.eql?(:quicksave)
-    :javascript
-      if(auto_switch_display == true){show_campaign_saves()};
+  :javascript
+    auto_switch_display_based_on("#{most_recent_commit}");
 
 
 

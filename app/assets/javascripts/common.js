@@ -242,26 +242,40 @@ function toggle_active_display(){
 };
 
 var auto_switch_display = true
+var auto_switch_reset = null
+
+function auto_switch_display_based_on(most_recent_commit){
+  if(auto_switch_display == true){
+    if(most_recent_commit == "quicksave"){
+      show_campaign_saves();
+    }else{
+      show_current_project();
+    }
+  };
+};
+
 function show_current_project(opts){
   $('#campaign_saves').hide();
   $('#current_project').show();
   $('#active_display').val('current_project')
-  if(opts == undefined){var opts = {}}
+  if(opts == undefined){var opts = {}};
+  clearTimeout(auto_switch_reset);
   if(opts['force'] == true){
     auto_switch_display = false;
-    setTimeout(function(){auto_switch_display = true},300000)
+    auto_switch_reset = setTimeout(function(){auto_switch_display = true},300000)
   };
 };
-function show_campaign_saves(){
+
+function show_campaign_saves(opts){
   $('#current_project').hide();
   $('#campaign_saves').show();
-  $('#active_display').val('saves')
-  if(opts == undefined){var opts = {}}
+  $('#active_display').val('saves');
+  if(opts == undefined){var opts = {}};
+  clearTimeout(auto_switch_reset);
   if(opts['force'] == true){
     auto_switch_display = false;
-    setTimeout(function(){auto_switch_display = true},300000)
+    auto_switch_reset = setTimeout(function(){auto_switch_display = true},300000)
   };
-
 };
 
 function toggle_deleted_craft(){

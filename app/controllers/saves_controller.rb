@@ -21,6 +21,6 @@ class SavesController < ApplicationController
     campaign = Campaign.find(params[:id])
     commit = campaign.repo.gcommit(params[:sha_id])
     campaign.revert_save params[:save_type], commit, :commit => true
-    redirect_to :back, :notice => "Your #{params[:save_type]} has been reverted"
+    redirect_to :back, :notice => "Your #{params[:save_type]}.sfs file has been reverted"
   end
 end
