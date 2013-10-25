@@ -122,7 +122,7 @@ class Campaign < ActiveRecord::Base
 
   def revert_save save_type, commit, options = {}
     dont_process_while do 
-      hist = save_history[save_type]
+      hist = save_history[save_type.to_sym]
       index = hist.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
       self.repo.checkout_file(commit, "#{save_type}.sfs")
       if options[:commit]

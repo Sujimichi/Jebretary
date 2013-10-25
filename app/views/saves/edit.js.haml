@@ -1,0 +1,5 @@
+$('#edit_save_holder').html("#{j render :partial => 'saves/revert_save', :locals => {:campaign => @campaign, :save_type => @save_type, :commit => @commit, :version => @version} }")
+
+$('#edit_save_holder').dialog();
+$('#edit_save_holder').dialog( "close" );
+$('#edit_save_holder').dialog({ height: 'auto', width: 600 });

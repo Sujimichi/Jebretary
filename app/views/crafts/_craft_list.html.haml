@@ -4,7 +4,7 @@
   - current_project = campaign.last_changed_craft(new_and_changed)
 
   #content_for_campaign_saves
-    .grid_4.alpha
+    .grid_5.alpha
       %h3 Saves
       - saves = campaign.save_history
       .label Quicksaves;
@@ -16,7 +16,8 @@
             .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
             .right
               - unless index.eql?(0)
-                = link_to("restore")
+
+                = link_to("restore", edit_save_path(:id => campaign.id, :sha_id => qsave.to_s, :save_type => :quicksave), :remote => true)
               -else
                 current quicksave
           .clear

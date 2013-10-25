@@ -1,0 +1,13 @@
+%h3= "Revert #{save_type} for #{campaign.name}"
+-if version.eql?(1)
+  = "Click ok to revert your #{save_type} to the previous version"
+-else
+  = "Click ok to revert your #{save_type} to #{version} versions ago"
+.small= "(made #{time_ago_in_words(commit.date)} ago)"
+
+
+= button_to_function "Cancel", "$('#edit_save_holder').dialog( 'close' );"
+= form_tag("/saves/#{campaign.id}", :method => "put") do |f|
+  = hidden_field_tag :sha_id, commit.to_s
+  = hidden_field_tag :save_type, save_type
+  = submit_tag("OK")

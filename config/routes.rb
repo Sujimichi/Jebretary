@@ -5,6 +5,7 @@ Jebretary::Application.routes.draw do
   resources :instances
   resources :campaigns
   resources :crafts
+  resources :saves
 
 
 

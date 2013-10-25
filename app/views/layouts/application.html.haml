@@ -13,14 +13,13 @@
         Jebretary
 
   %body
-
     #help_holder
     #content
       #flash
-      -unless notice.blank?
-        #notice= notice
-      -unless alert.blank?
-        #alert= alert
+        -unless notice.blank?
+          #notice= notice
+        -unless alert.blank?
+          #alert= alert
 
       .clamp_holder
         .lhs_clamp

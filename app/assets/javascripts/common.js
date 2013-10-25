@@ -1,5 +1,6 @@
 $(function(){
   clearTimeout(index_search_timer);
+  autohide_flash();
 });
 
 var setup_timer = null
@@ -37,6 +38,14 @@ function ajax_send(url, data, callback, type){
   };
   $.ajax({ url: url, data: data, type: type, success: callback, error: wrapped_error, dataType: 'script' });
 };
+
+
+autohide_flash = function(){
+  setTimeout(function(){
+    $('#flash').slideUp('fast')},
+    5000
+  );
+}
 
 
 function poll_for_updated_instance(){
