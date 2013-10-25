@@ -8,8 +8,7 @@ Jebretary
 
   =General
     - occasionally shows the no campaigns messages on instances show page when there are campaigns present.
-    - deleting a craft with untracked changes crashes the interface
-    - deleting a craft caused an interface crash for a short while (i think until System had processed)
+    - deleting a craft with untracked changes crashes the interface (after reload deletion has been tracked and all is ok)
     - attempting to restore to the version where a craft was deleted results in an interface crash (but no changes to state).
 
 
