@@ -3,6 +3,26 @@
   - new_and_changed = campaign.new_and_changed
   - current_project = campaign.last_changed_craft(new_and_changed)
 
+  #content_for_campaign_saves
+    .grid_4.alpha
+      %h3 Saves
+      - saves = campaign.save_history
+      .label Quicksaves;
+      -unless saves[:quicksave].empty?
+        - latest = saves[:quicksave].first
+        - saves[:quicksave][0..4].each_with_index do |qsave, index|
+          .small
+            .left= qsave.date.to_formatted_s(:short)
+            .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
+            .right
+              - unless index.eql?(0)
+                = link_to("restore")
+              -else
+                current quicksave
+          .clear
+
+
+
   - unless current_project.nil?
     #content_for_current_project.hidden
       %h3 Current Project

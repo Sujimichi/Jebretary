@@ -383,7 +383,7 @@ describe Campaign do
 
   end
 
-  describe "quicksave tracking" do 
+  describe "save tracking" do 
 
     describe "track save" do 
       before(:each) do 
@@ -441,6 +441,65 @@ describe Campaign do
         @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
       end
 
+    end
+
+    describe "save history" do 
+      before(:each) do 
+        @campaign = set_up_sample_data
+      end
+
+      it 'should return empty hash when no saves are tracked' do 
+        @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
+        @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
+        @campaign.save_history.should == {}
+      end
+
+      it 'should contain keys for quicksave when it is tracked' do 
+        @campaign.track_save :quicksave
+        @campaign.save_history.keys.should be_include(:quicksave)
+      end
+      it 'should contain keys for persistent when it is tracked' do 
+        @campaign.track_save :persistent
+        @campaign.save_history.keys.should be_include(:persistent)
+      end
+
+      it 'should have an array of commits for each save' do 
+        @campaign.track_save :both
+        @campaign.save_history[:quicksave].should be_a(Array)
+        @campaign.save_history[:persistent].should be_a(Array)
+        @campaign.save_history[:quicksave].size.should == 1
+        @campaign.save_history[:persistent].size.should == 1
+
+        File.open("persistent.sfs", 'w'){|f| f.write("not the save it was before")}
+        File.open("quicksave.sfs", 'w'){|f| f.write("not the save it was before")}
+        @campaign.track_save :both
+
+        @campaign.save_history[:quicksave].size.should == 2
+        @campaign.save_history[:persistent].size.should == 2
+      end
+
+    end
+
+  end
+
+  describe "revert saves" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+      @campaign.track_save :both
+      File.open("persistent.sfs", 'w'){|f| f.write("not the save it was before")}
+      File.open("quicksave.sfs", 'w'){|f| f.write("not the save it was before")}
+      @campaign.track_save :both
+    end
+
+    it 'should revert a save to a previous commit' do 
+      current_file = File.open("quicksave.sfs", 'r'){|f| f.readlines}.join
+      current_file.should == "not the save it was before"
+
+      commit = @campaign.save_history[:quicksave][1]
+      @campaign.revert_save :quicksave, commit, :commit => true
+
+      reverted_file = File.open("quicksave.sfs", 'r'){|f| f.readlines}.join
+      reverted_file.should == "some test data"
     end
 
   end

@@ -103,6 +103,44 @@ class Campaign < ActiveRecord::Base
     status.changed.keys.include?(save_type)
   end
 
+  #return the commits for the craft (most recent first)
+  def save_history
+     begin
+      max_history_size = 100000
+      rs = self.repo
+      qs_commits = rs.log(max_history_size).object("quicksave.sfs")
+      ps_commits = rs.log(max_history_size).object("persistent.sfs")
+      commits = {}
+      commits[:quicksave] = qs_commits.to_a if qs_commits  && !qs_commits.to_a.empty?
+      commits[:persistent] = ps_commits.to_a if ps_commits && !ps_commits.to_a.empty?
+      commits
+    rescue
+      {}
+    end
+  end
+
+
+  def revert_save save_type, commit, options = {}
+    dont_process_while do 
+      hist = save_history[save_type]
+      index = hist.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
+      self.repo.checkout_file(commit, "#{save_type}.sfs")
+      if options[:commit]
+        begin
+          m = "reverted #{save_type} to V#{index}"
+          repo.commit(m)
+        rescue
+        end
+      end
+    end
+  end
+
+  def dont_process_while &blk
+    self.update_attributes(:persistence_checksum => "skip") 
+    yield
+    self.update_persistence_checksum
+  end
+  
 
   #return hash containing :new and :changed keys, each entailing an array of craft file paths
   #for craft that are either untracked or which have changes.
