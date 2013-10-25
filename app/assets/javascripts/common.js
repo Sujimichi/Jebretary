@@ -241,15 +241,27 @@ function toggle_active_display(){
   };
 };
 
-function show_current_project(){
+var auto_switch_display = true
+function show_current_project(opts){
   $('#campaign_saves').hide();
   $('#current_project').show();
   $('#active_display').val('current_project')
+  if(opts == undefined){var opts = {}}
+  if(opts['force'] == true){
+    auto_switch_display = false;
+    setTimeout(function(){auto_switch_display = true},300000)
+  };
 };
 function show_campaign_saves(){
   $('#current_project').hide();
   $('#campaign_saves').show();
   $('#active_display').val('saves')
+  if(opts == undefined){var opts = {}}
+  if(opts['force'] == true){
+    auto_switch_display = false;
+    setTimeout(function(){auto_switch_display = true},300000)
+  };
+
 };
 
 function toggle_deleted_craft(){

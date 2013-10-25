@@ -9,9 +9,9 @@
         %h2= @campaign.name
         .small= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
 
-      = link_to_function "Current Project", "show_current_project()"
+      = link_to_function "Current Project", "show_current_project({force: true})"
       |
-      = link_to_function "Saves", "show_campaign_saves()"
+      = link_to_function "Saves", "show_campaign_saves({force: true})"
       .grid_9.push_1.alpha
         #campaign_saves.hidden
         #current_project

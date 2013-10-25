@@ -2,8 +2,20 @@
 -unless campaign.blank?
   - new_and_changed = campaign.new_and_changed
   - current_project = campaign.last_changed_craft(new_and_changed)
+  - saves = campaign.save_history
 
-  #content_for_campaign_saves
+  - most_recent_commit = campaign.latest_commit(current_project, saves, new_and_changed)
+  -if most_recent_commit.eql?(:current_project)
+    :javascript
+      if(auto_switch_display == true){show_current_project()};
+
+  -elsif most_recent_commit.eql?(:quicksave)
+    :javascript
+      if(auto_switch_display == true){show_campaign_saves()};
+
+
+
+  #content_for_campaign_saves.hidden
     - saves = campaign.save_history
     .grid_8.alpha
       %h3 Saves
@@ -12,7 +24,6 @@
     .clear
     .grid_6.alpha
       #quicksave_display
-        - saves = campaign.save_history
         .left.label= "Quicksaves |"
         .left= link_to_function "Persistent", "toggle_save_display()"
         .clear
