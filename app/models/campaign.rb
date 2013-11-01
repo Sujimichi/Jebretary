@@ -7,6 +7,7 @@ class Campaign < ActiveRecord::Base
   has_many :craft, :dependent => :destroy
 
   validates :name, :instance_id, :presence => true
+  validates :commit_messages, :git_compatible => true
 
 
   def cache_instance instance
@@ -317,6 +318,19 @@ class Campaign < ActiveRecord::Base
       commit_info = nil if commit_info[:deleted].compact.empty? #if all the entries were nil'ed then skip this commit
       commit_info
     }.compact #remove the nil'ed commits.
+  end
+
+  def commit_messages
+    messages = super
+    return {} if messages.blank?
+    h = JSON.parse(messages)
+    HashWithIndifferentAccess.new(h)
+  end
+
+  def commit_messages= messages
+    messages = messages.to_json unless messages.blank?
+    messages = nil if messages.blank?
+    super messages
   end
 
 end

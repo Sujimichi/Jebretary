@@ -1,0 +1,9 @@
+- if !defined?(@errors)
+  $('#edit_save_holder').hide();
+  $('#edit_save_holder').dialog();
+  //if($(".message_form").hasClass("ui-dialog")) {
+  $("#edit_save_holder").dialog("destroy");
+  //}
+-else
+  var error = "#{@errors.blank? ? '' : @errors[:update_message]}";
+  $('.message_errors').html(error);

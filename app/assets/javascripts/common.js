@@ -104,12 +104,25 @@ function update_message(div, craft_id, commit, original_message){
   });
 };
 
-
-
 function dialog_open(div_id){
   if(open_dialogs[div_id] == true){return true}else{return false}
 };
 
+function update_save_message(div, campaign_id, commit, original_message){
+  $(div).find('#message').bind("blur", function(){
+    var new_message = $(this).val();
+    if(original_message != new_message){
+      $(".updating_message").show();
+      ajax_put("/campaigns/" + campaign_id, {update_message: new_message, sha_id: commit}, function(){
+        $(".updating_message").hide();
+        $(div).parents('.message').find(".message_text").append("<br/>updating<div class='left ajax_loader'></div><div class='clear'></div>")
+      });
+    }else{
+      $('.message_form').dialog();
+      $('.message_form').dialog( "close" );
+    };
+  });
+};
 
 function move_copy_dialog(){
   $('#move_copy_dialog').dialog({

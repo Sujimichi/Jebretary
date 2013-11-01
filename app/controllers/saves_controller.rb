@@ -13,6 +13,12 @@ class SavesController < ApplicationController
         @save_type = params[:save_type]
         @commit = @campaign.repo.gcommit(params[:sha_id])
         @version = @campaign.save_history[@save_type.to_sym].map{|c| c.to_s}.index(@commit.to_s)
+
+        if params[:commit_message]
+          @message = @commit.message
+          stored_message = @campaign.commit_messages[@commit.to_s]
+          @message = stored_message if stored_message
+        end
       }
     end    
   end

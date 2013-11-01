@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130905134724) do
+ActiveRecord::Schema.define(:version => 20131101195720) do
 
   create_table "campaigns", :force => true do |t|
     t.integer  "instance_id"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(:version => 20130905134724) do
     t.string   "persistence_checksum"
     t.datetime "created_at",           :null => false
     t.datetime "updated_at",           :null => false
+    t.text     "commit_messages"
   end
 
   create_table "crafts", :force => true do |t|
