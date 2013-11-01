@@ -1,4 +1,5 @@
 class Campaign < ActiveRecord::Base
+  include CommitMessageChanger
   require 'git'
 
   attr_accessible :instance_id, :name, :persistence_checksum

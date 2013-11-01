@@ -25,11 +25,14 @@ class CampaignsController < ApplicationController
   def update
     @campaign = Campaign.find(params[:id])
     commit = @campaign.repo.gcommit(params[:sha_id])
-    messages = @campaign.commit_messages
-    messages[commit] = params[:update_message]
-    @campaign.commit_messages = messages
-    @campaign.save! if @campaign.valid? 
-    @errors = {:update_message => @campaign.errors.full_messages.join} unless @campaign.errors.empty?          
+    params[:update_message].gsub!("\n","<br>") #replace new line tags with line break tags (\n won't commit to repo)
+    unless params[:update_message] == commit.message
+      messages = @campaign.commit_messages
+      messages[commit] = params[:update_message]
+      @campaign.commit_messages = messages
+      @campaign.save! if @campaign.valid? 
+      @errors = {:update_message => @campaign.errors.full_messages.join} unless @campaign.errors.empty?          
+    end
   end
 
   def destroy

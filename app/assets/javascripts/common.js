@@ -118,8 +118,8 @@ function update_save_message(div, campaign_id, commit, original_message){
         $(div).parents('.message').find(".message_text").append("<br/>updating<div class='left ajax_loader'></div><div class='clear'></div>")
       });
     }else{
-      $('.message_form').dialog();
-      $('.message_form').dialog( "close" );
+      $(div).dialog();
+      $(div).dialog( "close" );
     };
   });
 };
