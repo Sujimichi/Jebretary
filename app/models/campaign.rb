@@ -200,7 +200,8 @@ class Campaign < ActiveRecord::Base
 
   def update_persistence_checksum
     Dir.chdir(self.path)
-    checksum = Digest::SHA256.file("persistent.sfs").hexdigest
+    checksum = nil
+    checksum = Digest::SHA256.file("persistent.sfs").hexdigest if File.exists?("persistent.sfs")
     self.update_attributes(:persistence_checksum => checksum)
   end
 
@@ -217,7 +218,7 @@ class Campaign < ActiveRecord::Base
 
     #return true if the stored checksum for persistent.sfs does not match the one generated for the current persistent.sfs
     Dir.chdir(self.path)
-    return false unless File.exists?("persistent.sfs")
+    return true unless File.exists?("persistent.sfs")
     checksum = Digest::SHA256.file("persistent.sfs").hexdigest
     not checksum.eql?(self.persistence_checksum)
   end
