@@ -11,7 +11,7 @@
   .vblk_1
   .grid_11.half_push
     - save_types.each_with_index do |save_type, index|
-      -unless saves[save_type].empty?
+      -unless saves[save_type].blank?
         - klass = 'grid_5 alpha'
         - klass << " push_1" if index.eql?(1)
         .save_list{:class => klass}
@@ -26,3 +26,5 @@
               -else
                 = "current #{save_type}"
             .clear
+      - else
+        %h4= "Could not find a #{save_type}.sfs file"

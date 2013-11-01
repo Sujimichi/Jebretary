@@ -30,6 +30,7 @@ class Campaign < ActiveRecord::Base
   end
 
   def path_to_flag
+    return nil unless File.exists?(File.join([self.path, "persistent.sfs"]))
     p_file = File.open(File.join([self.path, "persistent.sfs"]),'r'){|f| f.readlines}
     flag_line = p_file.select{|line| line.match /\sflag/}.first
     unless flag_line.blank?
@@ -216,6 +217,7 @@ class Campaign < ActiveRecord::Base
 
     #return true if the stored checksum for persistent.sfs does not match the one generated for the current persistent.sfs
     Dir.chdir(self.path)
+    return false unless File.exists?("persistent.sfs")
     checksum = Digest::SHA256.file("persistent.sfs").hexdigest
     not checksum.eql?(self.persistence_checksum)
   end

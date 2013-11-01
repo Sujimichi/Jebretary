@@ -22,7 +22,7 @@
         .left.label= "Quicksaves |"
         .left= link_to_function "Persistent", "toggle_save_display()"
         .clear
-        -unless saves[:quicksave].empty?
+        -unless saves[:quicksave].blank?
           - latest = saves[:quicksave].first
           - saves[:quicksave][0..4].each_with_index do |qsave, index|
             .small.small
@@ -38,7 +38,7 @@
         .left= link_to_function "Quicksaves", "toggle_save_display()"
         .left.label= "| Persistent"
         .clear
-        - unless saves[:persistent].empty?
+        - unless saves[:persistent].blank?
           - latest = saves[:persistent].first
           - saves[:persistent][0..4].each_with_index do |qsave, index|
             .small.small
