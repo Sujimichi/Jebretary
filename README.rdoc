@@ -13,9 +13,7 @@ Jebretary
 
 
 ==Planned/Todo
-  * quicksave and persistent tracking - inprogress
-    - ability to write commit messages for saves
-    - ability to restore a previous version of a persistent file as a quicksave (enabling user to load an autosave with f9).
+  - ability to restore a previous version of a persistent file as a quicksave (enabling user to load an autosave with f9).
 
   - tracking of subassemblies
 
