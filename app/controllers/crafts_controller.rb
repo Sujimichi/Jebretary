@@ -84,6 +84,9 @@ class CraftsController < ApplicationController
       end
     end
 
+    if params[:sha_id].eql?("most_recent") 
+      commit = @craft.history.first unless @craft.is_changed?
+    end
     #updating commit message - prob also move this to spearate controller
     if params[:update_message]
       params[:update_message].gsub!("\n","<br>") #replace new line tags with line break tags (\n won't commit to repo)
