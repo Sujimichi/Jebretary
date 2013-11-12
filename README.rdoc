@@ -51,6 +51,7 @@ Jebretary
   - quicksave and persistent files can now be reverted from interface
   - interface automattically displays either current project or saves depending on which has been most recently changed. While editing a craft the current project is show, once the user does a quicksave it will switch to displaying saves.
   - git garbage collector is called periodically to ensure the repo is kept compressed.
+  - bug fixes
 
 ==0.0.8
   - added quicksave and persistent file tracking (but no facility to revert as yet).

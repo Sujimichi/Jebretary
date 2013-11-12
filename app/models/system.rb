@@ -66,7 +66,7 @@ class System
 
         craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
 
- 
+
 
         if campaign.should_process?
           new_and_changed = campaign.new_and_changed         
@@ -117,55 +117,42 @@ class System
           #update repo for any craft that are holding commit message info in the temparary store.
           #to_update = craft.where("commit_messages is not null").select{|c| !c.history.empty? }.sort_by{|c| c.history.first.date }.reverse
 
-          
           messages_to_process = [] #container for commit messages that need writing to repo
-          repo = campaign.repo
-          
+
           #first seclect the craft that have messages to write to repo
           #and put the messages into messages_to_process along with the commit and the craft object
           craft.where("commit_messages is not null").each do |craft|
-            craft.commit_messages.to_a.each{|sha_id, message| messages_to_process << [sha_id, message, repo.gcommit(sha_id), craft] }             
+            craft.commit_messages.to_a.each{|sha_id, message| messages_to_process << [sha_id, message, craft] }             
           end
           #now add the messages that are on the campaign object (in the same formate [sha_id, message, commit, object]
-          campaign.commit_messages.to_a.each{|sha_id, message| messages_to_process << [sha_id, message, repo.gcommit(sha_id), campaign] }
+          campaign.commit_messages.to_a.each{|sha_id, message| messages_to_process << [sha_id, message, campaign] }
 
-          #Sort the messages - IMPORTANT STEP
-          #messages are now sorted by reversed date order and those for "most recent" commit are excluded.
-          messages_to_process = messages_to_process.select{|sha_id, message, commit, object| 
-            !sha_id.eql?("most_recent")
-          }.sort_by{|sha_id, message, commit, object| commit.date}.reverse
+          unless messages_to_process.empty?
+            puts "\nWritting Commit messages to repo..."  unless Rails.env.eql?("test")
+            repo = campaign.repo
 
-          #process the messages and then remove the message from the object if the update was succsessful.
-          messages_to_process.each do |sha_id, message, commit, object|
-            object.crafts_campaign = campaign if object.is_a?(Craft) #pass in already loaded campaign object into craft object.
-            message_changed = object.change_commit_message(commit, message)
-            if message_changed
-              cms = object.commit_messages
-              cms.delete(sha_id)
-              object.commit_messages = cms
-              object.save
+            #Sort the messages - IMPORTANT STEP
+            #messages are now sorted by reversed date order and those for "most recent" commit are excluded.
+            messages_to_process = messages_to_process.select{|sha_id, message, object| 
+              !sha_id.eql?("most_recent")                                     #ignore those with most_recent as sha_id
+            }.map{|sha_id, message, object|
+              [sha_id, message, repo.gcommit(sha_id), object]                 #get the commit object from the sha_id
+            }.sort_by{|sha_id, message, commit, object| commit.date}.reverse  #sort_by commit date and reverse order
+
+            #process the messages and then remove the message from the object if the update was succsessful.
+            messages_to_process.each do |sha_id, message, commit, object|
+              object.crafts_campaign = campaign if object.is_a?(Craft) #pass in already loaded campaign object into craft object.
+              message_changed = object.change_commit_message(commit, message)
+              if message_changed
+                cms = object.commit_messages
+                cms.delete(sha_id)
+                object.commit_messages = cms
+                object.save
+              end
             end
           end
 
-          #unless to_update.empty?
-          #  to_update.each do |craft_object| 
-          #    craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
-          #    commit_messages = craft_object.commit_messages
-
-          #    commit_messages.map{|sha_id, message| 
-          #      next if sha_id.eql?("most_recent")
-          #      commit = campaign.repo.gcommit(sha_id) #get the actual commit object from the sha_id string
-          #      [sha_id, message, commit, commit.date] 
-          #    }.compact.sort_by{|sha, m, com, date| date}.reverse.each do |sha_id, message, commit, date|
-          #      message_changed = craft_object.change_commit_message(commit, message)
-          #      commit_messages.delete(sha_id) if message_changed
-          #    end             
-          #    craft_object.commit_messages = commit_messages
-          #    craft_object.save            
-          #  end
-          #end
         end
-
       end
     end
 
