@@ -45,13 +45,17 @@ Jebretary
       - A craft posted on JebWb can just be updated with a click from Jerbretary.
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost to have more than 5 private craft.
 
+==0.0.10
+  - bug fixes
+  - changed how commit messages for saves are shown
+
 
 ==0.0.9
   - major change to how commit messages are updated into the repo.  User can now edit commit messages while there are untracked changes in the repo.  The messages will be stored on the craft object and will be written to the repo later, once all changes have been tracked.
   - quicksave and persistent files can now be reverted from interface
   - interface automattically displays either current project or saves depending on which has been most recently changed. While editing a craft the current project is show, once the user does a quicksave it will switch to displaying saves.
   - git garbage collector is called periodically to ensure the repo is kept compressed.
-  - bug fixes
+
 
 ==0.0.8
   - added quicksave and persistent file tracking (but no facility to revert as yet).
