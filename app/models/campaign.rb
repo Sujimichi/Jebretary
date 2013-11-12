@@ -102,15 +102,14 @@ class Campaign < ActiveRecord::Base
   #return true or false depending state of given save ie;
   #changed_save?(:quicksave) => true if the quicksave.sfs has changes.
   def changed_save? save_type, status = self.repo.status
-    #save_type = save_type.to_s << '.sfs'
+    save_type = save_type.to_s << '.sfs' unless save_type.include?(".sfs")
     status.changed.keys.include?(save_type)
   end
 
   #return the commits for the craft (most recent first)
-  def save_history
+  def save_history(rs = self.repo)
      begin
       max_history_size = 100000
-      rs = self.repo
       qs_commits = rs.log(max_history_size).object("quicksave.sfs")
       ps_commits = rs.log(max_history_size).object("persistent.sfs")
       commits = {}
@@ -165,8 +164,7 @@ class Campaign < ActiveRecord::Base
 
   #return hash containing :new and :changed keys, each entailing an array of craft file paths
   #for craft that are either untracked or which have changes.
-  def new_and_changed
-    status = repo.status
+  def new_and_changed status = repo.status
     {
       :new => status.untracked.keys.select{|k| k.include?("Ships") && k.include?(".craft")},
       :changed => status.changed.keys.select{|k| k.include?("Ships") && k.include?(".craft")}
@@ -174,8 +172,7 @@ class Campaign < ActiveRecord::Base
   end
 
   #return true if objects (.craft or .sfs) that are tracked by the repo have changes.
-  def has_untracked_changes?
-    status = self.repo.status
+  def has_untracked_changes?(status = self.repo.status)
     not [status.changed.keys].flatten.select do |k| 
       (k.include?("Ships") && k.include?(".craft")) || k.include?(".sfs") 
     end.empty?

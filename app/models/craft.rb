@@ -140,15 +140,6 @@ class Craft < ActiveRecord::Base
     #end
   end
 
-  def update_repo_message_if_applicable
-    puts "WARNING - update_repo_message_if_applicable is depricated and flushed down the toilet"
-    return false
-    #message = self.commit_message
-    #return if message.blank?     
-    #self.update_attributes(:commit_message => nil) if self.change_commit_message(self.history.first, message)
-  end
-
-
 
   #revert the craft to a previous commit
   def revert_to commit, options = {:commit => true}

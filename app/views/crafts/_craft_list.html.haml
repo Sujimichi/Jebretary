@@ -1,17 +1,20 @@
 
 -unless campaign.blank?
-  - new_and_changed = campaign.new_and_changed
-  - current_project = campaign.last_changed_craft(new_and_changed)
-  - saves = campaign.save_history
+  - repo = campaign.repo
+  - repo_status = repo.status
 
+  - new_and_changed = campaign.new_and_changed(repo_status)
+  - current_project = campaign.last_changed_craft(new_and_changed)
+  - saves = campaign.save_history(repo)
   - most_recent_commit = campaign.latest_commit(current_project, saves, new_and_changed)
+
   :javascript
     auto_switch_display_based_on("#{most_recent_commit}");
 
 
 
   #content_for_campaign_saves.hidden
-    - saves = campaign.save_history
+    - saves = campaign.save_history(repo)
     .grid_8.alpha
       %h3 Saves
       = link_to "view full save history", saves_path(:id => campaign.id)
@@ -22,13 +25,13 @@
         .left.label= "Quicksaves |"
         .left= link_to_function "Persistent", "toggle_save_display()"
         .clear
-        = render "saves/short_list", :saves => saves, :save_type => "quicksave", :campaign => campaign
+        = render "saves/short_list", :saves => saves, :save_type => "quicksave", :campaign => campaign, :has_change => campaign.changed_save?("quicksave", repo_status)
 
       #persistent_display.hidden
         .left= link_to_function "Quicksaves", "toggle_save_display()"
         .left.label= "| Persistent"
         .clear
-        = render "saves/short_list", :saves => saves, :save_type => "persistent", :campaign => campaign
+        = render "saves/short_list", :saves => saves, :save_type => "persistent", :campaign => campaign, :has_change => campaign.changed_save?("persistent", repo_status)
 
 
   .clear

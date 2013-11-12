@@ -18,7 +18,7 @@
           %h3= save_type
           - latest = saves[save_type].first
           - saves[save_type].each_with_index do |qsave, index|
-            .save{:title => qsave.message}
+            .save
               .left= qsave.date.to_formatted_s(:short)
               .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
               .right
@@ -26,6 +26,9 @@
                   = link_to("restore", edit_save_path(:id => @campaign.id, :sha_id => qsave.to_s, :save_type => save_type), :remote => true)
                 -else
                   = "current #{save_type}"
+              .clear
+              .left
+                .small= qsave.message unless qsave.message.eql?("updated #{save_type}.sfs")
               .clear
       - else
         %h4= "Could not find a #{save_type}.sfs file"
