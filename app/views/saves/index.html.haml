@@ -17,13 +17,16 @@
         .save_list{:class => klass}
           %h3= save_type
           - latest = saves[save_type].first
+          - v = saves[save_type].size + 1
           - saves[save_type].each_with_index do |qsave, index|
-            .save
-              .left= qsave.date.to_formatted_s(:short)
+            .save{:onmouseover => "show_restore_link_for(this)"}
+              - v = v -=1
+              .left.label= "V#{v}"
+              .left.with_margin= qsave.date.to_formatted_s(:short)
               .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
               .right
                 - unless index.eql?(0)
-                  = link_to("restore", edit_save_path(:id => @campaign.id, :sha_id => qsave.to_s, :save_type => save_type), :remote => true)
+                  .restore_link.hidden= link_to("restore to V#{v}", edit_save_path(:id => @campaign.id, :sha_id => qsave.to_s, :save_type => save_type), :remote => true)
                 -else
                   = "current #{save_type}"
               .clear

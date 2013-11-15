@@ -154,7 +154,10 @@ function delete_craft_dialog(){
 };
 
 
-
+function show_restore_link_for(save){
+  $(".restore_link").hide();
+  $(save).find(".restore_link").show();
+};
 
 function show_current_project_help(version_count){
   var h = ""
