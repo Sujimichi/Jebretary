@@ -36,7 +36,7 @@ class Campaign < ActiveRecord::Base
     p_file = File.open(File.join([self.path, "persistent.sfs"]),'r'){|f| f.readlines}
     flag_line = p_file.select{|line| line.match /\sflag/}.first
     unless flag_line.blank?
-      path = File.join([self.instance.path,"GameData", flag_line.split(' = ').last.chomp]) << '.png'
+      path = File.join([self.campaigns_instance.path,"GameData", flag_line.split(' = ').last.chomp]) << '.png'
       return path
     end
     return nil
@@ -147,6 +147,7 @@ class Campaign < ActiveRecord::Base
     
     crft = "Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft"
        
+    return :current_project if saves[:quicksave].size.eql?(1)
     if new_and_changed[:changed].include?(crft) || new_and_changed[:new].include?(crft)
       return :current_project
     else  

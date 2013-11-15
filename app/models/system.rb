@@ -43,7 +43,6 @@ class System
     end
 
 
-
     #Second main ittereation throu instances - variable, typically skips so is fast, but periodically runs for 10-15 times longer when actions are required.
     #Checks that each campaign that 'should_process' (ie has persistent.sfs change) has all the craft objects that it needs 
     #and that changes to those craft objects are tracked.  It also checks that deleted craft files have the relevent craft object deleted and ensure that 
@@ -53,10 +52,9 @@ class System
       craft_in_campaigns = craft_in_campaigns_for_instance[instance.id] #get the craft files for the campaigns for this instance (generated in first itteration over instances)
 
       campaigns.each do |campaign|
-        next unless campaign.exists?
         campaign.cache_instance(instance) #put the already loaded instance object into a variable in the campaign object to be used rather than reloading from DB.
+        next unless campaign.exists?
         campaign.git #ensure git repo is present
-
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
         System.update_db_flag(data)        
@@ -65,8 +63,6 @@ class System
         System.update_db_flag(data)
 
         craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
-
-
 
         if campaign.should_process?
           new_and_changed = campaign.new_and_changed         
@@ -102,7 +98,6 @@ class System
           campaign.track_save(:quicksave) #if the persistence.sfs has changed then campaign.should_process? will return true so we won't be here with changed P file.
         end
 
-
         #write commit messages which are stored on the Craft objects into the Git repo.
         #This is the most high risk part of the system! Commit messages are not written at the time of the actual commit and so are 
         #written to the repo post commit.  This mean actually re-writing the repo history, something that goes against the grain of 
@@ -127,29 +122,38 @@ class System
           #now add the messages that are on the campaign object (in the same formate [sha_id, message, commit, object]
           campaign.commit_messages.to_a.each{|sha_id, message| messages_to_process << [sha_id, message, campaign] }
 
+          #ignore those with most_recent as sha_id
+          messages_to_process = messages_to_process.select{|sha_id, message, object| !sha_id.eql?("most_recent") }
+                                                   
           unless messages_to_process.empty?
             puts "\nWritting Commit messages to repo..."  unless Rails.env.eql?("test")
             repo = campaign.repo
 
             #Sort the messages - IMPORTANT STEP
-            #messages are now sorted by reversed date order and those for "most recent" commit are excluded.
-            messages_to_process = messages_to_process.select{|sha_id, message, object| 
-              !sha_id.eql?("most_recent")                                     #ignore those with most_recent as sha_id
-            }.map{|sha_id, message, object|
+            #messages are now sorted by reversed date order
+            messages_to_process = messages_to_process.map{|sha_id, message, object|
               [sha_id, message, repo.gcommit(sha_id), object]                 #get the commit object from the sha_id
             }.sort_by{|sha_id, message, commit, object| commit.date}.reverse  #sort_by commit date and reverse order
 
+            processed_ok = {}
             #process the messages and then remove the message from the object if the update was succsessful.
             messages_to_process.each do |sha_id, message, commit, object|
               object.crafts_campaign = campaign if object.is_a?(Craft) #pass in already loaded campaign object into craft object.
               message_changed = object.change_commit_message(commit, message)
               if message_changed
-                cms = object.commit_messages
-                cms.delete(sha_id)
-                object.commit_messages = cms
-                object.save
+                processed_ok[object] ||= []
+                processed_ok[object] << sha_id
               end
             end
+
+            #remove commit_messages from the DB object which were succsessfully added to the repo
+            processed_ok.each do |object, sha_ids|
+              cms = object.commit_messages
+              sha_ids.each{|sha_id| cms.delete(sha_id) }
+              object.commit_messages = cms
+              object.save
+            end
+
           end
 
         end
@@ -225,8 +229,8 @@ class System
         @repeat_error_count += 1
         raise "System has error'd #{@repeat_error_count} times in a row, shutting down" if @repeat_error_count >= 5
       end
-      if @loop_count >= 50
-        puts "Running garbage collector"
+      if @loop_count >= 200
+        puts "Compressing Git Repo (git gc)"
         Campaign.all.each{|c| c.repo.gc}
         @loop_count = 0
       end
