@@ -1,8 +1,10 @@
 -if system.show_help_for?('crafts_list_page')
   .help_for#craft_list_page_first_view.hidden
-    %h3 This page lists the Craft in this Campaign
+    %h3 This is the main page for this Campaign
     %p
-      .info As you play this Campaign of KSP, your most recently edited or created craft will be shown at the top as the "Current Project".
+      .info The top of the page will change according to what you are doing.
+      .info If you're buildling craft it will show your most recently edited or created craft.
+      .info When you do a quicksave it will change to show your 5 most recent quicksaves.
     %p
       .info When you edit a craft and hit save in the VAB/SPH, the Current Project will have 'untracked recent changes'.  These are changes not yet in version control.
       .info When you launch the craft these untracked changes will be automatically saved (tracked) as the next version.
@@ -10,16 +12,15 @@
 
   .help_for#craft_list_page_first_view_basic.hidden
     %p
-      .info From here you can revert the Current Project back to its 3 most recent versions (if available) by clicking on them.
-    %p
+      .info You can revert the Current Project back to its 3 most recent versions (if available) by clicking on them.
       .info If you want to take the CurrentProject back to an even earlier version, then click on its name to see its full history.  You can access the full history of all the craft by clicking on them.
     %p
       .info You can also make notes about the current version of the Current Project from here.
+      .info Clicking 'info' by the Current Project will show tips about what you can do at different stages.
 
   .help_for#craft_list_page_first_view_summary.hidden
     %p
       .info Just Play KSP, edit some craft in this campaign and watch what happens on this page, you'll figure it out.
-      .info Click 'info' by the Current Project for tips about what you can do at different stages.
       .info When you need to revert a craft just click on a previous version and I'll popup and annoy you again.
 
 .help_for#current_project_one_version.hidden
