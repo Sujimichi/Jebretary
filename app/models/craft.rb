@@ -155,6 +155,9 @@ class Craft < ActiveRecord::Base
         end
         update_history_count
       end
+      cms = self.commit_messages
+      cms["most_recent"] = "reverted #{name} to V#{index}"
+      self.commit_messages = cms
       self.save!
     end
   end

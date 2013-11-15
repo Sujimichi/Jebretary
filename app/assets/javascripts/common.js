@@ -270,6 +270,14 @@ function auto_switch_display_based_on(most_recent_commit){
   };
 };
 
+function auto_show_deleted_craft_link(count){
+  if(count == 0){
+    $(".show_del_link_container").hide();
+  }else{
+    $(".show_del_link_container").show();
+  };
+};
+
 function show_current_project(opts){
   $('#campaign_saves').hide();
   $('#current_project').show();

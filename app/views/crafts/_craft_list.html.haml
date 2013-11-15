@@ -10,6 +10,7 @@
 
   :javascript
     auto_switch_display_based_on("#{most_recent_commit}");
+    auto_show_deleted_craft_link("#{campaign.craft.where(:deleted => true).count}")
 
 
 
