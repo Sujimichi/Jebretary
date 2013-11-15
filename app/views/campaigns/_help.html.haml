@@ -1,31 +1,45 @@
 -if system.show_help_for?('crafts_list_page')
   .help_for#craft_list_page_first_view.hidden
-    %h3 This is the main page for this Campaign
+    %h3 Introduction to the Campaign Page
+    .small I will only say this once, so pay attention!
     %p
       .info The top of this page will change according to what you are doing.
-      .info If you're buildling craft it will show your most recently edited or created craft.
+    %p
+      .info If you're buildling craft it shows your most recently edited/created craft ("Current Project")
       .info When you do a quicksave it will change to show your 5 most recent quicksaves.
     %p
-      .info When you edit a craft and hit save in the VAB/SPH, the Current Project will have 'untracked recent changes'.  These are changes not yet in version control.
-      .info When you launch the craft these untracked changes will be automatically saved (tracked) as the next version.
-      .small You can also force a save by clicking the save button.
+      .small You can override which is displayed by clicking "Current Project" or "Saves" at the top of this page.
+      .small After a few minutes I'll go back to showing you which ever I think makes more sense!
+    %p
+      .small.right Intro Help 1/3
+
+
 
   .help_for#craft_list_page_first_view_basic.hidden
     %p
-      .info You can revert the Current Project back to its 3 most recent versions (if available) by clicking on them.
-      .info If you want to take the CurrentProject back to an even earlier version, then click on its name to see its full history.  You can access the full history of all the craft by clicking on them.
+      .info When you hit save in the VAB/SPH, the Current Project will have 'untracked recent changes'.  These are changes that are not yet in version control.
+      .info When you launch the craft these untracked changes will be automatically saved (tracked) as the next version.
+      .small You can also force a save by clicking the save button.
+    %p
+      .info You can revert the Current Project back to its 3 most recent versions (if available) by clicking on them.  If you want to take the CurrentProject back to an even earlier version, then click on its name (or more) to see its full history.
       .info When you need to revert a craft just click on a previous version and I'll popup and annoy you again.
     %p
-      .info You can also make notes about the current version of the Current Project from here.
+      .info You can also make notes about the current version of the Current Project from here by clicking "click to add notes" or "click text to edit"
+    %p
+      .small.right Intro Help 2/3
 
   .help_for#craft_list_page_first_view_summary.hidden
     %p
       .info When you quicksave the display will change to allow you to review, revert and makes notes about the quicksave.
       .info Autosaves (persistent.sfs) are also tracked, just click the "persistent" link to view them.
       .info.small Note: you can only revert an autosave if you exit the game back to the main menu.
+    %p
       .info Click "view full save history" to see all the quicksaves and autosaves that have been tracked.
     %P
-      .info Just Play KSP and watch what happens on this page, you'll figure it out.
+      .info Just Play KSP and watch what happens on this page, you'll figure it out, its not exactly rocket science!
+    %p
+      .small.right Intro Help 3/3
+
 
 .help_for#current_project_one_version.hidden
   .info This Current Project has just one version so there is little that you can do with it.
