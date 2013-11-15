@@ -71,22 +71,13 @@ class CraftsController < ApplicationController
       @craft.commit_messages = msgs
       @craft.save
     end
+    
 
+    #change sha_id from "most_recent" if the craft no longer has untracked changes.
+    #this is to catch the situation where the user started writting a commit message on a craft with untracked changes 
+    #and while they where writting the craft got automatically tracked.  
+    commit = @craft.history.first unless @craft.is_changed? if params[:sha_id].eql?("most_recent") 
 
-    #TODO move this to separate controller 
-    if params[:move_copy]
-      campaigns = Campaign.find(params[:move_copy_to_select])
-      unless campaigns.empty?
-        campaigns.each{|campaign| @craft.move_to campaign, :replace => true, :copy => true} #for either copy or move perform the copy to all selected campaigns
-        @craft.move_to(campaigns.last, :replace => true, :copy => false) if params[:commit].downcase.eql?("move") 
-        #if it was a move, redo the move to the last campaign with copy=>false.  Using copy=>false for a group of campaigns won't work as the first one would 
-        #delete the craft file and set the craft object as deleted.
-      end
-    end
-
-    if params[:sha_id].eql?("most_recent") 
-      commit = @craft.history.first unless @craft.is_changed?
-    end
     #updating commit message - prob also move this to spearate controller
     if params[:update_message]
       params[:update_message].gsub!("\n","<br>") #replace new line tags with line break tags (\n won't commit to repo)
@@ -104,7 +95,6 @@ class CraftsController < ApplicationController
         if params[:return_to] && params[:return_to] == "campaign"
           redirect_to @campaign
         else
-          @craft = campaigns.first.craft.where(:name => @craft.name).first if params[:move_copy] && params[:commit].downcase.eql?("move")
           redirect_to @craft
         end
       }

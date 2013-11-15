@@ -2,6 +2,8 @@ Jebretary::Application.routes.draw do
   get "welcome/index"
   post "welcome/update"
 
+  resources :move_craft
+
   resources :instances
   resources :campaigns
   resources :crafts

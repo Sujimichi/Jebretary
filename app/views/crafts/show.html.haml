@@ -18,7 +18,7 @@
       #move_copy_dialog.hidden
         %h3= "Move or Copy craft to 1 or more other campaigns"
 
-        = form_for(@craft) do |f|
+        = form_for(@craft, :url => move_craft_path(@craft)) do |f|
           = hidden_field_tag :move_copy, true
           .info select another campaign to move or copy this craft to
           .small hold ctrl to select multiple campaigns
