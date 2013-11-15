@@ -4,7 +4,8 @@
   #edit_save_holder.hidden
   .grid_12
     %h2= "Saves for #{@campaign.name}"
-    .small= "(this page does not auto update)"
+    .small= "Note: this page does not auto update, whack f5 to reload it"
+    .small= "touch screen users, tap a save in the list to show the restore link"
 
   - saves = @campaign.save_history
   - save_types = [:quicksave, :persistent]

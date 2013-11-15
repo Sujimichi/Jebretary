@@ -87,7 +87,7 @@ class ApplicationController < ActionController::Base
       if hours_ago == 1 && minutes_ago != 0
         text = "#{hours_ago} hour, #{minutes_ago} mins"
       else
-        text = "#{hours_ago} hours"
+        text = "about #{hours_ago} hours"
       end
     elsif minutes_ago != 0
       if minutes_ago == 1
@@ -95,7 +95,7 @@ class ApplicationController < ActionController::Base
       elsif minutes_ago < 30
         text = "#{minutes_ago} mins, #{seconds_ago} seconds"
       else
-        text = "#{minutes_ago} mins"
+        text = "about #{minutes_ago} mins"
       end
     else
       text = "#{seconds_ago} seconds"

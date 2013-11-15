@@ -6,7 +6,7 @@
   - saves[save_type][0..4].each_with_index do |qsave, index|
     - message = qsave.message
     - message = campaign.commit_messages[qsave.to_s] unless campaign.commit_messages[qsave.to_s].blank?
-    .small.small{:title => message}
+    .small.small
       .left= qsave.date.to_formatted_s(:short)
       .left.with_margin= "#{time_ago(qsave.date)} ago"
       .right
