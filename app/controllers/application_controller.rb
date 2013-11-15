@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery
 
-  helper_method :system, :h_truncate, :truncated_link_to
+  helper_method :system, :h_truncate, :truncated_link_to, :time_ago
 
   unless Rails.application.config.consider_all_requests_local #|| Rails.env.eql?("development") 
     rescue_from( Exception                            ) { |error| render_error(500, error) }  #unless Rails.env.eql?("development") 
@@ -63,6 +63,45 @@ class ApplicationController < ActionController::Base
 
   def truncated_link_to text, path, args = {:truncate => 40}
     "<a href='#{path}' title='#{text.length > args[:truncate] ? text : nil}'>#{text.truncate(args[:truncate])}</a>".html_safe
+  end
+
+  def time_ago time
+    seconds_ago = Time.now - time
+    
+
+    days_ago = (seconds_ago / 86400).floor
+    remaining_seconds = seconds_ago - (days_ago * 86400)
+    
+    hours_ago = (remaining_seconds / 3600).floor
+    remaining_seconds = remaining_seconds - (hours_ago * 3600)
+
+    minutes_ago = (remaining_seconds / 60).floor
+    remaining_seconds = remaining_seconds - (minutes_ago * 60)
+
+    seconds_ago = remaining_seconds.round
+
+    text = ""
+    if days_ago != 0
+      text = "#{days_ago} days, #{hours_ago} hours"
+    elsif hours_ago != 0 
+      if hours_ago == 1 && minutes_ago != 0
+        text = "#{hours_ago} hour, #{minutes_ago} mins"
+      else
+        text = "#{hours_ago} hours"
+      end
+    elsif minutes_ago != 0
+      if minutes_ago == 1
+        text = "#{minutes_ago} min, #{seconds_ago} seconds"
+      elsif minutes_ago < 30
+        text = "#{minutes_ago} mins, #{seconds_ago} seconds"
+      else
+        text = "#{minutes_ago} mins"
+      end
+    else
+      text = "#{seconds_ago} seconds"
+    end
+    text
+
   end
 
 end

@@ -4,16 +4,17 @@
   #edit_save_holder.hidden
   .grid_12
     %h2= "Saves for #{@campaign.name}"
+    .small= "(this page does not auto update)"
 
   - saves = @campaign.save_history
   - save_types = [:quicksave, :persistent]
   .clear
   .vblk_1
-  .grid_11.half_push
+  .grid_12
     - save_types.each_with_index do |save_type, index|
       -unless saves[save_type].blank?
-        - klass = 'grid_5 alpha'
-        - klass << " push_1" if index.eql?(1)
+        - klass = 'grid_6 alpha'
+        -# klass << " push_1" if index.eql?(1)
         .save_list{:class => klass}
           %h3= save_type
           - latest = saves[save_type].first
@@ -23,7 +24,7 @@
               - v = v -=1
               .left.label= "V#{v}"
               .left.with_margin= qsave.date.to_formatted_s(:short)
-              .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
+              .left.with_margin.small= "#{time_ago(qsave.date)} ago"
               .right
                 - unless index.eql?(0)
                   .restore_link.hidden= link_to("restore to V#{v}", edit_save_path(:id => @campaign.id, :sha_id => qsave.to_s, :save_type => save_type), :remote => true)

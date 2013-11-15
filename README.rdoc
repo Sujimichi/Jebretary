@@ -48,7 +48,9 @@ Jebretary
 ==0.0.10
   - bug fixes
   - changed how commit messages for saves are shown
-
+  - minor System optimizaton
+  - more detailed elapsed time display
+  - updated help
 
 ==0.0.9
   - major change to how commit messages are updated into the repo.  User can now edit commit messages while there are untracked changes in the repo.  The messages will be stored on the craft object and will be written to the repo later, once all changes have been tracked.

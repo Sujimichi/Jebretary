@@ -147,7 +147,7 @@ class Campaign < ActiveRecord::Base
     
     crft = "Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft"
        
-    return :current_project if saves[:quicksave].size.eql?(1)
+    return :current_project if saves[:quicksave].nil? || saves[:quicksave].size.eql?(1)
     if new_and_changed[:changed].include?(crft) || new_and_changed[:new].include?(crft)
       return :current_project
     else  

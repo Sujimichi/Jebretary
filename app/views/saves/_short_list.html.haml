@@ -8,7 +8,7 @@
     - message = campaign.commit_messages[qsave.to_s] unless campaign.commit_messages[qsave.to_s].blank?
     .small.small{:title => message}
       .left= qsave.date.to_formatted_s(:short)
-      .left.with_margin= "#{time_ago_in_words(qsave.date)} ago"
+      .left.with_margin= "#{time_ago(qsave.date)} ago"
       .right
         - unless index.eql?(0)
           = link_to("restore", edit_save_path(:id => campaign.id, :sha_id => qsave.to_s, :save_type => save_type), :remote => true)
