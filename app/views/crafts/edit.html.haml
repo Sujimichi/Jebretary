@@ -23,10 +23,10 @@
       .help_for#craft_revert_page_common_first_view
         %p
           .info= "The craft <b>file</b> will be returned to how it was at the chosen version (#{@revert_to_version}).".html_safe
-          .info= "The current version will remain as #{@current_version} and it will have untracked changes."
+          .info= "The current version will remain as #{@current_version} but it will have untracked changes."
           .small= "The untracked changes are the edits to the .craft file to change it from v#{@current_version} to how it was at v#{@revert_to_version}."
         %p
-          .small= "When you next launch (or manually commit) the craft, a new version with these changes will be created.  If you make edits before then, those changes will also be part of the next version."
+          .small= "When you next launch (or manually commit) the craft, a new version (#{@current_version + 1}) with these changes will be created.  If you make edits before then, those changes will also be part of the next version."
 
 
         %p
