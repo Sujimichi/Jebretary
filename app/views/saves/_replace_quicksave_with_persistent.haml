@@ -1,0 +1,12 @@
+%h3= "Set Persistent as Quicksave"
+= "Click ok to replace your quicksave with the current persistent"
+
+.vblk_1
+.revert_save_form
+  = form_tag("/saves/#{campaign.id}", :method => "put") do |f|
+    = hidden_field_tag :save_type, save_type
+    = hidden_field_tag :revert_as_quicksave, true
+
+    .left
+      = submit_tag("OK")
+  .right= button_to_function "Cancel", "$('#edit_save_holder').dialog( 'close' );"

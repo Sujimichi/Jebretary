@@ -504,4 +504,21 @@ describe Campaign do
 
   end
 
+  describe "persistent_to_quicksave" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+      @campaign.track_save :both
+      File.open("persistent.sfs", 'w'){|f| f.write("this is the persistent file")}
+      File.open("quicksave.sfs", 'w'){|f| f.write("this is the quicksave file")}
+      @campaign.track_save :both
+    end
+
+    it 'should overwrite the quicksave with the contents of the persistent file' do 
+      @campaign.persistent_to_quicksave
+      reverted_file = File.open("quicksave.sfs", 'r'){|f| f.readlines}.join
+      reverted_file.should == "this is the persistent file"
+    end
+
+  end
+
 end

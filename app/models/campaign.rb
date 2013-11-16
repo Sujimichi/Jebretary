@@ -137,6 +137,12 @@ class Campaign < ActiveRecord::Base
     end
   end
 
+  #overwrite the quicksave with the persistent file.
+  def persistent_to_quicksave
+    p_file = File.open(File.join([self.path, 'persistent.sfs']), 'r'){|f| f.readlines}
+    File.open(File.join([self.path, 'quicksave.sfs']), 'w'){|f| f.write(p_file.join)}
+  end
+
   def dont_process_while &blk
     self.update_attributes(:persistence_checksum => "skip") 
     yield

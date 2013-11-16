@@ -14,6 +14,8 @@
           = link_to("restore", edit_save_path(:id => campaign.id, :sha_id => qsave.to_s, :save_type => save_type), :remote => true)
         -else
           = "current #{save_type}"
+          -if save_type.eql?(:persistent)
+            .small= link_to("set as quicksave", edit_save_path(:id => campaign.id, :sha_id => qsave.to_s, :save_type => save_type, :set_as_quicksave => true), :remote => true)
       .clear
       .left
         .small= message unless message.eql?("updated #{save_type}.sfs")

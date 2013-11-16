@@ -5,11 +5,17 @@
   = "Click ok to revert your #{save_type} to #{version} versions ago"
 .small= "(made #{time_ago_in_words(commit.date)} ago)"
 
-
+.vblk_1
+.small= "check 'revert as quicksave' so you can load the persistent save with f9" if save_type.eql?("persistent")
 .revert_save_form
-  .left
-    = form_tag("/saves/#{campaign.id}", :method => "put") do |f|
-      = hidden_field_tag :sha_id, commit.to_s
-      = hidden_field_tag :save_type, save_type
+  = form_tag("/saves/#{campaign.id}", :method => "put") do |f|
+    = hidden_field_tag :sha_id, commit.to_s
+    = hidden_field_tag :save_type, save_type
+    -if save_type.eql?("persistent")
+      = label_tag  :revert_as_quicksave, "revert as quicksave"
+      = check_box_tag :revert_as_quicksave, true
+      .vblk_1
+
+    .left
       = submit_tag("OK")
   .right= button_to_function "Cancel", "$('#edit_save_holder').dialog( 'close' );"
