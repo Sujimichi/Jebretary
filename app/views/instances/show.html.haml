@@ -6,9 +6,9 @@
 
   = hidden_field_tag(:available_flags, @flags)
 
-  -if system.show_help_for?('instance_page')
+  -if system.show_help_for?("instance_page_for_#{@instance.id}")
     .help_for#instance_page_first_view.hidden
-      %h3 This page lists the campaigns found in this install (instance) of KSP
+      %h3= "I've finished detecting campaigns and craft in this install (instance) of KSP"
       .info Click on a campaign to view its craft
       .vblk_1
 
@@ -21,7 +21,7 @@
       .info If you have quite a few craft (100+) this may take a minute or two.
       .vblk_1
       .info It's best to just wait for this initial scan to complete before clicking on a campaign.
-
+      .vblk_1
 
 
   #temp_holder

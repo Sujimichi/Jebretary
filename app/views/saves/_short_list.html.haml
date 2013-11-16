@@ -22,3 +22,7 @@
       .clear
   - unless has_change
     = link_to("add notes about current #{save_type}", edit_save_path(:id => campaign.id, :sha_id => saves[save_type].first.to_s, :save_type => save_type, :commit_message => true), :remote => true)
+- else
+  - if save_type.eql?(:quicksave)
+    .small= "No quicksave file found."
+    .small= "When you make a quicksave it will show up here"

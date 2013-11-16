@@ -29,7 +29,7 @@
           .small It will create a hidden .git folder in each campaign folder.  For the love of Jeb do not alter the contents of that folder!
 
           %h3 You Need
-          to make sure jeb_watch.exe is also running.  jeb_watch monitors your craft for changes and updates the repository and database.
+          to make sure liquid.exe is also running.  liquid.exe monitors your craft for changes and updates the repository and database.
 
           %p When you click OK you will see a page that will list the campaigns found in the KSP install you entered above.  If you have craft in these they will be added to the repo and database, if you have lots of craft this might take a minute or two.
 
@@ -45,9 +45,9 @@
         %h3= link_to_function "what is 'git'?", "$('#git_explaination').toggle('slow')"
         #git_explaination.hidden
           %h2 GIT
-          %p git is a version control system used by many developers to track the changes they make, it's the one that Squad currently use.
+          %p git is a version control system used by many developers to track the changes they make, it's the one that Squad currently use for the KSP codebase.
           %p It tracks save points or 'commits' for files as you edit them and allows you to return a file to how it was at any one of the previous commits.
-          %p git only tracks the difference between commits, so only the lines of a file which have changed are stored, the parts which remain the same are not needlessly stored multiple times.  Its much more efficient than just taking a copy of the file each time.
+          %p git only tracks the difference between commits, just the lines of a file which have changed are stored, the parts which remain the same are not needlessly stored multiple times.  Its much more efficient than just taking a copy of the file each time.
           %p But git is a developers tool and if you like command line tools it's wonderful, to everyone else its not exactly user friendly.  Which is why I made Jebretary to automate using git and provide a (hopefully) simpler interface.
 
 

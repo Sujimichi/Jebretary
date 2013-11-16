@@ -108,17 +108,18 @@ class Campaign < ActiveRecord::Base
 
   #return the commits for the craft (most recent first)
   def save_history(rs = self.repo)
-     begin
-      max_history_size = 100000
-      qs_commits = rs.log(max_history_size).object("quicksave.sfs")
-      ps_commits = rs.log(max_history_size).object("persistent.sfs")
-      commits = {}
-      commits[:quicksave] = qs_commits.to_a if qs_commits  && !qs_commits.to_a.empty?
-      commits[:persistent] = ps_commits.to_a if ps_commits && !ps_commits.to_a.empty?
-      commits
-    rescue
-      {}
+    commits = {} 
+    max_history_size = 100000
+    saves = [:quicksave, :persistent]
+    saves.each do |save_type|
+      begin
+        save_commits = rs.log(max_history_size).object("#{save_type}.sfs")
+        commits[save_type] = save_commits.to_a if save_commits && !save_commits.to_a.empty?
+      rescue
+        commits[save_type] = []
+      end  
     end
+    commits
   end
 
 
