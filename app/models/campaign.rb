@@ -11,12 +11,12 @@ class Campaign < ActiveRecord::Base
   validates :commit_messages, :git_compatible => true
 
 
-  def cache_instance instance
-    return unless instance.id.eql?(self.instance_id)
-    campaigns_instance = instance
+  def cache_instance given_instance
+    return unless given_instance.id.eql?(self.instance_id)
+    self.instance_variable_set :@instance, given_instance
   end
-  def campaigns_instance= instance
-    @instance = instance
+  def campaigns_instance= given_instance
+    cache_instance given_instance
   end
   def campaigns_instance
     return @instance if defined?(@instance) && !@instance.nil?
@@ -27,7 +27,7 @@ class Campaign < ActiveRecord::Base
     File.join(campaigns_instance.path, "saves", self.name)
   end
 
-  def exists?
+  def exists? 
     File.exists? self.path
   end
 
@@ -215,12 +215,14 @@ class Campaign < ActiveRecord::Base
 
   #returns true or false.  should_process is used by System.process to determine if this campaign should be skipped or not.
   #returns true if there are different numbers of craft files to craft.where(:deleted => false) OR if the persistent.sfs checksum no longer matches.
-  def should_process?
-    #return false if it has been set to skip processing
+  def should_process? 
+    #return false if it has been set to skip processing    
     return false if self.persistence_checksum.eql?("skip")
 
     #return true if there are different number of craft files than records of craft that are not marked as deleted
-    return true if has_different_craft_file_count_to_db_record_count?
+    craft_files = campaigns_instance.identify_craft_in(self.name)
+    craft = self.craft.where(:deleted => false) #if craft.nil?
+    return true if craft_files.map{|k,v| v}.flatten.size != craft.count
 
     #return true if the stored checksum for persistent.sfs does not match the one generated for the current persistent.sfs
     Dir.chdir(self.path)
@@ -230,27 +232,18 @@ class Campaign < ActiveRecord::Base
   end
 
 
-  #return true if there are different number of craft files than records of craft that are not marked as deleted
-  def has_different_craft_file_count_to_db_record_count?
-    craft_files = campaigns_instance.identify_craft_in(self.name)
-    craft_files.map{|k,v| v}.flatten.size != self.craft.where(:deleted => false).count
-  end
-
-
-
   #create Craft objects for each .craft found and mark existing Craft objects as deleted is the .craft no longer exists.
   def verify_craft files = nil
     files = self.instance.identify_craft_in(self.name) if files.nil?
 
     present_craft = {:sph => [], :vab => []}    
-    existing_craft = Craft.where(:campaign_id => self.id)
+    existing_craft = Craft.where(:campaign_id => self.id).to_a
 
     #this rats nest of chained loops is not really that horrible!
     #it takes the array of craft from the above select and groups them by craft_type. Then for each group it makes an hash of {craft_name => craft}. 
     #So it results in a hash of; craft_type => hash of {craft_name => craft}
-    existing_craft_map = existing_craft.to_a.group_by{|c| c.craft_type}.map{|k,v| {k => v.map{|cc| {cc.name => cc}}.inject{|i,j|i.merge(j)} } }.inject{|i,j|i.merge(j)}
+    existing_craft_map = existing_craft.group_by{|c| c.craft_type}.map{|k,v| {k => v.map{|cc| {cc.name => cc}}.inject{|i,j|i.merge(j)} } }.inject{|i,j|i.merge(j)}
 
-    
     #create a new Craft object for each craft file found, unless a craft object for that craft already exists.
     files.each do |type, craft_files| #files is grouped by craft_type
       craft_files.each do |craft_name| 
@@ -268,9 +261,9 @@ class Campaign < ActiveRecord::Base
       end
     end
     self.save if self.changed?
-
+   
     ddc = [] #track to ensure each deleted craft is only processed once (in cases where a craft has been deleted multiple times)
-    self.discover_deleted_craft.each do |del_inf|
+    self.discover_deleted_craft(existing_craft_map).each do |del_inf|
       del_inf[:deleted].each do |craft_data|
         next if ddc.include? [craft_data[:craft_type], craft_data[:name]] #skip if a craft of this craft_type and name has already been processed
         ddc << [craft_data[:craft_type], craft_data[:name]] #otherwise add entry to store 
@@ -279,9 +272,8 @@ class Campaign < ActiveRecord::Base
       end
     end
 
-
     #remove craft from the repo if the file no longer exists and mark the craft as deleted
-    existing_craft.where(:deleted => false).each do |craft|
+    existing_craft.select{|c| !c.deleted?}.each do |craft|
       next if present_craft[craft.craft_type.to_sym] && present_craft[craft.craft_type.to_sym].include?(craft.name)
       craft.deleted = true #actions in .commit will save this attribute
       craft.commit
@@ -293,7 +285,7 @@ class Campaign < ActiveRecord::Base
   #find craft in the git repo which have already been deleted - in the case of Jebretary being setup on an existing git repo
   #Craft which hae been previously deleted will still get a Craft object assigned to enable recovery of them.
   #This uses command line git interface as the git-gem could not do --diff-filter commands (at least I couldn't find how to do it).
-  def discover_deleted_craft
+  def discover_deleted_craft existing_craft_map = nil
 
     #In the root of the campaigns git repo run the --diff-filter command and then return to the current working dir.
     cur_dir = Dir.getwd
@@ -301,11 +293,19 @@ class Campaign < ActiveRecord::Base
     log = `git log --diff-filter=D --summary` #find the commits in which a file was deleted.
     Dir.chdir(cur_dir)
     
-    #Select the craft already present in the DB
-    existing_craft = {
-      "VAB" => self.craft.where(:craft_type => "vab").map{|c| c.name},
-      "SPH" => self.craft.where(:craft_type => "sph").map{|c| c.name}
-    }
+
+    #Select the craft already present in the DB which can either be from passed in existing_craft_map or directly from the DB
+    if existing_craft_map
+      existing_craft = {
+        "VAB" => existing_craft_map.has_key?("vab") ? existing_craft_map["vab"].keys : [],
+        "SPH" => existing_craft_map.has_key?("sph") ? existing_craft_map["sph"].keys : []
+      }      
+    else  
+      existing_craft = {
+        "VAB" => self.craft.where(:craft_type => "vab").map{|c| c.name},
+        "SPH" => self.craft.where(:craft_type => "sph").map{|c| c.name}
+      } 
+    end
 
     #get all the SHA_ID's used in the campaigns repo
     logs = self.repo.log.map{|log| log.to_s}

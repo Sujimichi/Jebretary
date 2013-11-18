@@ -21,6 +21,7 @@ class System
     #Done as separate step to enable faster return of info to interface
     craft_in_campaigns_for_instance = {} #container to hold mapping of craft files to campaigns in instances.
     new_campaigns_for_instance = {}
+    campaigns_to_process = []
 
     #First main itteration throu instances - fast and provides some basic information to the user interface
     #determines which campaigns exist in each instance, creates new ones as appropriate
@@ -33,8 +34,14 @@ class System
       craft_in_campaigns = campaign_names.map{|name| {name => instance.identify_craft_in(name)} }.inject{|i,j| i.merge(j)}
       craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns #store this mapping of craft files in campaigns against the instance id.
 
-      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.exists?} #get all the campaign objects for those campaigns present in the save folder
-      campaigns.each{|campaign| campaign.set_flag if campaign.should_process? }  #set the flag image on campaigns which 'should_process'
+      #instance_path = instance.path
+      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.cache_instance(instance); c.exists? }#get all the campaign objects for those campaigns present in the save folder
+      
+      campaigns.each{|campaign| 
+        next unless campaign.should_process?
+        campaign.set_flag 
+        campaigns_to_process << campaign
+      }
 
       #generate info for interface feedback.  How many total craft each campaign has (based on the files in the SPH and VAB folders)
       existing_camps = campaigns.map{|c| {c.name => { :id => c.id}} }.inject{|i,j| i.merge(j)}
@@ -43,7 +50,6 @@ class System
       System.update_db_flag(data) #update the DB flag file.
 
     end
-
 
     #Second main ittereation throu instances - variable, typically skips so is fast, but periodically runs for 10-15 times longer when actions are required.
     #Checks that each campaign that 'should_process' (ie has persistent.sfs change) has all the craft objects that it needs 
@@ -66,11 +72,13 @@ class System
 
         craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
 
-        if campaign.should_process?
+        if campaigns_to_process.include?(campaign)
+          
           new_and_changed = campaign.new_and_changed         
           #craft which need to be commited - anything that is new, changed or does not have a history_count
           to_commit = [ 
-            craft.where(:history_count => nil).to_a,
+            #craft.where(:history_count => nil).to_a,
+            craft.select{|c| c.history_count.nil?},
             new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
             new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}}
           ].flatten.compact.uniq
@@ -103,6 +111,7 @@ class System
           campaign.track_save(:quicksave) #if the persistence.sfs has changed then campaign.should_process? will return true so we won't be here with changed P file.
         end
 
+
         #write commit messages which are stored on the Craft objects into the Git repo.
         #This is the most high risk part of the system! Commit messages are not written at the time of the actual commit and so are 
         #written to the repo post commit.  This mean actually re-writing the repo history, something that goes against the grain of 
@@ -117,11 +126,13 @@ class System
           #update repo for any craft that are holding commit message info in the temparary store.
           #to_update = craft.where("commit_messages is not null").select{|c| !c.history.empty? }.sort_by{|c| c.history.first.date }.reverse
 
+
           messages_to_process = [] #container for commit messages that need writing to repo
 
           #first seclect the craft that have messages to write to repo
           #and put the messages into messages_to_process along with the commit and the craft object
-          craft.where("commit_messages is not null").each do |craft|
+          craft.select{|c| !c.read_attribute("commit_messages").nil?}.each do |craft|
+          #craft.where("commit_messages is not null").each do |craft|
             craft.commit_messages.to_a.each{|sha_id, message| messages_to_process << [sha_id, message, craft] }             
           end
           #now add the messages that are on the campaign object (in the same formate [sha_id, message, commit, object]

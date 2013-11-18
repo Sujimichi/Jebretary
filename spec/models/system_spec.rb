@@ -84,7 +84,7 @@ describe System do
 
       a = [craft]
       a.stub!(:where => [craft])
-      a.should_receive(:where).with(:history_count => nil).and_return([])
+      #a.should_receive(:where).with(:history_count => nil).and_return([])
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)     
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)     
 

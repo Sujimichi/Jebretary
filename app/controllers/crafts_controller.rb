@@ -49,10 +49,10 @@ class CraftsController < ApplicationController
     end
     @return_to = params[:return_to]
     respond_with(@craft) do |f|
-      f.html{}
-      f.js {
-        
+      f.html{
+        @latest_commit = history.first
       }
+      f.js {}
     end
   end
 
