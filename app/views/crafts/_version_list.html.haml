@@ -28,11 +28,12 @@
               Current Version
 
         .message
-          - onclick = "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"
+          - #onclick = "change_message(this, '#{commit.message}', #{@craft.id}, '#{commit.to_s}')"
+          - #edit of past messages disabled for now as it still can cause the repo to be left in an incomplete rebase
           - message = @craft.commit_messages[commit.to_s]
           - message ||= commit.message
 
-          .message_text{:onclick => onclick}
+          .message_text
             - message.split("<br>").each do |m|
               .small= m
 
