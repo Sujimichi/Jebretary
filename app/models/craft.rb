@@ -68,11 +68,11 @@ class Craft < ActiveRecord::Base
   end
 
   #return the commits for the craft (most recent first)
-  def history
+  def history repo = crafts_campaign.repo
     return [] if is_new? || deleted?
     begin
       max_history_size = 100000
-      logs = crafts_campaign.repo.log(max_history_size).object(file_name)
+      logs = repo.log(max_history_size).object(file_name)
       logs.to_a
     rescue
       []
