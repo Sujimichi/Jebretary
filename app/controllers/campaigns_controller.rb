@@ -14,6 +14,21 @@ class CampaignsController < ApplicationController
       f.js{
         ensure_no_db_lock do 
           @campaign = Campaign.find(params[:id])
+          @repo = @campaign.repo 
+          @repo_status = @repo.status
+
+          @new_and_changed = @campaign.new_and_changed(@repo_status)          
+          @current_project = @campaign.last_changed_craft(@new_and_changed)
+          @current_project_history = @current_project.history
+
+
+          @saves = @campaign.save_history(@repo)
+          @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
+          @deleted_craft_count = @campaign.craft.where(:deleted => true).count
+
+          @craft_for_list = @campaign.craft.group_by{|g| g.craft_type}.sort.reverse
+
+          @campaign_commit_messages = @campaign.commit_messages
         end
       }
       f.html{

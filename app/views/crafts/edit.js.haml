@@ -1,5 +1,5 @@
 var div = "#message_form_for_#{@commit.to_s}"
-$(div).html("#{j render :partial => 'crafts/message_form', :locals =>  {:craft => @craft, :commit => @commit} }");
+$(div).html("#{j render :partial => 'crafts/message_form', :locals =>  {:craft => @craft, :commit => @commit, :commit_messages => @commit_messages, :is_changed => @is_changed} }");
 
 $('.message_form').dialog();
 $('.message_form').dialog( "close" );

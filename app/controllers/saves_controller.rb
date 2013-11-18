@@ -16,7 +16,8 @@ class SavesController < ApplicationController
 
         if params[:commit_message]
           @message = @commit.message
-          stored_message = @campaign.commit_messages[@commit.to_s]
+          @commit_messages = @campaign.commit_messages
+          stored_message = @commit_messages[@commit.to_s]
           @message = stored_message if stored_message
         end
       }

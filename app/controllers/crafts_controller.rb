@@ -36,9 +36,11 @@ class CraftsController < ApplicationController
     @sha_id = params[:sha_id]
     history = @craft.history     
     @commit = history.select{|commit| commit.sha == @sha_id}.first
+    @is_changed = @craft.is_changed?
 
-    if params[:message_form] && @commit.nil?
-      @commit = "most_recent"
+    if params[:message_form] 
+      @commit = "most_recent" if @commit.nil?
+      @commit_messages = @craft.commit_messages
     end
 
     unless @craft.deleted? || params[:message_form]      

@@ -52,9 +52,9 @@
             .label Created on
             .value= "#{@commit.date.to_formatted_s(:short)}"
         .vblk_1
-        - if @craft.is_changed?
+        - if @is_changed
           %h3 !!This craft has untracked changes!!
-          -if @commit.to_s.eql?(@craft.history.first.to_s)
+          -if @commit.to_s.eql?(@latest_commit.to_s)
             .info= "Reverting this craft will remove the untracked changes and return it to the most recent version (#{@revert_to_version})."
             .small= "The craft will be returned to version #{@revert_to_version} and there will be no untracked changes"
           -else
@@ -84,7 +84,7 @@
           = hidden_field_tag :revert_craft, true
           = hidden_field_tag :return_to, @return_to
           = f.submit "Revert"
-          - unless @commit.to_s.eql?(@craft.history.first.to_s)
+          - unless @commit.to_s.eql?(@latest_commit.to_s)
             .with_margin{:title => "automatically commit the reverted craft as a new version"}
               = label_tag :commit_revert, "commit revert"
               = check_box_tag :commit_revert, true, false
@@ -96,13 +96,13 @@
 
       :javascript
         show_help('craft_revert_page_intro_first_view');
-      -if !@craft.is_changed?
+      -if !@is_changed
         - help_type = help_type_1
         - auto_show = system.show_help_for?('craft_revert_unchanged')
-      -if @craft.is_changed? && !@commit.to_s.eql?(@craft.history.first.to_s)
+      -if @is_changed && !@commit.to_s.eql?(@latest_commit.to_s)
         - help_type = help_type_2
         - auto_show = system.show_help_for?('craft_revert_untracked')
-      -if @craft.is_changed? && @commit.to_s.eql?(@craft.history.first.to_s)
+      -if @is_changed && @commit.to_s.eql?(@latest_commit.to_s)
         - help_type = help_type_3
         - auto_show = system.show_help_for?('craft_revert_untracked_current_commit')
 

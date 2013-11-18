@@ -1,9 +1,10 @@
 = form_for(craft) do |f|
+  - commit_message = commit_messages[commit.to_s]
   .message_errors
-  -if craft.is_changed? && craft.commit_messages[commit.to_s].blank?
+  -if is_changed && commit_message.blank?
     - message = nil
   -else
-    - message = craft.commit_messages[commit.to_s]
+    - message = commit_message
     - message ||= commit.message
   - message ||= ""
   = text_area_tag :message, message.gsub("<br>", "\r\n"), :rows => 5, :cols => 50

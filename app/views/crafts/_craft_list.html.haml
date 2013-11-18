@@ -1,21 +1,12 @@
 
 -unless campaign.blank?
-  - repo = campaign.repo
-  - repo_status = repo.status
-
-  - new_and_changed = campaign.new_and_changed(repo_status)
-  - current_project = campaign.last_changed_craft(new_and_changed)
-  - saves = campaign.save_history(repo)
-  - most_recent_commit = campaign.latest_commit(current_project, saves, new_and_changed)
-
   :javascript
     auto_switch_display_based_on("#{most_recent_commit}");
-    auto_show_deleted_craft_link("#{campaign.craft.where(:deleted => true).count}")
+    auto_show_deleted_craft_link("#{deleted_craft_count}")
 
 
 
   #content_for_campaign_saves.hidden
-    - saves = campaign.save_history(repo)
     .grid_8.alpha
       %h3 Saves
       = link_to "view full save history", saves_path(:id => campaign.id)
@@ -26,13 +17,13 @@
         .left.label= "Quicksaves |"
         .left= link_to_function "Persistent", "toggle_save_display()"
         .clear
-        = render "saves/short_list", :saves => saves, :save_type => "quicksave", :campaign => campaign, :has_change => campaign.changed_save?("quicksave", repo_status)
+        = render "saves/short_list", :saves => saves, :save_type => "quicksave", :campaign => campaign, :has_change => campaign.changed_save?("quicksave", repo_status), :campaign_commit_messages => campaign_commit_messages
 
       #persistent_display.hidden
         .left= link_to_function "Quicksaves", "toggle_save_display()"
         .left.label= "| Persistent"
         .clear
-        = render "saves/short_list", :saves => saves, :save_type => "persistent", :campaign => campaign, :has_change => campaign.changed_save?("persistent", repo_status)
+        = render "saves/short_list", :saves => saves, :save_type => "persistent", :campaign => campaign, :has_change => campaign.changed_save?("persistent", repo_status), :campaign_commit_messages => campaign_commit_messages
 
 
   .clear
@@ -64,7 +55,6 @@
           .clear
           - version = current_project.history_count
           - version ||= 1
-          - current_project_history = current_project.history
           //- unless version.eql?(1)
           .left Revert to Previous Version:
           .left.with_margin
@@ -105,7 +95,7 @@
 
 
   .clear
-  - campaign.craft.group_by{|g| g.craft_type}.sort.reverse.each do |type, crafts|
+  - craft_for_list.each do |type, crafts|
     %div{:id => "content_for_#{type}_list"}
       - sort_by = "updated_at reverse"
       - reverse_order = sort_by.include?('reverse')

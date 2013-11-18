@@ -1,6 +1,6 @@
 if("#{params[:commit_message]}"){
 
-$('#edit_save_holder').html("#{j render :partial => 'saves/message_form', :locals => {:campaign => @campaign, :save_type => @save_type, :commit => @commit, :version => @version} }")
+$('#edit_save_holder').html("#{j render :partial => 'saves/message_form', :locals => {:campaign => @campaign, :save_type => @save_type, :commit => @commit, :version => @version, :commit_messages => @commit_messages} }")
 update_save_message('#edit_save_holder', "#{@campaign.id}", "#{@commit.to_s}", "#{@commit.message}")
 
 }else{
