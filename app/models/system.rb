@@ -20,12 +20,14 @@ class System
     instances.each{ |instance| data[instance.id] = {} } #put instance ids into data to be returned to interface. 
     #Done as separate step to enable faster return of info to interface
     craft_in_campaigns_for_instance = {} #container to hold mapping of craft files to campaigns in instances.
+    new_campaigns_for_instance = {}
 
     #First main itteration throu instances - fast and provides some basic information to the user interface
     #determines which campaigns exist in each instance, creates new ones as appropriate
     #discovers the craft files associated with each campaign
     instances.each do |instance|
-      campaign_names = instance.prepare_campaigns #checks the saves folder for campaign folders and creates campaigns where needed, returns array of campaign names
+      campaign_names, new_campaigns = instance.prepare_campaigns #checks the saves folder for campaign folders and creates campaigns where needed, returns array of campaign names
+      new_campaigns_for_instance[instance.id] = new_campaigns
 
       #identify all craft files in VAB and SPH and return as hash of {campaign_name => {:sph => [], :vab => []}} for each campaign
       craft_in_campaigns = campaign_names.map{|name| {name => instance.identify_craft_in(name)} }.inject{|i,j| i.merge(j)}
@@ -59,7 +61,7 @@ class System
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
         System.update_db_flag(data)        
         campaign.verify_craft craft_in_campaigns[campaign.name] #ensure all present craft files have a matching craft object
-        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remote the markers
+        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
         System.update_db_flag(data)
 
         craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
@@ -88,8 +90,11 @@ class System
             puts "done" unless Rails.env.eql?("test")
           end
 
+          #added_craft = data[instance.id][:campaigns][campaign.name]
+          new_campaign = new_campaigns_for_instance[instance.id].include?(campaign)
+
           #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
-          if to_commit.empty? #track both, as P has been seen to change, but not if there are craft to commit.  
+          if new_campaign || to_commit.empty? #track both, as P has been seen to change, but not if there are craft to update
             campaign.update_persistence_checksum 
             campaign.track_save(:both) 
           end

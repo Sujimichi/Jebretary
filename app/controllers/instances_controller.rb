@@ -58,7 +58,6 @@ class InstancesController < ApplicationController
         ensure_no_db_lock do 
           @instance = Instance.find(params[:id])
           @campaigns = @instance.campaigns.select{|c| c.exists?}
-          #@flags = Dir.entries(File.join([Rails.root,"public"])).select{|f| f.include?("flag_for_campaign")}.map{|f| f.sub("flag_for_campaign_","").sub(".png","").to_i}.to_json
         end      
       }
     end
@@ -80,7 +79,6 @@ class InstancesController < ApplicationController
       @background_process = data[params[:id]] if data[params[:id]]
     end
     @flags = Dir.entries(File.join([Rails.root,"public"])).select{|f| f.include?("flag_for_campaign")}.map{|f| f.sub("flag_for_campaign_","").sub(".png","").to_i}.to_json
-
     @background_process ||= "waiting"
   end
 

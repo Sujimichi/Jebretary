@@ -220,14 +220,20 @@ class Campaign < ActiveRecord::Base
     return false if self.persistence_checksum.eql?("skip")
 
     #return true if there are different number of craft files than records of craft that are not marked as deleted
-    craft_files = campaigns_instance.identify_craft_in(self.name)
-    return true if craft_files.map{|k,v| v}.flatten.size != self.craft.where(:deleted => false).count
+    return true if has_different_craft_file_count_to_db_record_count?
 
     #return true if the stored checksum for persistent.sfs does not match the one generated for the current persistent.sfs
     Dir.chdir(self.path)
     return true unless File.exists?("persistent.sfs")
     checksum = Digest::SHA256.file("persistent.sfs").hexdigest
     not checksum.eql?(self.persistence_checksum)
+  end
+
+
+  #return true if there are different number of craft files than records of craft that are not marked as deleted
+  def has_different_craft_file_count_to_db_record_count?
+    craft_files = campaigns_instance.identify_craft_in(self.name)
+    craft_files.map{|k,v| v}.flatten.size != self.craft.where(:deleted => false).count
   end
 
 

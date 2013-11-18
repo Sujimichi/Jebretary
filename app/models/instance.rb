@@ -23,11 +23,13 @@ class Instance < ActiveRecord::Base
 
   def prepare_campaigns
     existing_campaigns = discover_campaigns
+    new_campaigns = []
     known_campaign_names = self.campaigns.map{|c| c.name}
     existing_campaigns.each do |camp|
       next if known_campaign_names.include?(camp)
-      Campaign.create!(:name => camp, :instance_id => self.id)
+      new_campaigns << Campaign.create!(:name => camp, :instance_id => self.id)
     end
+    [existing_campaigns, new_campaigns]
   end
 
   #return the .craft files found in VAB and SPH
