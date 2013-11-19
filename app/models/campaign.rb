@@ -190,7 +190,7 @@ class Campaign < ActiveRecord::Base
   end
 
   #return the craft which was most recently modified
-  def last_changed_craft nac = new_and_changed #call new_and_changed just once
+  def last_changed_craft nac = new_and_changed #call new_and_changed just once, with option to pass it in if its already been called.
     last_updated = self.craft.where("deleted = ? and name != ?", false, "Auto-Saved Ship").order("updated_at").last
 
     if !nac[:changed].empty? || !nac[:new].empty?
