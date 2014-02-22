@@ -79,15 +79,6 @@ class Craft < ActiveRecord::Base
     end
   end
 
-
-  #identify possible problems with adding craft to repo.
-  def problems
-    problems = []
-    problems << "must not contain ` in name" if self.name.include?("`")
-    problems
-  end
-
-
   #takes a block to run and while the block is being run the persistence_checksum on the craft campaign is set to 'skip'
   #this means that the campaign will not be processed by the background monitor while the blocks actions are being carried out.
   def dont_process_campaign_while &blk
@@ -100,8 +91,6 @@ class Craft < ActiveRecord::Base
   #stage the changes and commits the craft. simply returns if there are no changes.
   def commit args = {}
     #dont_process_campaign_while do 
-      return "unable to commit; #{problems.join(",")}" unless problems.empty?
-
       @repo_status = nil #ensure fresh instance of repo, not cached
       repo = self.crafts_campaign.repo
 
