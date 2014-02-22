@@ -1,7 +1,7 @@
 class GitCompatibleValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     return if value.blank?
-    illegal_chars = %w[' " ` \[ \] { } ]
+    illegal_chars = %w[' " ` \[ \] { } \\ / &]
     illegal_chars << "\n"
 
     found_illegal_chars = illegal_chars.select{|char| value.values.join.include?(char)} #value is a hash, only the values of the hash need checking and there is no need to test which value needs testing.  Like paradox-correcting time travel it will all work out in the end!

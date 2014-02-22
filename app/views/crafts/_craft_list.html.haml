@@ -87,8 +87,7 @@
                     Click to Add Notes:
               -else
                 .message_text{:onclick => "change_message(this, '#{message}', #{current_project.id}, '#{commit.to_s}')"}
-                  - message.split("<br>").each do |m|
-                    .small= m
+                  = render "partials/show_message", :message => message
                   .small.label= "click text to edit"
               .message_form{:id => "message_form_for_#{commit.to_s}", :class => (changed ? "with_untracked_changes" : "")}
 

@@ -18,7 +18,8 @@
             .small= link_to("set as quicksave", edit_save_path(:id => campaign.id, :sha_id => qsave.to_s, :save_type => save_type, :set_as_quicksave => true), :remote => true)
       .clear
       .left
-        .small= message unless message.eql?("updated #{save_type}.sfs")
+        - unless message.eql?("updated #{save_type}.sfs")
+          .left= render "partials/show_message", :message => message
       .clear
   - unless has_change
     = link_to("add notes about current #{save_type}", edit_save_path(:id => campaign.id, :sha_id => saves[save_type].first.to_s, :save_type => save_type, :commit_message => true), :remote => true)
