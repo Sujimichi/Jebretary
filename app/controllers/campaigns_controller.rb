@@ -31,7 +31,8 @@ class CampaignsController < ApplicationController
           @current_project_commit_messages = @current_project.commit_messages
 
           #this really needs optimising for windows.  
-          #Takes around 4000ms on windows (in production mode) which is unacceptable, on Linux (in the slower dev mode) it takes ~200ms
+          #Takes around 4000ms on windows (in production mode) which is horrible, 
+          #on Linux (in the slower dev mode) it takes under 200ms
 
         end
       }
