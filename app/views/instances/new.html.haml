@@ -1,4 +1,7 @@
 #new_instance_page
+  #nav-box
+    = link_to "Cancel", :back
+  .clear
   .grid_6.push_3
     = render('instances/form', :instance => @instance)
     .clear

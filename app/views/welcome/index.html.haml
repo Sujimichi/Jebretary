@@ -11,6 +11,17 @@
             %a{:href => instance_path(instance)}
               = instance.path
               .small= "#{instance.campaigns.count} Campaigns"
+        .clear
+        .vblk_2
+        .small
+          %h4 Remove (untrack) Instances (installs) or Campaigns
+          = link_to "Manage Instances", instances_path
+          |
+          = link_to "Manage Campaigns", campaigns_path
+          .small
+            .info If you are no longer using a particular instance of KSP it is a good idea to stop tracking it by removing it
+            .info Removing an instance will not effect the files in KSP or the version history, you can always re-add it to pick up where you left off
+            .info Removing a campaign is only needed if the actual campaign has been deleted from KSP. If you remove an existing campaign it will be recreated
     .clear
     - if @instances.empty?
       .vblk_1
@@ -53,10 +64,12 @@
 
     -else
       .vblk_4
-      .grid_6
-        %h3 Setup another KSP instance
-        (ie: tell me where a different version/copy of KSP is installed)
-        #new_instance
-          = render('instances/form', :instance => Instance.new)
+      .grid_6.push_1
+        %h3=link_to_function "Add another KSP instance", "$('.additional_instance_form').toggle('slow');"
+        .additional_instance_form.hidden
+          Tell me where a different version/copy of KSP is installed;
+          #new_instance_form
+            = render('instances/form', :instance => Instance.new)
+            .left= link_to_function "cancel", "$('#new_instance')[0].reset();$('.additional_instance_form').hide('slow');"
     .grid_2.push_10
       = button_to "reset help tips", :controller => :welcome, :action => :update, :method => :put, :reset_help => true
