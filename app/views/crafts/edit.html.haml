@@ -76,6 +76,11 @@
 
       .vblk_1
       %h3= "Please confirm that you want to revert this craft to version #{@revert_to_version}"
+      .vblk_1
+      %h4 Notes from this version:
+      = @commit.message
+
+
       .restore_form
         = form_tag(:back, :method => :get) do
           = submit_tag "Cancel"
