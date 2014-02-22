@@ -31,6 +31,7 @@ class Campaign < ActiveRecord::Base
     File.exists? self.path
   end
 
+  #find the path to the flag used in this campaign from the persistent file
   def path_to_flag
     return nil unless File.exists?(File.join([self.path, "persistent.sfs"]))
     p_file = File.open(File.join([self.path, "persistent.sfs"]),'r'){|f| f.readlines}
@@ -42,6 +43,7 @@ class Campaign < ActiveRecord::Base
     return nil
   end
 
+  #put a copy of the flag in the public dir so it can be used, named according to campaign id.
   def set_flag
     path = path_to_flag
     return nil unless path

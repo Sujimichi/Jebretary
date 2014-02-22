@@ -7,12 +7,16 @@ describe Instance do
   
   it 'should have a full_path' do 
     @i = FactoryGirl.create(:instance)
-    @i.full_path.should == ["", "home", "sujimichi", "Share", "jebretary", "temp_test_dir", "KSP_test"].to_json
+    root_path = Rails.root.to_s.split("/")
+    @i.full_path.should == (root_path << "temp_test_dir" << "KSP_test").to_json
+    #["", "home", "sujimichi", "coding", "rails", "jebretary", "temp_test_dir", "KSP_test"].to_json
   end
 
   it 'should return the OS path' do 
     @i = FactoryGirl.create(:instance)
-    @i.path.should == "/home/sujimichi/Share/jebretary/temp_test_dir/KSP_test"
+    root_path = Rails.root.to_s.split("/")
+    @i.path.should == File.join(root_path, "temp_test_dir", "KSP_test")
+    #"/home/sujimichi/coding/rails/jebretary/temp_test_dir/KSP_test"
   end
 
   describe "discover_campaigns" do 
