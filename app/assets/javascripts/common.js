@@ -59,8 +59,15 @@ function poll_for_updated_list(){
   var campaign_id = $('#campaign_id').val();
   if(campaign_id != undefined){
     var data = {id: campaign_id};
+    data['sort_opts'] = {}
+    data['sort_opts']['vab'] = $('#vab_sort_options').val();
+    data['sort_opts']['sph'] = $('#sph_sort_options').val();
+    data['search_opts'] = {}
+    data['search_opts']['vab'] = $('#vab_search_field').val();
+    data['search_opts']['sph'] = $('#sph_search_field').val();
+
+    clearTimeout(index_search_timer);
     ajax_get("/campaigns/"+ campaign_id, data, function(){
-      clearTimeout(index_search_timer);
       index_search_timer = setTimeout(function(){
         poll_for_updated_list();
       }, 2000);
@@ -80,6 +87,20 @@ function poll_craft_version(){
       }, 2000);
     });
   };
+};
+
+
+function set_search_and_sort_fields(){
+  $('#vab_search_field').val("");
+  $('#sph_search_field').val("");
+
+  $('#vab_search_field').on("keyup", function(){poll_for_updated_list()});
+  $('#sph_search_field').on("keyup", function(){poll_for_updated_list()});
+
+  $('#reset_vab_search').on("click", function(){$('#vab_search_field').val(""); poll_for_updated_list()});
+  $('#reset_sph_search').on("click", function(){$('#sph_search_field').val(""); poll_for_updated_list()});
+
+  $('.craft_list_sort').on("change", function(){poll_for_updated_list()})
 };
 
 function change_message(div, current_text, craft_id, commit){

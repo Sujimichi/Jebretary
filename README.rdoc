@@ -29,14 +29,13 @@ Jebretary
     - occasionally shows the no campaigns messages on instances show page when there are campaigns present.
     - deleting a craft with untracked changes crashes the interface (after reload deletion has been tracked and all is ok)
     - attempting to restore to the version where a craft was deleted results in an interface crash (but no changes to state).
+    - no craft in campaign and campaign just keeps on showing loading
 
 
 ==Planned/Todo
   - ability to restore a previous version of a persistent file as a quicksave (enabling user to load an autosave with f9).
 
   - tracking of subassemblies
-
-  - sort and ordering on craft list
 
   - ability to set a craft to exist in all (or select) campaigns and reflect changes made in either campaign.
 
@@ -65,9 +64,11 @@ Jebretary
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost to have more than 5 private craft.
 
 
+==0.1.1
+  - added sort 'n' search on the craft lists
+
 ==0.1.0
   - test release version
-
 
 ==0.0.12
   - changed entry point for background runner

@@ -13,6 +13,7 @@ class CampaignsController < ApplicationController
     respond_with(@campaign) do |f|
       f.js{
         ensure_no_db_lock do 
+        
           @campaign = Campaign.find(params[:id])
           @repo = @campaign.repo 
           @repo_status = @repo.status
@@ -25,10 +26,21 @@ class CampaignsController < ApplicationController
           @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
 
           @deleted_craft_count = @campaign.craft.where(:deleted => true).count
-          @craft_for_list = @campaign.craft.group_by{|g| g.craft_type}.sort.reverse
+
+          all_craft = @campaign.craft.group_by{|g| g.craft_type}
+          @craft_for_list = {}
+          [:vab, :sph].each do |type|
+            unless params[:search_opts][type].empty?
+              @craft_for_list[type] = all_craft[type.to_s].select{|craft| craft.name.downcase.include?(params[:search_opts][type])}
+            else
+              @craft_for_list[type] = all_craft[type.to_s]
+            end
+          end
+          @sort_opts = params[:sort_opts]
 
           @campaign_commit_messages = @campaign.commit_messages
           @current_project_commit_messages = @current_project.commit_messages
+
 
           #this really needs optimising for windows.  
           #Takes around 4000ms on windows (in production mode) which is horrible, 
