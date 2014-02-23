@@ -1,5 +1,24 @@
 Jebretary
 
+
+==exe Build Processin windows
+  - in git bash prompt in <path_to_jebretary>
+  bundle install
+  rake ocra_prepare
+
+  -ensure a blank and up-to-date DB setup (production.dqlite) is in jebretary_build (folder adjecent to jebretary)
+
+  -in windows cmd
+  r:
+  <path_to_jebretary>\build_app.bat
+
+  - if entry points (liquid.exe or launch.exe) have changed run (in win bash)
+  <path_to_jebretary>\build_launcher.bat
+  <path_to_jebretary>\build_runner.bat
+  -and ensure both are present (along with DB) in jebretary_build
+
+
+
 ==Issues
 
   =Editing Commit Messages
@@ -44,6 +63,10 @@ Jebretary
 
       - A craft posted on JebWb can just be updated with a click from Jerbretary.
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost to have more than 5 private craft.
+
+
+==0.1.0
+  - test release version
 
 
 ==0.0.12
