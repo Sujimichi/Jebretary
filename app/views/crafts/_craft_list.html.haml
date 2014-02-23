@@ -27,7 +27,6 @@
 
 
   .clear
-
   #content_for_current_project.hidden
     - unless current_project.nil?
       %h3 Current Project
@@ -104,7 +103,6 @@
         - reverse_order = sort_by.include?('reverse')
         - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}
         - crafts.reverse! if reverse_order
-
         - crafts.each do |craft|
           -# next if craft.eql?(current_project)
           - craft.crafts_campaign = campaign
