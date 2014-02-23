@@ -31,7 +31,7 @@ class CampaignsController < ApplicationController
           @craft_for_list = {}
           [:vab, :sph].each do |type|
             unless params[:search_opts][type].empty?
-              @craft_for_list[type] = all_craft[type.to_s].select{|craft| craft.name.downcase.include?(params[:search_opts][type])}
+              @craft_for_list[type] = all_craft[type.to_s].select{|craft| craft.name.downcase.include?(params[:search_opts][type].downcase)}
             else
               @craft_for_list[type] = all_craft[type.to_s]
             end
