@@ -154,7 +154,8 @@ class Campaign < ActiveRecord::Base
 
   def latest_commit current_project = nil, saves = nil, new_and_changed = nil
     
-    crft = "Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft"
+    crft = "Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft" if current_project
+
        
     return :current_project if saves[:quicksave].nil? || saves[:quicksave].size.eql?(1)
     if new_and_changed[:changed].include?(crft) || new_and_changed[:new].include?(crft)

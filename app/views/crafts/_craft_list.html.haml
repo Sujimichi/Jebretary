@@ -28,8 +28,8 @@
 
   .clear
 
-  - unless current_project.nil?
-    #content_for_current_project.hidden
+  #content_for_current_project.hidden
+    - unless current_project.nil?
       %h3 Current Project
       .craft
         .name= link_to(current_project.name, craft_path(current_project))
@@ -91,38 +91,37 @@
                   .small.label= "click text to edit"
               .message_form{:id => "message_form_for_#{commit.to_s}", :class => (changed ? "with_untracked_changes" : "")}
 
+    - else
+      %h3 No Current Project Defined
+      %h5 what you looking at me for, Go Build something!
 
 
   .clear
   - craft_for_list.each do |type, crafts|
     %div{:id => "content_for_#{type}_list"}
-      - sort_by = "updated_at reverse"
+      - unless crafts.blank?
+        - sort_by = sort_opts[type]
+        - reverse_order = sort_by.include?('reverse')
+        - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}
+        - crafts.reverse! if reverse_order
 
-      - sort_by = sort_opts[type]
+        - crafts.each do |craft|
+          -# next if craft.eql?(current_project)
+          - craft.crafts_campaign = campaign
+          .craft_container{:class => (craft.deleted? ? 'deleted_craft' : '')}
+            .craft
+              .name= truncated_link_to craft.name, craft_path(craft), :truncate => 50
+              .clear
+              .git_info
+                - unless craft.deleted?
+                  -if new_and_changed[:new].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
+                    = "new"
+                  -else
+                    - changed = new_and_changed[:changed].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
+                    = changed ? "untracked changes" : "tracked"
 
-
-      - reverse_order = sort_by.include?('reverse')
-      - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}
-
-      - crafts.reverse! if reverse_order
-
-      - crafts.each do |craft|
-        - next if craft.eql?(current_project)
-        - craft.crafts_campaign = campaign
-        .craft_container{:class => (craft.deleted? ? 'deleted_craft' : '')}
-          .craft
-            .name= truncated_link_to craft.name, craft_path(craft), :truncate => 50
-            .clear
-            .git_info
-              - unless craft.deleted?
-                -if new_and_changed[:new].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
-                  = "new"
                 -else
-                  - changed = new_and_changed[:changed].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
-                  = changed ? "untracked changes" : "tracked"
-
-              -else
-                deleted
-            .history
-              Number of versions:
-              = craft.history_count
+                  deleted
+              .history
+                Number of versions:
+                = craft.history_count

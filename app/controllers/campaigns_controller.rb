@@ -20,7 +20,7 @@ class CampaignsController < ApplicationController
 
           @new_and_changed = @campaign.new_and_changed(@repo_status)          
           @current_project = @campaign.last_changed_craft(@new_and_changed)
-          @current_project_history = @current_project.history(@repo)
+          @current_project_history = @current_project.history(@repo) if @current_project
 
           @saves = @campaign.save_history(@repo)
           @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
@@ -39,7 +39,7 @@ class CampaignsController < ApplicationController
           @sort_opts = params[:sort_opts]
 
           @campaign_commit_messages = @campaign.commit_messages
-          @current_project_commit_messages = @current_project.commit_messages
+          @current_project_commit_messages = @current_project.commit_messages if @current_project
 
 
           #this really needs optimising for windows.  
