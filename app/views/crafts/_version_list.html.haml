@@ -34,6 +34,7 @@
           - message ||= commit.message
 
           .message_text
-            = render "partials/show_message", :message => message
+          - message.split("<br>").each do |m|
+            .small= m
 
           .message_form{:id => "message_form_for_#{commit.to_s}"}

@@ -19,7 +19,9 @@
       .clear
       .left
         - unless message.eql?("updated #{save_type}.sfs")
-          .left= render "partials/show_message", :message => message
+          .left
+            - message.split("<br>").each do |m|
+              .small= m
       .clear
   - unless has_change
     = link_to("add notes about current #{save_type}", edit_save_path(:id => campaign.id, :sha_id => saves[save_type].first.to_s, :save_type => save_type, :commit_message => true), :remote => true)
