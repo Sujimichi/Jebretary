@@ -46,9 +46,15 @@ module CommitMessageChanger
       #clean up - delete the temp branch
       repo.branch(temp_branch_name).delete
 
-      return true if rebase_ok
-      return false
+      if rebase_ok
+        puts "WARNING: rebase failed, aborting"
+        return true
+      else            
+        `git rebase --abort`
+        return false
+      end
     else
+      `git rebase --abort`
       return false
     end
   end
