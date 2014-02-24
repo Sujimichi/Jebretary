@@ -2,7 +2,7 @@ class Campaign < ActiveRecord::Base
   include CommitMessageChanger
   require 'git'
 
-  attr_accessible :instance_id, :name, :persistence_checksum
+  attr_accessible :instance_id, :name, :persistence_checksum, :sort_options
   
   belongs_to :instance
   has_many :craft, :dependent => :destroy

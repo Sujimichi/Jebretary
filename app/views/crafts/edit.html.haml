@@ -81,7 +81,6 @@
       - @commit.message.split("<br>").each do |m|
         .normal= m
 
-
       .restore_form
         = form_tag(:back, :method => :get) do
           = submit_tag "Cancel"
@@ -118,10 +117,6 @@
             show_help("#{help_doc}");
           }
           $('#revert_page_help_link').bind("click", function(){show_help("#{help_doc}", {always_show: true}) })
-
-
-
-
 
 
 :javascript

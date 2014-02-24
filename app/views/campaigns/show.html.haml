@@ -34,14 +34,14 @@
       = link_to_function "show deleted craft", "toggle_deleted_craft()", :class => 'toggle_deleted_craft_link'
 
     .clear
-    - options_for_sort = options_for_select({"name" => "name", "created" => "created_at", "updated" => "updated_at reverse"}, "updated_at reverse")
+    -selected_sort_options = JSON.parse(@campaign.sort_options)
     - ["vab", "sph"].each do |type|
       .grid_5.push_1.hidden
         .building_icon= image_tag("icon_for_#{type}.jpg")
         .search_and_sort
           = text_field_tag "#{type}_search_field", "", :class => "craft_list_search_field"
           = button_to_function "X", "", :class => "search_reset_button", :id => "reset_#{type}_search"
-          = select_tag "#{type}_sort_options", options_for_sort, :class => "craft_list_sort"
+          = select_tag "#{type}_sort_options", options_for_select({"name" => "name", "created" => "created_at", "updated" => "updated_at reverse"}, selected_sort_options[type]), :class => "craft_list_sort"
         %div{:id => "#{type}_list"}
 
     #loading_holder

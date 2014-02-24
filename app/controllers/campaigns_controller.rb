@@ -36,11 +36,15 @@ class CampaignsController < ApplicationController
               @craft_for_list[type] = all_craft[type.to_s]
             end
           end
+
+          params[:sort_opts][:vab] ||= "updated_at reverse"
+          params[:sort_opts][:sph] ||= "updated_at reverse"
           @sort_opts = params[:sort_opts]
+
+          @campaign.update_attributes(:sort_options => params[:sort_opts].to_json)
 
           @campaign_commit_messages = @campaign.commit_messages
           @current_project_commit_messages = @current_project.commit_messages if @current_project
-
 
           #this really needs optimising for windows.  
           #Takes around 4000ms on windows (in production mode) which is horrible, 
@@ -50,6 +54,9 @@ class CampaignsController < ApplicationController
       }
       f.html{
         @campaign = Campaign.find(params[:id])
+        if @campaign.sort_options.blank?
+          @campaign.update_attributes(:sort_options => {:vab => "updated_at reverse", :sph => "updated_at reverse"}.to_json)
+        end
       }
     end
   end
