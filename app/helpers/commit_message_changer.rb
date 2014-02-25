@@ -47,7 +47,7 @@ module CommitMessageChanger
       repo.branch(temp_branch_name).delete
 
       if rebase_ok
-        puts "WARNING: rebase failed, aborting"
+        puts "WARNING: rebase failed, aborting" unless Rails.env.eql?("test")
         return true
       else            
         `git rebase --abort`
