@@ -270,11 +270,11 @@ describe Repo do
       File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "third version"
 
       commit = repo.log("Ships/VAB/my_rocket.craft").last
-      repo.checkout_file "Ships/VAB/my_rocket.craft", commit
+      repo.checkout_file commit, "Ships/VAB/my_rocket.craft"
       File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "first version"
 
       commit = repo.log("Ships/VAB/my_rocket.craft")[1]
-      repo.checkout_file "Ships/VAB/my_rocket.craft", commit
+      repo.checkout_file commit, "Ships/VAB/my_rocket.craft"
       File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "second version"
     end
 

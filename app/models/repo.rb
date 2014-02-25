@@ -49,7 +49,7 @@ class Repo
     git "commit -m \"#{message}\""
   end
 
-  def checkout_file file, commit
+  def checkout_file commit, file
     commit = commit.sha_id if commit.is_a?(Commit)
     git "checkout #{commit} #{file}"
   end
