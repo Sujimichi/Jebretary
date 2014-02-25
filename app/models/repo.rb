@@ -20,24 +20,40 @@ class Repo
   #list all files that are tracked by the repo
   def tracked
     files = git "ls-tree -r master --name-only"
-    files.split("\n")
+    files.split("\n") #using split("\n") rather than .each_line.to_a as split is slightly faster (10th of a second over 50000 runs)
   end
 
   #list all files that have been modified 
   def changed
-    changed = git "diff --name-only"
-    changed.split("\n")
+    files = git "diff --name-only"
+    files.split("\n")
   end
 
   #list all files that are not yet tracked by the repo
   def untracked
-    all_files = Dir.glob(File.join([@path, "**", "*.*"])).map{|file| file.sub("#{@path.to_s}/", "")}
-    untracked = all_files - tracked - changed
+    files = git "ls-files --other --exclude-standard"
+    files.split("\n")
+  end
+
+  #stage files 
+  def add files
+    git "add #{files}"
+  end
+
+  #commit to repo
+  def commit message
+    git "commit -m \"#{message}\""
   end
 
 
-  def log
-    git "log"
+
+  def log file = nil
+    if file
+      log = git "log #{file}"
+    else
+      log = git "log"
+    end
+    read_log log
   end
 
   def status
@@ -64,6 +80,41 @@ class Repo
     action = yield
     Dir.chdir(cur_dir)
     return action
+  end
+
+  def read_log log
+    log = log.split("\n") #split the log (with an axe) into lines
+    commit_lines = log.select{|l| l.match(/^(commit)/)} #select the lines which start with "commit"   
+    indexes = commit_lines.map{|line| log.index(line) } #index the commit lines to get the starting line for each commit
+
+    #get indexes for the start and end lines for each commit
+    start_end_lines = []
+    indexes.each_with_index{|v,i| start_end_lines[i] = [v,indexes[i+1]] }
+    start_end_lines[start_end_lines.size-1][1] = log.size
+
+
+    start_end_lines.map do |start, stop|
+      Commit.new(log[start, stop])
+    end  
+  end
+
+end
+
+
+class Repo::Commit
+
+  def initialize raw_commit_data
+    @raw_data = raw_commit_data
+  end
+
+  def sha_id
+    @raw_data[0].sub("commit ", "")
+  end
+
+  def message
+    lines = @raw_data[4..@raw_data.size-1].map{|line| line.sub(/^(\s{4})/, "")}
+    lines = lines[0..lines.size-2] if lines.last.empty?
+    lines.join("\n")
   end
 
 end
