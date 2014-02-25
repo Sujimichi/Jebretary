@@ -249,4 +249,34 @@ describe Repo do
     end
   end
 
+  describe "checkout" do 
+    before(:each) do 
+      Dir.chdir(@path)
+      `git init`
+
+      File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("first version") }
+      `git add Ships/VAB/my_rocket.craft`
+      `git commit -m "updated my rocket"` 
+      File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("second version") }
+      `git add Ships/VAB/my_rocket.craft`
+      `git commit -m "updated my rocket"` 
+      File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("third version") }
+      `git add Ships/VAB/my_rocket.craft`
+      `git commit -m "updated my rocket"` 
+    end
+
+    it 'should return a file to a previous state' do 
+      repo = Repo.open(@path)      
+      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "third version"
+
+      commit = repo.log("Ships/VAB/my_rocket.craft").last
+      repo.checkout_file "Ships/VAB/my_rocket.craft", commit
+      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "first version"
+
+      commit = repo.log("Ships/VAB/my_rocket.craft")[1]
+      repo.checkout_file "Ships/VAB/my_rocket.craft", commit
+      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "second version"
+    end
+
+  end
 end

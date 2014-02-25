@@ -11,6 +11,10 @@ class Repo
     repo.git_init unless Dir.entries(path).include?(".git")
     repo
   end
+  def self.init path
+    Repo.open(path)
+  end
+              
 
   #initialize git repo
   def git_init
@@ -45,6 +49,10 @@ class Repo
     git "commit -m \"#{message}\""
   end
 
+  def checkout_file file, commit
+    commit = commit.sha_id if commit.is_a?(Commit)
+    git "checkout #{commit} #{file}"
+  end
 
 
   def log file = nil
