@@ -87,9 +87,6 @@ class Craft < ActiveRecord::Base
   #stage the changes and commits the craft. simply returns if there are no changes.
   def commit args = {}
     #dont_process_campaign_while do 
-      @repo = nil #ensure fresh instance of repo, not cached
-      repo = self.crafts_campaign.repo
-
       action = :deleted if self.deleted?
       action ||= self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)     
       
@@ -119,8 +116,6 @@ class Craft < ActiveRecord::Base
         self.history_count = 1 if self.history_count.eql?(0)        
       end
       self.save if self.changed?
-      @repo = nil    
-
       return action
     #end
   end
@@ -149,8 +144,6 @@ class Craft < ActiveRecord::Base
   end
 
   def recover
-    repo = self.campaign.repo
-
     deleting_commit = self.last_commit
     commit = repo.gcommit(deleting_commit).parent
 
