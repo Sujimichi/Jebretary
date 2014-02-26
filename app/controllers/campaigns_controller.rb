@@ -17,11 +17,11 @@ class CampaignsController < ApplicationController
           @campaign = Campaign.find(params[:id])
           @repo = @campaign.repo 
 
-          @new_and_changed = @campaign.new_and_changed(@repo)          
+          @new_and_changed = @campaign.new_and_changed
           @current_project = @campaign.last_changed_craft(@new_and_changed)
-          @current_project_history = @current_project.history(@repo) if @current_project
+          @current_project_history = @current_project.history(:limit => 5) if @current_project
+          @saves = @campaign.save_history(:limit => 5)
 
-          @saves = @campaign.save_history(@repo)
           @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
 
           @deleted_craft_count = @campaign.craft.where(:deleted => true).count

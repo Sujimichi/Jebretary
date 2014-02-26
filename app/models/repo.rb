@@ -77,13 +77,15 @@ class Repo
     git "gc"
   end
 
-  def log file = nil
-    if file
-      log = git "log \"#{file}\""
-    else
-      log = git "log"
-    end
-    read_log log
+  def log file = nil, args = {}
+    #enable args to be passed as first arg, if no file is given. or passed as second arg if a file is given
+    args, file = file, nil if file.is_a?(Hash) 
+  
+    command = "log" #base command
+    command << " -n #{args[:limit].to_i}" if args[:limit] #append limit arg -n x, if args[:limit] is given
+    command << " \"#{file}\"" if file   #append filename if file is given
+    logs = git command   #run git command
+    read_log logs   #send raw log string to be processed into separate Commit objects
   end
 
   def status

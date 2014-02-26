@@ -1,5 +1,24 @@
 require 'spec_helper'
 
+def do_several_commits
+  `git add persistent.sfs`        
+  `git commit -m "added persistent file"` 
+
+  `git add Ships/VAB/my_other_rocket.craft`
+  `git commit -m "added my other rocket"` 
+
+  File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("first version") }
+  `git add Ships/VAB/my_rocket.craft`
+  `git commit -m "commited first version"` 
+  File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("second version") }
+  `git add Ships/VAB/my_rocket.craft`
+  `git commit -m "commited second version"` 
+  File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("third version") }
+  `git add Ships/VAB/my_rocket.craft`
+  `git commit -m "commited third version"` 
+end
+
+
 describe Repo do
   before(:each) do 
     set_up_sample_data
@@ -195,24 +214,39 @@ describe Repo do
     end
   end
 
+  describe "log" do 
+    before(:each) do 
+      Dir.chdir(@path)
+      `git init`
+      do_several_commits
+      @repo = Repo.new(@path)
+    end
+
+    it 'should return all the logs for the repo as commit objects' do 
+      @repo.log.size.should == 5
+      @repo.log.map{|log| log.is_a?(Repo::Commit) }.all?.should be_true
+    end
+
+    it 'should return a limited set of reports given optional arg' do 
+      @repo.log(:limit => 2).size.should == 2
+    end
+
+    it 'should return all logs if nil or false is passed as the limit' do 
+      @repo.log(:limit => nil).size.should == 5
+      @repo.log(:limit => false).size.should == 5
+    end
+
+    it 'should return the commits with the newest one first' do 
+      @repo.log.last.message.should == "added persistent file"
+      @repo.log.first.message.should == "commited third version"
+    end 
+  end
 
   describe "fetching commits for a file" do 
     before(:each) do 
       Dir.chdir(@path)
       `git init`
-      `git add persistent.sfs`        
-      `git commit -m "added persistent file"` 
-      `git add Ships/VAB/my_rocket.craft`
-      `git commit -m "added my rocket"` 
-      `git add Ships/VAB/my_other_rocket.craft`
-      `git commit -m "added my other rocket"` 
-
-      File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("something different") }
-      `git add Ships/VAB/my_rocket.craft`
-      `git commit -m "updated my rocket"` 
-      File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("something else different") }
-      `git add Ships/VAB/my_rocket.craft`
-      `git commit -m "updated my rocket"` 
+      do_several_commits
 
       File.open("Ships/VAB/my_other_rocket.craft", 'w') {|f| f.write("something different") }
       `git add Ships/VAB/my_other_rocket.craft`
@@ -229,6 +263,13 @@ describe Repo do
       repo.log("Ships/VAB/my_rocket.craft").size.should == 3
       repo.log("Ships/VAB/my_other_rocket.craft").size.should == 2
     end
+
+    it 'should take a optional second arg to limit the number of commits retunred' do 
+      repo = Repo.new(@path)      
+      repo.log("Ships/VAB/my_rocket.craft", :limit => 1).size.should == 1
+      repo.log("Ships/VAB/my_rocket.craft", :limit => 1).first.message.should == "commited third version"
+    end
+
 
     describe "commits" do 
       before(:each) do 
@@ -249,20 +290,12 @@ describe Repo do
     end
   end
 
+
   describe "checkout" do 
     before(:each) do 
       Dir.chdir(@path)
       `git init`
-
-      File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("first version") }
-      `git add Ships/VAB/my_rocket.craft`
-      `git commit -m "updated my rocket"` 
-      File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("second version") }
-      `git add Ships/VAB/my_rocket.craft`
-      `git commit -m "updated my rocket"` 
-      File.open("Ships/VAB/my_rocket.craft", 'w') {|f| f.write("third version") }
-      `git add Ships/VAB/my_rocket.craft`
-      `git commit -m "updated my rocket"` 
+      do_several_commits
     end
 
     it 'should return a file to a previous state' do 

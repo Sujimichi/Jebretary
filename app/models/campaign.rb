@@ -108,12 +108,12 @@ class Campaign < ActiveRecord::Base
   end
 
   #return the commits for the craft (most recent first)
-  def save_history r = self.repo 
+  def save_history args = {:limit => false} 
     commits = {} 
     saves = [:quicksave, :persistent]
     saves.each do |save_type|
       begin
-        save_commits = r.log("#{save_type}.sfs")
+        save_commits = repo.log("#{save_type}.sfs", :limit => args[:limit])
         commits[save_type] = save_commits unless save_commits.empty?
       rescue
         commits[save_type] = []
@@ -173,16 +173,17 @@ class Campaign < ActiveRecord::Base
 
   #return hash containing :new and :changed keys, each entailing an array of craft file paths
   #for craft that are either untracked or which have changes.
-  def new_and_changed r = repo
+  def new_and_changed 
+    r = repo
     {
-      :new => r.untracked.select{|k| k.include?("Ships") && k.include?(".craft")},
-      :changed => r.changed.select{|k| k.include?("Ships") && k.include?(".craft")}
+      :new     => r.untracked.select{|k| k.include?("Ships") && k.include?(".craft")},
+      :changed => r.changed.select{  |k| k.include?("Ships") && k.include?(".craft")}
     }
   end
 
   #return true if objects (.craft or .sfs) that are tracked by the repo have changes.
-  def has_untracked_changes? r = repo
-    not [r.changed].flatten.select do |k| 
+  def has_untracked_changes? 
+    not [repo.changed].flatten.select do |k| 
       (k.include?("Ships") && k.include?(".craft")) || k.include?(".sfs") 
     end.empty?
   end
