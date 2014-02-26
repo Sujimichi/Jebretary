@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-
 describe System do
-
 
   describe "creating campaigns" do 
     before(:each) do 

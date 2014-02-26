@@ -63,10 +63,11 @@ class System
         campaign.cache_instance(instance) #put the already loaded instance object into a variable in the campaign object to be used rather than reloading from DB.
         next unless campaign.exists?
         campaign.git #ensure git repo is present
+
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
         System.update_db_flag(data)        
-        campaign.verify_craft craft_in_campaigns[campaign.name] #ensure all present craft files have a matching craft object
+        campaign.verify_craft craft_in_campaigns[campaign.name] if campaign.has_untracked_changes? #ensure all present craft files have a matching craft object
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
         System.update_db_flag(data)
 

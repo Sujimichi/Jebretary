@@ -97,6 +97,18 @@ describe Campaign do
       @campaign.should have_untracked_changes
     end
 
+    it 'should return true if a craft has been deleted' do      
+      @campaign.should_not have_untracked_changes
+      File.delete(File.join([@campaign.path, @campaign.craft.first.file_name]))
+      @campaign.should have_untracked_changes
+    end
+
+    it 'should return true if there is a new craft' do 
+      @campaign.should_not have_untracked_changes
+      File.open("Ships/VAB/my_new_rocket.craft", "w"){|f| f.write("something new")}
+      @campaign.should have_untracked_changes
+    end
+
 
   end
 

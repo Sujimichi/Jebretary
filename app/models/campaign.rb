@@ -183,7 +183,7 @@ class Campaign < ActiveRecord::Base
 
   #return true if objects (.craft or .sfs) that are tracked by the repo have changes.
   def has_untracked_changes? 
-    not [repo.changed].flatten.select do |k| 
+    not [repo.changed, repo.untracked].flatten.select do |k| 
       (k.include?("Ships") && k.include?(".craft")) || k.include?(".sfs") 
     end.empty?
   end
