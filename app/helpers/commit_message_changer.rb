@@ -14,13 +14,8 @@ module CommitMessageChanger
     repo = campaign.repo
     temp_branch_name = "message_rewrite"
 
-    if campaign.nothing_to_commit? #message cannot be changed if there are untracked changes in the repo
-      #dont_process_campaign_while do 
-
-
+    if campaign.nothing_to_commit? #message cannot be changed if there are untracked changes in the repo     
       #create a new branch with it's head as the commit I want to change (refb)
-      #repo.checkout(commit)
-      #repo.branch(temp_branch_name).checkout
       repo.checkout "#{commit.sha_id} -b #{temp_branch_name}"
 
       #and switch back to master
@@ -28,10 +23,8 @@ module CommitMessageChanger
 
       #This part uses system commands to interact with the git repo as 
       #I couldn't find a way using the git-gem to do filter-branch actions
-      #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
-        
+      #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)       
       repo.filter_branch "-f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}"
-      #refs/heads/temp_message_change_branch' was rewritten
 
       #perform rebase only if there have not been any changes since the process started.
       if repo.changed.empty?
@@ -45,7 +38,6 @@ module CommitMessageChanger
       end
 
       #clean up - delete the temp branch
-      #repo.branch(temp_branch_name).delete
       repo.branch "#{temp_branch_name} -D"
 
       if rebase_ok      
@@ -60,6 +52,4 @@ module CommitMessageChanger
       return false
     end
   end
-
-
 end
