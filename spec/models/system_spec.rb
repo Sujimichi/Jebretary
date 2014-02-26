@@ -24,7 +24,7 @@ describe System do
     end
   end
 
-=begin
+
   describe "with created campaigns" do 
     before(:each) do 
       make_campaign_dir "test_campaign_1", :reset => true
@@ -421,5 +421,4 @@ describe System do
 
     end
   end
-=end
 end
