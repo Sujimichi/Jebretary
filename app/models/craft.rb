@@ -49,7 +49,6 @@ class Craft < ActiveRecord::Base
   def is_new?
     return false if deleted?
     repo.untracked.include?("Ships/#{craft_type.upcase}/#{name}.craft")
-    #self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].untracked == true
   end
   alias new_craft? is_new?
 
@@ -58,7 +57,6 @@ class Craft < ActiveRecord::Base
     return nil if is_new? 
     return false if deleted?
     repo.changed.include?("Ships/#{craft_type.upcase}/#{name}.craft")
-    #self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].type == "M"
   end
   alias changed_craft? is_changed?
 

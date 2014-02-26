@@ -78,7 +78,6 @@ describe Craft do
       @campaign.repo.untracked.should be_include "Ships/VAB/my_rocket.craft"
 
       @craft.commit      
-      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
       @campaign.repo.untracked.should_not be_include "Ships/VAB/my_rocket.craft"
 
       message = @campaign.repo.log("Ships/VAB/my_rocket.craft").first.message
@@ -93,8 +92,6 @@ describe Craft do
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write('something different')}
       
       @campaign.repo.untracked.should_not be_include "Ships/VAB/my_rocket.craft"
-      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
-      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].type.should == "M"
 
       @craft.commit
       message = @campaign.repo.log("Ships/VAB/my_rocket.craft").first.message
@@ -109,8 +106,6 @@ describe Craft do
       repo.commit("added my_rocket")
 
       @campaign.repo.untracked.should_not be_include "Ships/VAB/my_rocket.craft"
-      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
-      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].type.should be_nil
 
       @craft.commit
       @campaign.repo.log("Ships/VAB/my_rocket.craft").size.should == 1

@@ -85,7 +85,6 @@ class Campaign < ActiveRecord::Base
   def track_save save_type = :quicksave, args = {}
     files = save_type.eql?(:both) ? ['persistent.sfs', 'quicksave.sfs'] : [(save_type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs']
     r = self.repo
-    status = r.status
 
     within_dir(self.path) do 
       files.each do |file|
