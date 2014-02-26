@@ -73,6 +73,10 @@ class Repo
     self.log(sha_id).first
   end
 
+  def gc
+    git "gc"
+  end
+
   def log file = nil
     if file
       log = git "log \"#{file}\""
