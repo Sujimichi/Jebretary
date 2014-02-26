@@ -110,7 +110,6 @@ class Campaign < ActiveRecord::Base
   #return the commits for the craft (most recent first)
   def save_history r = self.repo 
     commits = {} 
-    max_history_size = 100000
     saves = [:quicksave, :persistent]
     saves.each do |save_type|
       begin
