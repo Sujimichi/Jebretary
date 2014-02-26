@@ -52,31 +52,45 @@ class Repo
   def checkout_file commit, file
     commit = commit.sha_id if commit.is_a?(Commit)
     git "checkout #{commit} \"#{file}\""
-    git "reset \"#{file}\""
+    git "reset \"#{file}\"" #call reset so the reverted file is unstaged which is needed to it be detected as changed.
   end
 
-  #untested
   def checkout options
     git "checkout #{options}"
   end
 
-  #untested
   def branch branch_name
     git "branch #{branch_name}"
   end
 
+  #remove a given file from the repo
   def remove file
     git "rm \"#{file}\""
   end
 
+  #return a commit object for a given sha_id
   def gcommit sha_id
     self.log(sha_id).first
   end
 
+  #call git GC, to run gits garbage collector and compress the repo
   def gc
     git "gc"
   end
 
+  def rebase opts
+    git "rebase #{opts}"
+  end
+
+  def filter_branch opts  
+    git "filter-branch #{opts}"
+  end
+
+  #call git log on the repo, either 
+  #- for the entire repo (if no args given)               - repo.log
+  #- for a given file                                     - repo.log(<file_name>)
+  #- for the entire repo but limited to a certain number  - repo.log(:limit => 4)
+  #- for a file but limited to a certain number           - repo.log(<file_name>, :limit => 4)
   def log file = nil, args = {}
     #enable args to be passed as first arg, if no file is given. or passed as second arg if a file is given
     args, file = file, nil if file.is_a?(Hash) 
@@ -92,19 +106,13 @@ class Repo
     git "status"
   end
 
-  def do command
-    git command
-  end
-
-  #private
+  private
 
   #pass commands to git.  git will be called from the directory given to the instance of Repo
   #usage: git <command>
   # ie: git "status"
   def git command
-    in_repo_dir do
-      `git #{command}`
-    end
+    in_repo_dir {`git #{command}` }
   end
 
   #Run a block in the dir given to repo as @path

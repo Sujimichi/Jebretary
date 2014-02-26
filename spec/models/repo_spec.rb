@@ -291,25 +291,128 @@ describe Repo do
   end
 
 
+  describe "checkout_file" do 
+    before(:each) do 
+      Dir.chdir(@path)
+      `git init`
+      do_several_commits
+      @repo = Repo.open(@path)      
+    end
+
+    it 'should return a file to a previous state' do 
+      
+      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "third version"
+
+      commit = @repo.log("Ships/VAB/my_rocket.craft").last
+      @repo.checkout_file commit, "Ships/VAB/my_rocket.craft"
+      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "first version"
+
+      commit = @repo.log("Ships/VAB/my_rocket.craft")[1]
+      @repo.checkout_file commit, "Ships/VAB/my_rocket.craft"
+      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "second version"
+    end
+
+    it 'should put the file in an instaged state' do 
+      @repo = Repo.open(@path)      
+      commit = @repo.log("Ships/VAB/my_rocket.craft")[1]
+      @repo.checkout_file commit, "Ships/VAB/my_rocket.craft"
+
+      @repo.changed.should be_include "Ships/VAB/my_rocket.craft"
+    end
+
+  end
+
   describe "checkout" do 
     before(:each) do 
       Dir.chdir(@path)
       `git init`
       do_several_commits
+      @repo = Repo.open(@path)      
+      `git branch`.should.eql?("* master\n")
+    end  
+
+    it 'should enable switching to a new branch' do 
+      @repo.checkout "-b my_new_branch"
+      `git branch`.should.eql?("  master\n* my_new_branch\n")
     end
 
-    it 'should return a file to a previous state' do 
-      repo = Repo.open(@path)      
-      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "third version"
+    it 'should enable creating a new branch from a specific commit' do 
+      commit = @repo.log[4]
+      message = commit.message
 
-      commit = repo.log("Ships/VAB/my_rocket.craft").last
-      repo.checkout_file commit, "Ships/VAB/my_rocket.craft"
-      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "first version"
+      @repo.checkout "#{commit} -b my_new_branch"
+      `git branch`.should.eql?("  master\n* my_new_branch\n")
+      @repo.log.first.message.should == message
+    end
 
-      commit = repo.log("Ships/VAB/my_rocket.craft")[1]
-      repo.checkout_file commit, "Ships/VAB/my_rocket.craft"
-      File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "second version"
+    it 'should enable switching to a different branch' do 
+      `git checkout -b temp_branch`
+      `git branch`.should.eql?("  master\n* temp_branch\n")
+
+      @repo.checkout "master"
+      `git branch`.should.eql?("* master\n  temp_branch\n")
+    end
+  end
+
+  describe "branch" do 
+    before(:each) do 
+      Dir.chdir(@path)
+      `git init`
+      do_several_commits
+      @repo = Repo.open(@path)      
+      `git branch`.should.eql?("* master\n")
+    end  
+
+    it 'should enable deleting a branch' do 
+      `git checkout -b temp_branch`
+      `git checkout master`
+      `git branch`.should.eql?("* master\n  temp_branch\n")
+
+      @repo.branch "temp_branch -D"
+      `git branch`.should.eql?("* master\n")
     end
 
   end
+
+  describe "gcommit" do 
+    before(:each) do 
+      Dir.chdir(@path)
+      `git init`
+      do_several_commits
+      @repo = Repo.open(@path)      
+    end
+    
+    it 'should find a commit object for a given sha_id' do 
+      commit = @repo.log[3]
+      sha_id = commit.sha_id
+      message = commit.message
+
+      @repo.gcommit(sha_id).should be_a Repo::Commit
+      @repo.gcommit(sha_id).sha_id.should == sha_id
+      @repo.gcommit(sha_id).message.should == message
+    end
+
+    it 'should not have a cow if the sha_id cant be found' do 
+      @repo.gcommit("lskjldkjf").should be_nil
+    end
+
+  end
+
+  describe "remove" do 
+    before(:each) do 
+      Dir.chdir(@path)
+      `git init`
+      do_several_commits
+      @repo = Repo.open(@path)      
+    end
+
+    it 'should remove a file' do 
+      Dir.glob("#{@path}/**/*.*").map{|f| f.sub("#{@path}/", "")}.should be_include "Ships/VAB/my_rocket.craft"
+      @repo.remove "Ships/VAB/my_rocket.craft"
+
+      Dir.glob("#{@path}/**/*.*").map{|f| f.sub("#{@path}/", "")}.should_not be_include "Ships/VAB/my_rocket.craft"
+    end
+    
+  end
+
 end

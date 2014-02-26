@@ -28,23 +28,21 @@ module CommitMessageChanger
 
       #This part uses system commands to interact with the git repo as 
       #I couldn't find a way using the git-gem to do filter-branch actions
-      #repo.with_working(campaign.path) do
-        #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
+      #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
         
-        repo.do "filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}"
-        #refs/heads/temp_message_change_branch' was rewritten
+      repo.filter_branch "-f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}"
+      #refs/heads/temp_message_change_branch' was rewritten
 
-        #perform rebase only if there have not been any changes since the process started.
-        if repo.changed.empty?
-          #rebase the temp branch back into master
-          begin
-            repo.do "rebase #{temp_branch_name}"
-            rebase_ok = true
-          rescue
-            rebase_ok = false
-          end
+      #perform rebase only if there have not been any changes since the process started.
+      if repo.changed.empty?
+        #rebase the temp branch back into master
+        begin
+          repo.rebase "#{temp_branch_name}"
+          rebase_ok = true
+        rescue
+          rebase_ok = false
         end
-      #end
+      end
 
       #clean up - delete the temp branch
       #repo.branch(temp_branch_name).delete
@@ -54,11 +52,11 @@ module CommitMessageChanger
         return true
       else        
         puts "WARNING: rebase failed, aborting" unless Rails.env.eql?("test")
-        repo.do "rebase --abort"
+        repo.rebase "--abort"
         return false
       end
     else
-      repo.do "rebase --abort"
+      repo.rebase "--abort"
       return false
     end
   end
