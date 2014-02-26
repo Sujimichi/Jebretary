@@ -41,7 +41,7 @@
         .search_and_sort
           = text_field_tag "#{type}_search_field", "", :class => "craft_list_search_field"
           = button_to_function "X", "", :class => "search_reset_button", :id => "reset_#{type}_search"
-          = select_tag "#{type}_sort_options", options_for_select({"name" => "name", "created" => "created_at", "updated" => "updated_at reverse"}, selected_sort_options[type]), :class => "craft_list_sort"
+          = select_tag "#{type}_sort_options", options_for_select({"name" => "name", "created" => "created_at reverse", "updated" => "updated_at reverse"}, selected_sort_options[type]), :class => "craft_list_sort"
         %div{:id => "#{type}_list"}
 
     #loading_holder

@@ -40,7 +40,7 @@ class CampaignsController < ApplicationController
           params[:sort_opts][:sph] ||= "updated_at reverse"
           @sort_opts = params[:sort_opts]
 
-          @campaign.update_attributes(:sort_options => params[:sort_opts].to_json)
+          @campaign.update_attributes(:sort_options => params[:sort_opts].to_json) unless @campaign.sort_options.eql?(params[:sort_opts].to_json)
 
           @campaign_commit_messages = @campaign.commit_messages
           @current_project_commit_messages = @current_project.commit_messages if @current_project
