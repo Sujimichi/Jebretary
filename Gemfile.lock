@@ -54,7 +54,6 @@ GEM
     factory_girl_rails (3.3.0)
       factory_girl (~> 3.3.0)
       railties (>= 3.0.0)
-    git (1.2.5)
     haml (4.0.2)
       tilt
     haml-rails (0.4)
@@ -156,7 +155,6 @@ DEPENDENCIES
   bundler
   coffee-rails (~> 3.2.1)
   factory_girl_rails
-  git
   haml-rails
   jquery-rails
   jquery-ui-rails
