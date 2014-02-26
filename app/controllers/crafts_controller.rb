@@ -13,11 +13,9 @@ class CraftsController < ApplicationController
       f.js { }
       f.html { }
     end    
-
   end
 
   def show
-    
     respond_with(@craft) do |f|
       f.html{
         @craft = Craft.find(params[:id])
@@ -32,78 +30,48 @@ class CraftsController < ApplicationController
   end
 
   def edit
-    @craft = Craft.find(params[:id])
-    @sha_id = params[:sha_id]
-    history = @craft.history     
-    @commit = history.select{|commit| commit.sha_id == @sha_id}.first
-    @is_changed = @craft.is_changed?
-
-    if params[:message_form] 
-      @commit = "most_recent" if @commit.nil?
-      @commit_messages = @craft.commit_messages
-    end
-
-    unless @craft.deleted? || params[:message_form]      
-      @revert_to_version = history.reverse.index(@commit) + 1
-      @current_version = @craft.history_count
-    end
-    @return_to = params[:return_to]
     respond_with(@craft) do |f|
       f.html{
+        @craft = Craft.find(params[:id])
+        @sha_id = params[:sha_id]
+        @commit = @craft.repo.gcommit(@sha_id)
+        @is_changed = @craft.is_changed?
+        history = @craft.history
+
+        unless @craft.deleted?          
+          @revert_to_version = history.reverse.map{|h| h.sha_id}.index(@commit.sha_id) + 1
+          @current_version = @craft.history_count
+        end
         @latest_commit = history.first
+        @return_to = params[:return_to]       
       }
-      f.js {}
     end
   end
 
   def update
-    @craft = Craft.find(params[:id])
-    @campaign = @craft.campaign
-    history = @craft.history
-
-    commit = params[:sha_id] unless params[:sha_id].eql?("most_recent")
-
-    @craft.revert_to commit, :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
-    @craft.recover if @craft.deleted? && params[:recover_deleted]
-
-    if params[:force_commit]
-      @craft.commit :m => @craft.commit_messages["most_recent"]
-      msgs = @craft.commit_messages
-      msgs.delete("most_recent")
-      @craft.commit_messages = msgs
-      @craft.save
-    end
-    
-
-    #change sha_id from "most_recent" if the craft no longer has untracked changes.
-    #this is to catch the situation where the user started writting a commit message on a craft with untracked changes 
-    #and while they where writting the craft got automatically tracked.  
-    commit = "most_recent" if params[:sha_id].eql?("most_recent") 
-    commit = @craft.history.first unless @craft.is_changed? if params[:sha_id].eql?("most_recent") 
-
-    #updating commit message - prob also move this to spearate controller
-    if params[:update_message]
-      params[:update_message].gsub!("\n","<br>") #replace new line tags with line break tags (\n won't commit to repo)
-      unless history.first.message == params[:update_message]
-        messages = @craft.commit_messages
-        messages[commit] = params[:update_message]
-        @craft.commit_messages = messages
-        @craft.save! if @craft.valid? 
-        @errors = {:update_message => @craft.errors.full_messages.join} unless @craft.errors.empty?      
-      end
-    end
-
     respond_with(@craft) do |f|
       f.html{
+        @craft = Craft.find(params[:id])
+        @campaign = @craft.campaign
+
+        @craft.revert_to params[:sha_id], :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
+        @craft.recover if @craft.deleted? && params[:recover_deleted]
+
+        if params[:force_commit]
+          @craft.commit :m => @craft.commit_messages["most_recent"]
+          msgs = @craft.commit_messages
+          msgs.delete("most_recent")
+          @craft.commit_messages = msgs
+          @craft.save
+        end
+
         if params[:return_to] && params[:return_to] == "campaign"
           redirect_to @campaign
         else
           redirect_to @craft
         end
       }
-      f.js {}
     end
-
   end
 
   def destroy

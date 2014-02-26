@@ -3,6 +3,7 @@ Jebretary::Application.routes.draw do
   post "welcome/update"
 
   resources :move_craft
+  resources :messages
 
   resources :instances
   resources :campaigns

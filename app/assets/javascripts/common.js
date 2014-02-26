@@ -104,7 +104,7 @@ function set_search_and_sort_fields(){
 };
 
 function change_message(div, current_text, craft_id, commit){
-  ajax_get("/crafts/" + craft_id + "/edit", {message_form: true, sha_id: commit}, function(){});
+  ajax_get("/messages/" + craft_id + "/edit", {message_form: true, sha_id: commit, object: 'craft'}, function(){});
 };
 
 function update_message(div, craft_id, commit, original_message){
@@ -114,7 +114,7 @@ function update_message(div, craft_id, commit, original_message){
     var new_message = $(this).val();
     if(original_message != new_message){
       $(".updating_message").show();
-      ajax_put("/crafts/" + craft_id, {update_message: new_message, sha_id: commit}, function(){
+      ajax_put("/messages/" + craft_id, {update_message: new_message, sha_id: commit}, function(){
         $(".updating_message").hide();
         $(div).parents('.message').find(".message_text").append("<br/>updating<div class='left ajax_loader'></div><div class='clear'></div>")
       });
