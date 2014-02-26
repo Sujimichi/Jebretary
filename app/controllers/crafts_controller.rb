@@ -35,7 +35,7 @@ class CraftsController < ApplicationController
     @craft = Craft.find(params[:id])
     @sha_id = params[:sha_id]
     history = @craft.history     
-    @commit = history.select{|commit| commit.sha == @sha_id}.first
+    @commit = history.select{|commit| commit.sha_id == @sha_id}.first
     @is_changed = @craft.is_changed?
 
     if params[:message_form] 
@@ -61,7 +61,7 @@ class CraftsController < ApplicationController
     @campaign = @craft.campaign
     history = @craft.history
 
-    commit = @campaign.repo.gcommit(params[:sha_id])
+    commit = params[:sha_id] unless params[:sha_id].eql?("most_recent")
 
     @craft.revert_to commit, :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
     @craft.recover if @craft.deleted? && params[:recover_deleted]
@@ -78,6 +78,7 @@ class CraftsController < ApplicationController
     #change sha_id from "most_recent" if the craft no longer has untracked changes.
     #this is to catch the situation where the user started writting a commit message on a craft with untracked changes 
     #and while they where writting the craft got automatically tracked.  
+    commit = "most_recent" if params[:sha_id].eql?("most_recent") 
     commit = @craft.history.first unless @craft.is_changed? if params[:sha_id].eql?("most_recent") 
 
     #updating commit message - prob also move this to spearate controller

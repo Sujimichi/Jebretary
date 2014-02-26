@@ -19,11 +19,11 @@
         .craft_details
           .version= "V#{1 + (version -= 1)}"
           .value
-            .hidden.sha_id= commit.sha
+            .hidden.sha_id= commit.sha_id
           .date= commit.date.to_formatted_s(:short)
           .restore_link
             - unless commit == history.first && !changed
-              = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha_id => commit.sha
+              = link_to "Restore", :controller => "crafts", :action => "edit", :id => @craft, :sha_id => commit.sha_id
             -else
               Current Version
 

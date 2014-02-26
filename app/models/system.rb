@@ -102,6 +102,8 @@ class System
           new_campaign = new_campaigns_for_instance[instance.id].include?(campaign)
 
           #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
+
+          puts "\n\n#{to_commit.inspect}\n\n"
           if new_campaign || to_commit.empty? #track both, as P has been seen to change, but not if there are craft to update
             campaign.update_persistence_checksum 
             campaign.track_save(:both) 

@@ -39,6 +39,7 @@ class SavesController < ApplicationController
         note = "Your quicksave file has been replaced with the persistent file"
       end
     end
+    campaign.update_attributes(:persistence_checksum => nil)
     redirect_to :back, :notice => note
   end
 end

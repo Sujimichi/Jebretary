@@ -52,6 +52,7 @@ class Repo
   def checkout_file commit, file
     commit = commit.sha_id if commit.is_a?(Commit)
     git "checkout #{commit} \"#{file}\""
+    git "reset \"#{file}\""
   end
 
   #untested

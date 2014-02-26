@@ -16,9 +16,8 @@ class CampaignsController < ApplicationController
         
           @campaign = Campaign.find(params[:id])
           @repo = @campaign.repo 
-          @repo_status = @repo.status
 
-          @new_and_changed = @campaign.new_and_changed(@repo_status)          
+          @new_and_changed = @campaign.new_and_changed(@repo)          
           @current_project = @campaign.last_changed_craft(@new_and_changed)
           @current_project_history = @current_project.history(@repo) if @current_project
 

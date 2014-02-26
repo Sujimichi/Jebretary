@@ -17,13 +17,13 @@
         .left.label= "Quicksaves |"
         .left= link_to_function "Persistent", "toggle_save_display()"
         .clear
-        = render "saves/short_list", :saves => saves, :save_type => "quicksave", :campaign => campaign, :has_change => campaign.changed_save?("quicksave", repo_status), :campaign_commit_messages => campaign_commit_messages
+        = render "saves/short_list", :saves => saves, :save_type => "quicksave", :campaign => campaign, :has_change => campaign.changed_save?("quicksave", repo), :campaign_commit_messages => campaign_commit_messages
 
       #persistent_display.hidden
         .left= link_to_function "Quicksaves", "toggle_save_display()"
         .left.label= "| Persistent"
         .clear
-        = render "saves/short_list", :saves => saves, :save_type => "persistent", :campaign => campaign, :has_change => campaign.changed_save?("persistent", repo_status), :campaign_commit_messages => campaign_commit_messages
+        = render "saves/short_list", :saves => saves, :save_type => "persistent", :campaign => campaign, :has_change => campaign.changed_save?("persistent", repo), :campaign_commit_messages => campaign_commit_messages
 
 
   .clear
@@ -62,7 +62,7 @@
             - version += 1 if changed
             - unless recent_history.nil?
               - recent_history.each_with_index do |prev_version, index|
-                = link_to "V#{version -= 1}", :controller => "crafts", :action => "edit", :id => current_project.id, :sha_id => prev_version.sha, :return_to => :campaign
+                = link_to "V#{version -= 1}", :controller => "crafts", :action => "edit", :id => current_project.id, :sha_id => prev_version.sha_id, :return_to => :campaign
                 -unless prev_version == recent_history.last
                   |
           .left
