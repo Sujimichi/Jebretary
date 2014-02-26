@@ -9,7 +9,6 @@ describe Campaign do
     end
 
     it 'should create a new repo if none exists' do 
-      #Git.should_receive(:init).and_return(Git.init(@campaign.path))
       Dir.entries(@campaign.path).sort.should == ["persistent.sfs", "Ships", "quicksave.sfs", ".", ".."].sort
       @campaign.create_repo
       Dir.entries(@campaign.path).should contain('.git')
@@ -17,17 +16,17 @@ describe Campaign do
 
     it 'should add a .gitignore to the repo' do 
       @campaign.create_repo
-      g = Git.open(@campaign.path)
+      g = Repo.open(@campaign.path)
       Dir.entries(@campaign.path).should contain('.git')
-      g.log.object(".gitignore").should be_a Git::Log
-      g.log.object(".gitignore").should_not contain("unknown revision or path")
+      g.log(".gitignore").first.should be_a Repo::Commit
+      g.log(".gitignore").first.message.should_not contain("unknown revision or path")
     end
 
 
     it 'should not attempt to create if repo already exists' do 
       @campaign.create_repo
-      g = Git.open(@campaign.path)
-      Git.should_not_receive(:init)
+      g = Repo.open(@campaign.path)
+      Repo.should_not_receive(:init)
       @campaign.create_repo
     end
 
@@ -392,38 +391,38 @@ describe Campaign do
 
       describe "quicksave" do 
         it 'should add the quicksave.sfs file to the repo with a commit message that saying that quicksave.sfs was added' do 
-          @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
+          @campaign.repo.untracked.should be_include("quicksave.sfs")
           @campaign.track_save :quicksave
-          @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
+          @campaign.repo.untracked.should_not be_include("quicksave.sfs")
           @campaign.repo.log.first.message.should == "added quicksave.sfs"
         end
 
         it 'should update the quicksave.sfs file in the repo if it has changed with a commit message that saying that quicksave.sfs was updated' do 
           @campaign.track_save :quicksave
           File.open("quicksave.sfs", 'w'){|f| f.write("not the save it was before")}
-          @campaign.repo.status.changed.keys.should be_include("quicksave.sfs")
+          @campaign.repo.changed.should be_include("quicksave.sfs")
           @campaign.track_save :quicksave
-          @campaign.repo.status.changed.keys.should_not be_include("quicksave.sfs")
-          @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
+          @campaign.repo.changed.should_not be_include("quicksave.sfs")
+          @campaign.repo.untracked.should_not be_include("quicksave.sfs")
           @campaign.repo.log.first.message.should == "updated quicksave.sfs"
         end
       end
 
       describe "persistent" do 
         it 'should add the persistent.sfs file to the repo with a commit message that saying that persistent.sfs was added' do 
-          @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
+          @campaign.repo.untracked.should be_include("persistent.sfs")
           @campaign.track_save :persistent
-          @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
+          @campaign.repo.untracked.should_not be_include("persistent.sfs")
           @campaign.repo.log.first.message.should == "added persistent.sfs"
         end
 
         it 'should update the persistent.sfs file in the repo if it has changed with a commit message that saying that persistent.sfs was updated' do 
           @campaign.track_save :persistent
           File.open("persistent.sfs", 'w'){|f| f.write("not the save it was before")}
-          @campaign.repo.status.changed.keys.should be_include("persistent.sfs")
+          @campaign.repo.changed.should be_include("persistent.sfs")
           @campaign.track_save :persistent
-          @campaign.repo.status.changed.keys.should_not be_include("persistent.sfs")
-          @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
+          @campaign.repo.changed.should_not be_include("persistent.sfs")
+          @campaign.repo.untracked.should_not be_include("persistent.sfs")
           @campaign.repo.log.first.message.should == "updated persistent.sfs"
         end
       end
@@ -434,11 +433,11 @@ describe Campaign do
       end
 
       it 'should track both if given :both instead of :quicksave or :persistent' do 
-        @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
-        @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
+        @campaign.repo.untracked.should be_include("quicksave.sfs")
+        @campaign.repo.untracked.should be_include("persistent.sfs")
         @campaign.track_save :both
-        @campaign.repo.status.untracked.keys.should_not be_include("quicksave.sfs")
-        @campaign.repo.status.untracked.keys.should_not be_include("persistent.sfs")
+        @campaign.repo.untracked.should_not be_include("quicksave.sfs")
+        @campaign.repo.untracked.should_not be_include("persistent.sfs")
       end
 
     end
@@ -449,8 +448,8 @@ describe Campaign do
       end
 
       it 'should return empty hash when no saves are tracked' do 
-        @campaign.repo.status.untracked.keys.should be_include("quicksave.sfs")
-        @campaign.repo.status.untracked.keys.should be_include("persistent.sfs")
+        @campaign.repo.untracked.should be_include("quicksave.sfs")
+        @campaign.repo.untracked.should be_include("persistent.sfs")
         @campaign.save_history.should == {}
       end
 

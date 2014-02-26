@@ -58,14 +58,14 @@ class Campaign < ActiveRecord::Base
 
   def git
     return create_repo unless Dir.entries(self.path).include?('.git') #create the repo if it is not present.
-    Git.open(self.path)
+    Repo.open(self.path)
   end
   alias repo git
   
   #initialise the git repo and add a .gitignore to ignore the AutoSaved craft
   def create_repo
-    return Git.open(self.path) if Dir.entries(self.path).include?('.git')
-    g = Git.init(self.path)
+    return Repo.open(self.path) if Dir.entries(self.path).include?('.git')
+    g = Repo.init(self.path)
     Dir.chdir(self.path)
     File.open('.gitignore', 'w'){|f| f.write("*~\n*.swp") }
     g.add('.gitignore')
@@ -86,10 +86,11 @@ class Campaign < ActiveRecord::Base
     files = save_type.eql?(:both) ? ['persistent.sfs', 'quicksave.sfs'] : [(save_type.eql?(:persistent) ? 'persistent' : 'quicksave') << '.sfs']
     r = self.repo
     status = r.status
+
     within_dir(self.path) do 
       files.each do |file|
-        changed_file = status.changed.keys.include?(file)
-        if File.exists?(file) && (changed_file || status.untracked.keys.include?(file))
+        changed_file = r.changed.include?(file)
+        if File.exists?(file) && (changed_file || r.untracked.include?(file))
           message = "added #{file}" 
           message = "updated #{file}" if changed_file
           message = args[:message] unless args[:message].blank?     
@@ -103,20 +104,20 @@ class Campaign < ActiveRecord::Base
 
   #return true or false depending state of given save ie;
   #changed_save?(:quicksave) => true if the quicksave.sfs has changes.
-  def changed_save? save_type, status = self.repo.status
+  def changed_save? save_type, r = self.repo
     save_type = save_type.to_s << '.sfs' unless save_type.include?(".sfs")
-    status.changed.keys.include?(save_type)
+    r.changed.include?(save_type)
   end
 
   #return the commits for the craft (most recent first)
-  def save_history(rs = self.repo)
+  def save_history r = self.repo 
     commits = {} 
     max_history_size = 100000
     saves = [:quicksave, :persistent]
     saves.each do |save_type|
       begin
-        save_commits = rs.log(max_history_size).object("#{save_type}.sfs")
-        commits[save_type] = save_commits.to_a if save_commits && !save_commits.to_a.empty?
+        save_commits = r.log("#{save_type}.sfs")
+        commits[save_type] = save_commits unless save_commits.empty?
       rescue
         commits[save_type] = []
       end  
@@ -175,16 +176,16 @@ class Campaign < ActiveRecord::Base
 
   #return hash containing :new and :changed keys, each entailing an array of craft file paths
   #for craft that are either untracked or which have changes.
-  def new_and_changed status = repo.status
+  def new_and_changed r = repo
     {
-      :new => status.untracked.keys.select{|k| k.include?("Ships") && k.include?(".craft")},
-      :changed => status.changed.keys.select{|k| k.include?("Ships") && k.include?(".craft")}
+      :new => r.untracked.select{|k| k.include?("Ships") && k.include?(".craft")},
+      :changed => r.changed.select{|k| k.include?("Ships") && k.include?(".craft")}
     }
   end
 
   #return true if objects (.craft or .sfs) that are tracked by the repo have changes.
-  def has_untracked_changes?(status = self.repo.status)
-    not [status.changed.keys].flatten.select do |k| 
+  def has_untracked_changes? r = repo
+    not [r.changed].flatten.select do |k| 
       (k.include?("Ships") && k.include?(".craft")) || k.include?(".sfs") 
     end.empty?
   end

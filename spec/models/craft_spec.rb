@@ -17,7 +17,7 @@ describe Craft do
       r = @campaign.repo
       r.add("Ships/VAB/my_rocket.craft")
       r.commit("added craft")
-      @craft.reset_repo_status
+      @craft.reset_repo_cache
       @craft.is_new?.should be_false
     end
 
@@ -43,7 +43,7 @@ describe Craft do
       @repo.add("Ships/VAB/my_rocket.craft")
       @repo.commit("added craft")      
      
-      @craft.reset_repo_status
+      @craft.reset_repo_cache
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write("something different")}
       @craft.is_changed?.should be_true
     end
@@ -74,12 +74,14 @@ describe Craft do
       @craft = FactoryGirl.create(:craft, :campaign => @campaign, :name => "my_rocket", :craft_type => "vab")
     end
 
-    it "should add and commit a new craft file if it is not already in the repo and put 'added' in the commit message" do 
-      @campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_true
+    it "should add and commit a new craft file if it is not already in the repo and put 'added' in the commit message" do      
+      @campaign.repo.untracked.should be_include "Ships/VAB/my_rocket.craft"
 
       @craft.commit      
-      @campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
-      message = @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.first.message
+      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
+      @campaign.repo.untracked.should_not be_include "Ships/VAB/my_rocket.craft"
+
+      message = @campaign.repo.log("Ships/VAB/my_rocket.craft").first.message
       message.should contain "added"
       message.should contain "my_rocket"
     end
@@ -89,11 +91,13 @@ describe Craft do
       repo.add("Ships/VAB/my_rocket.craft")
       repo.commit("added my_rocket")
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write('something different')}
-      @campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
-      @campaign.repo.status["Ships/VAB/my_rocket.craft"].type.should == "M"
+      
+      @campaign.repo.untracked.should_not be_include "Ships/VAB/my_rocket.craft"
+      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
+      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].type.should == "M"
 
       @craft.commit
-      message = @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.first.message
+      message = @campaign.repo.log("Ships/VAB/my_rocket.craft").first.message
       message.should contain "updated"
       message.should contain "my_rocket"
     end 
@@ -103,17 +107,19 @@ describe Craft do
       repo = @campaign.repo
       repo.add("Ships/VAB/my_rocket.craft")
       repo.commit("added my_rocket")
-      @campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
-      @campaign.repo.status["Ships/VAB/my_rocket.craft"].type.should be_nil
+
+      @campaign.repo.untracked.should_not be_include "Ships/VAB/my_rocket.craft"
+      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].untracked.should be_false
+      #@campaign.repo.status["Ships/VAB/my_rocket.craft"].type.should be_nil
 
       @craft.commit
-      @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.size.should == 1
+      @campaign.repo.log("Ships/VAB/my_rocket.craft").size.should == 1
     end
 
     it 'should set a given commit message if one is supplied' do 
       repo = @campaign.repo
       @craft.commit :m => "custom message"
-      message = @campaign.repo.log.object("Ships/VAB/my_rocket.craft").to_a.first.message
+      message = @campaign.repo.log("Ships/VAB/my_rocket.craft").first.message
       message.should == "custom message"
     end
 
@@ -162,7 +168,7 @@ describe Craft do
     it 'should return the commits for a craft (newest first)' do 
       @craft.commit
       @craft.history.size.should == 1
-      @craft.history.first.should be_a Git::Object::Commit
+      @craft.history.first.should be_a Repo::Commit
 
       sleep(2) #to ensure a difference in commit date stamps
       File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("second version")}
@@ -172,10 +178,10 @@ describe Craft do
 
       @craft.history.map{|log| log.message}.should == ["updated my_rocket", "added my_rocket"]
 
-=begin
-      raise @craft.history.first.methods.sort - Class.new.methods
-      [:archive, :author, :author_date, :blob?, :commit?, :committer, :committer_date, :contents, :contents_array, :date, :diff, :diff_parent, :grep, :gtree, :log, :message, :mode, :mode=, :objectish, :objectish=, :set_commit, :sha, :size, :size=, :tag?, :tree?, :type, :type=]
-=end
+
+      #raise @craft.history.first.methods.sort - Class.new.methods
+      #[:archive, :author, :author_date, :blob?, :commit?, :committer, :committer_date, :contents, :contents_array, :date, :diff, :diff_parent, :grep, :gtree, :log, :message, :mode, :mode=, :objectish, :objectish=, :set_commit, :sha, :size, :size=, :tag?, :tree?, :type, :type=]
+
 
     end
 
@@ -282,6 +288,7 @@ describe Craft do
 
 
   end
+
 
   describe "change_commit_message" do 
     before(:each) do 
@@ -461,6 +468,7 @@ describe Craft do
     end
 
   end
+
 
   describe "campaign spanning" do 
     before(:each) do 

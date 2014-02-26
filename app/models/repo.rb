@@ -41,7 +41,7 @@ class Repo
 
   #stage files 
   def add files
-    git "add #{files}"
+    git "add \"#{files}\""
   end
 
   #commit to repo
@@ -51,13 +51,30 @@ class Repo
 
   def checkout_file commit, file
     commit = commit.sha_id if commit.is_a?(Commit)
-    git "checkout #{commit} #{file}"
+    git "checkout #{commit} \"#{file}\""
   end
 
+  #untested
+  def checkout options
+    git "checkout #{options}"
+  end
+
+  #untested
+  def branch branch_name
+    git "branch #{branch_name}"
+  end
+
+  def remove file
+    git "rm \"#{file}\""
+  end
+
+  def gcommit sha_id
+    self.log(sha_id).first
+  end
 
   def log file = nil
     if file
-      log = git "log #{file}"
+      log = git "log \"#{file}\""
     else
       log = git "log"
     end
@@ -68,7 +85,11 @@ class Repo
     git "status"
   end
 
-  private
+  def do command
+    git command
+  end
+
+  #private
 
   #pass commands to git.  git will be called from the directory given to the instance of Repo
   #usage: git <command>
@@ -97,12 +118,16 @@ class Repo
 
     #get indexes for the start and end lines for each commit
     start_end_lines = []
-    indexes.each_with_index{|v,i| start_end_lines[i] = [v,indexes[i+1]] }
-    start_end_lines[start_end_lines.size-1][1] = log.size
-
+    indexes.each_with_index{|v,i| 
+      unless i == indexes.size - 1
+        start_end_lines << [v,indexes[i+1] - 1 ] 
+      else
+        start_end_lines << [v,log.size ] 
+      end
+    }
 
     start_end_lines.map do |start, stop|
-      Commit.new(log[start, stop])
+      Commit.new(log[start..stop], @path)
     end  
   end
 
@@ -110,19 +135,35 @@ end
 
 
 class Repo::Commit
+  attr_accessor :raw_data
 
-  def initialize raw_commit_data
+  def initialize raw_commit_data, repo_path
     @raw_data = raw_commit_data
+    @path = repo_path
   end
 
   def sha_id
     @raw_data[0].sub("commit ", "")
   end
 
+  def to_s
+    sha_id
+  end
+
   def message
     lines = @raw_data[4..@raw_data.size-1].map{|line| line.sub(/^(\s{4})/, "")}
-    lines = lines[0..lines.size-2] if lines.last.empty?
+    lines.pop if lines.last.empty?
     lines.join("\n")
+  end
+
+  #untested
+  def parent
+    repo = Repo.new(@path)
+    repo.send("git", "rev-list --parents -n 1 #{sha_id}").split.last
+  end
+
+  def date
+    @raw_data[2].sub("Date:   ", "").to_datetime
   end
 
 end

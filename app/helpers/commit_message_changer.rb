@@ -10,51 +10,55 @@ module CommitMessageChanger
     elsif self.is_a?(Craft)
       campaign = self.campaign
     end
+    rebase_ok = false
+    repo = campaign.repo
+    temp_branch_name = "message_rewrite"
 
     if campaign.nothing_to_commit? #message cannot be changed if there are untracked changes in the repo
       #dont_process_campaign_while do 
 
-      rebase_ok = false
-      repo = campaign.repo
-      temp_branch_name = "temp_message_change_branch"
 
       #create a new branch with it's head as the commit I want to change (refb)
-      repo.checkout(commit)
-      repo.branch(temp_branch_name).checkout
+      #repo.checkout(commit)
+      #repo.branch(temp_branch_name).checkout
+      repo.checkout "#{commit.sha_id} -b #{temp_branch_name}"
+
       #and switch back to master
       repo.checkout("master")
 
       #This part uses system commands to interact with the git repo as 
       #I couldn't find a way using the git-gem to do filter-branch actions
-      repo.with_working(campaign.path) do
+      #repo.with_working(campaign.path) do
         #used filter-branch with -msg-filter to replace text on all commits from the targets parent to the branch's head (which is just the desired commit)
-        `git filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}`
+        
+        repo.do "filter-branch -f --msg-filter \"sed 's/#{commit.message}/#{new_message}/'\" #{commit.parent}..#{temp_branch_name}"
         #refs/heads/temp_message_change_branch' was rewritten
 
         #perform rebase only if there have not been any changes since the process started.
-        if repo.status.changed.empty?
+        if repo.changed.empty?
           #rebase the temp branch back into master
           begin
-            `git rebase #{temp_branch_name}`
+            repo.do "rebase #{temp_branch_name}"
             rebase_ok = true
           rescue
             rebase_ok = false
           end
         end
-      end
+      #end
 
       #clean up - delete the temp branch
-      repo.branch(temp_branch_name).delete
+      #repo.branch(temp_branch_name).delete
+      repo.branch "#{temp_branch_name} -D"
 
-      if rebase_ok
-        puts "WARNING: rebase failed, aborting" unless Rails.env.eql?("test")
+      if rebase_ok      
         return true
-      else            
-        `git rebase --abort`
+      else        
+        puts "WARNING: rebase failed, aborting" unless Rails.env.eql?("test")
+        repo.do "rebase --abort"
         return false
       end
     else
-      `git rebase --abort`
+      repo.do "rebase --abort"
       return false
     end
   end

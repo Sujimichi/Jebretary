@@ -37,18 +37,18 @@ class Craft < ActiveRecord::Base
     craft_campaign = self.campaign
   end
 
-  def repo_status
-    return @repo_status if defined?(@repo_status) && !@repo_status.nil?
-    @repo_status = crafts_campaign.repo.status
+  def repo
+    return @repo if defined?(@repo) && !@repo.nil?
+    @repo = crafts_campaign.repo
   end
-  def reset_repo_status
-    @repo_status = nil
+  def reset_repo_cache
+    @repo = nil
   end
 
   #return true if the craft is not yet in the repo
   def is_new?
     return false if deleted?
-    repo_status.untracked.keys.include?("Ships/#{craft_type.upcase}/#{name}.craft")
+    repo.untracked.include?("Ships/#{craft_type.upcase}/#{name}.craft")
     #self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].untracked == true
   end
   alias new_craft? is_new?
@@ -57,7 +57,7 @@ class Craft < ActiveRecord::Base
   def is_changed? 
     return nil if is_new? 
     return false if deleted?
-    repo_status.changed.keys.include?("Ships/#{craft_type.upcase}/#{name}.craft")
+    repo.changed.include?("Ships/#{craft_type.upcase}/#{name}.craft")
     #self.campaign.repo.status["Ships/#{craft_type.upcase}/#{name}.craft"].type == "M"
   end
   alias changed_craft? is_changed?
@@ -71,9 +71,7 @@ class Craft < ActiveRecord::Base
   def history repo = crafts_campaign.repo
     return [] if is_new? || deleted?
     begin
-      max_history_size = 100000
-      logs = repo.log(max_history_size).object(file_name)
-      logs.to_a
+      logs = repo.log(file_name)
     rescue
       []
     end
@@ -91,7 +89,7 @@ class Craft < ActiveRecord::Base
   #stage the changes and commits the craft. simply returns if there are no changes.
   def commit args = {}
     #dont_process_campaign_while do 
-      @repo_status = nil #ensure fresh instance of repo, not cached
+      @repo = nil #ensure fresh instance of repo, not cached
       repo = self.crafts_campaign.repo
 
       action = :deleted if self.deleted?
@@ -123,7 +121,7 @@ class Craft < ActiveRecord::Base
         self.history_count = 1 if self.history_count.eql?(0)        
       end
       self.save if self.changed?
-      @repo_status = nil    
+      @repo = nil    
 
       return action
     #end
@@ -153,7 +151,10 @@ class Craft < ActiveRecord::Base
 
   def recover
     repo = self.campaign.repo
-    commit = repo.gcommit(self.last_commit).parent
+
+    deleting_commit = self.last_commit
+    commit = repo.gcommit(deleting_commit).parent
+
     repo.checkout_file(commit, self.file_name)
     repo.commit("recovered #{name}")
     self.deleted = false

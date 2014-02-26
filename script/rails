@@ -5,7 +5,9 @@ APP_PATH = File.expand_path('../../config/application',  __FILE__)
 require File.expand_path('../../config/boot',  __FILE__)
 begin
   require 'rails/commands'
-rescue Git::GitExecuteError
+
+#TODO rework this rescue for the git interface  
+rescue #Git::GitExecuteError
   puts "OMG THERE IS NO GIT!!"
   puts "\n\nIn order for Jebretary to work you need to have the git version control solution installed."
   if (RUBY_PLATFORM =~ /mswin|mingw|cygwin/)
