@@ -29,7 +29,7 @@ class Repo
 
   #list all files that have been modified 
   def changed
-    files = git "diff --name-only"
+    files = git "diff --name-only HEAD"
     files.split("\n")
   end
 
@@ -52,7 +52,7 @@ class Repo
   def checkout_file commit, file
     commit = commit.sha_id if commit.is_a?(Commit)
     git "checkout #{commit} \"#{file}\""
-    git "reset \"#{file}\"" #call reset so the reverted file is unstaged which is needed to it be detected as changed.
+    #git "reset \"#{file}\"" #call reset so the reverted file is unstaged which is needed to it be detected as changed.
   end
 
   def checkout options

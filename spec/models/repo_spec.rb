@@ -312,14 +312,6 @@ describe Repo do
       File.open("Ships/VAB/my_rocket.craft", 'r') {|f| f.readlines }.join.should == "second version"
     end
 
-    it 'should put the file in an instaged state' do 
-      @repo = Repo.open(@path)      
-      commit = @repo.log("Ships/VAB/my_rocket.craft")[1]
-      @repo.checkout_file commit, "Ships/VAB/my_rocket.craft"
-
-      @repo.changed.should be_include "Ships/VAB/my_rocket.craft"
-    end
-
   end
 
   describe "checkout" do 
@@ -379,7 +371,7 @@ describe Repo do
       Dir.chdir(@path)
       `git init`
       do_several_commits
-      @repo = Repo.open(@path)      
+      @repo = Repo.open(@path)
     end
     
     it 'should find a commit object for a given sha_id' do 

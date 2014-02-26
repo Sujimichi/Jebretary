@@ -130,7 +130,6 @@ class Craft < ActiveRecord::Base
       if options[:commit]
         begin
           m = "reverted #{name} to V#{index}"
-          repo.add file_name
           repo.commit(m)
         rescue
         end
@@ -148,7 +147,6 @@ class Craft < ActiveRecord::Base
     commit = repo.gcommit(deleting_commit).parent
 
     repo.checkout_file(commit, self.file_name)
-    repo.add file_name
     repo.commit("recovered #{name}")
     self.deleted = false
     self.history_count = self.history.size
