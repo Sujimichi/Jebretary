@@ -107,16 +107,14 @@ function change_message(div, current_text, craft_id, commit){
   ajax_get("/messages/" + craft_id + "/edit", {message_form: true, sha_id: commit, object: 'craft'}, function(){});
 };
 
-function update_message(div, craft_id, commit, original_message){
+function update_message(div, object_id, object_class, commit, original_message){
   if($(div).hasClass("with_untracked_changes")){commit = "most_recent"};
-
-  $(div).find('#message').bind("blur", function(){
+  $('#message').bind("blur", function(){
     var new_message = $(this).val();
     if(original_message != new_message){
       $(".updating_message").show();
-      ajax_put("/messages/" + craft_id, {update_message: new_message, sha_id: commit}, function(){
+      ajax_put("/messages/" + object_id, {object_class: object_class, update_message: new_message, sha_id: commit}, function(){
         $(".updating_message").hide();
-        $(div).parents('.message').find(".message_text").append("<br/>updating<div class='left ajax_loader'></div><div class='clear'></div>")
       });
     }else{
       $('.message_form').dialog();
@@ -127,22 +125,6 @@ function update_message(div, craft_id, commit, original_message){
 
 function dialog_open(div_id){
   if(open_dialogs[div_id] == true){return true}else{return false}
-};
-
-function update_save_message(div, campaign_id, commit, original_message){
-  $(div).find('#message').bind("blur", function(){
-    var new_message = $(this).val();
-    if(original_message != new_message){
-      $(".updating_message").show();
-      ajax_put("/campaigns/" + campaign_id, {update_message: new_message, sha_id: commit}, function(){
-        $(".updating_message").hide();
-        $(div).parents('.message').find(".message_text").append("<br/>updating<div class='left ajax_loader'></div><div class='clear'></div>")
-      });
-    }else{
-      $(div).dialog();
-      $(div).dialog( "close" );
-    };
-  });
 };
 
 function move_copy_dialog(){

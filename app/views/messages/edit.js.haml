@@ -1,16 +1,18 @@
-var div = "#message_form_for_#{@commit.to_s}"
-$(div).html("#{j render :partial => 'messages/form', :locals =>  {:craft => @craft, :commit => @commit, :commit_messages => @commit_messages, :is_changed => @is_changed} }");
 
-$('.message_form').dialog();
-$('.message_form').dialog( "close" );
+var div = "#{@holder}"
+$('#message').remove();
+
+$(div).html("#{j render :partial => 'messages/form', :locals =>  {:object => @object, :commit => @commit, :commit_messages => @commit_messages, :is_changed => @is_changed} }");
+//$('.message_form').dialog();
+//$('.message_form').dialog( "close" );
 
 $(div).dialog({ height: 'auto', width: 600 });
 
+$('#message').focus();
+var v = $('#message').val();
+$('#message').val("Go Jeb Go"); //this enables (for some reason) the cursor to be set at the end
+$('#message').val(v);
 
-$(div).find('#message').focus();
-var v = $(div).find('#message').val();
-$(div).find('#message').val("Go Jeb Go");
-$(div).find('#message').val(v);
+- message = @commit.message if @commit.respond_to?("message")
 
-- commit = @commit.message if @commit.respond_to?("message")
-update_message(div, "#{@craft.id}", "#{@commit.to_s}", "#{commit}");
+update_message(div, "#{@object.id}", "#{@object.class}", "#{@commit.to_s}", "#{message}");

@@ -181,7 +181,8 @@ class Craft < ActiveRecord::Base
   def remove_message_from_temp_store key
     messages = self.commit_messages
     messages.delete(key)
-    commit_messages = messages
+    self.commit_messages = messages
+    self.save
   end
 
 

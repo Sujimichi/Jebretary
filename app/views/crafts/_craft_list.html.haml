@@ -9,7 +9,7 @@
   #content_for_campaign_saves.hidden
     .grid_8.alpha
       %h3 Saves
-      = link_to "view full save history", saves_path(:id => campaign.id)
+      = link_to "view full save history", campaign_saves_path(campaign)
 
     .clear
     .grid_6.alpha

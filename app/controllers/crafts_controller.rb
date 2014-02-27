@@ -22,8 +22,8 @@ class CraftsController < ApplicationController
       }
       f.js{
         ensure_no_db_lock do         
-          @craft = Craft.find(params[:id])
-          @history = @craft.history
+        @craft = Craft.find(params[:id])
+        @history = @craft.history
         end
       }
     end
@@ -49,28 +49,26 @@ class CraftsController < ApplicationController
   end
 
   def update
+    @craft = Craft.find(params[:id])
+    @campaign = @craft.campaign
+
+    @craft.revert_to params[:sha_id], :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
+    @craft.recover if @craft.deleted? && params[:recover_deleted]
+
+    if params[:force_commit]
+      @craft.commit :m => @craft.commit_messages["most_recent"]
+      @craft.remove_message_from_temp_store "most_recent"
+      @craft.save
+    end
     respond_with(@craft) do |f|
       f.html{
-        @craft = Craft.find(params[:id])
-        @campaign = @craft.campaign
-
-        @craft.revert_to params[:sha_id], :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
-        @craft.recover if @craft.deleted? && params[:recover_deleted]
-
-        if params[:force_commit]
-          @craft.commit :m => @craft.commit_messages["most_recent"]
-          msgs = @craft.commit_messages
-          msgs.delete("most_recent")
-          @craft.commit_messages = msgs
-          @craft.save
-        end
-
         if params[:return_to] && params[:return_to] == "campaign"
           redirect_to @campaign
         else
           redirect_to @craft
         end
       }
+      f.js{}
     end
   end
 

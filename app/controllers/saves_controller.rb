@@ -3,7 +3,7 @@ class SavesController < ApplicationController
   respond_to :js, :html
 
   def index
-    @campaign = Campaign.find(params[:id])
+    @campaign = Campaign.find(params[:campaign_id])
   end
 
   def edit

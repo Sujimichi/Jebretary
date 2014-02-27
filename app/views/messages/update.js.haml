@@ -1,9 +1,9 @@
 - if !defined?(@errors)
-  $('.message_form').hide();
-  $('.message_form').dialog();
-  //if($(".message_form").hasClass("ui-dialog")) {
-  $(".message_form").dialog("destroy");
-  //}
+  var div = "#{@holder}"
+  $(div).hide();
+  $(div).dialog();
+  $(div).dialog("destroy");
+  $(div).parents('.message').find(".message_text").append("<br/>updating<div class='left ajax_loader'></div><div class='clear'></div>")
 -else
   var error = "#{@errors.blank? ? '' : @errors[:update_message]}";
   $('.message_errors').html(error);

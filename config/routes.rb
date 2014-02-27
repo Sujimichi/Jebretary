@@ -4,13 +4,15 @@ Jebretary::Application.routes.draw do
 
   resources :move_craft
   resources :messages
-
-  resources :instances
-  resources :campaigns
+  
+  resources :campaigns do
+    resources :saves
+  end
+  resources :saves  
   resources :crafts
-  resources :saves
+  resources :instances
 
-  match 'campaigns/:id/saves' => 'saves#index'
+  #match 'campaigns/:id/saves' => 'saves#index'
 
 
   # The priority is based upon order of creation:
