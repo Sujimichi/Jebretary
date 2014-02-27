@@ -200,7 +200,7 @@ class Campaign < ActiveRecord::Base
       craft_names = nac[:new].select{|c| !c.include?("Auto-Saved Ship")} unless nac[:new].empty?
       unless craft_names.empty?
         matched_craft = Craft.where(:name => craft_names.map{|cn| cn.split("/").last.sub(".craft","")}, :deleted => false, :campaign_id => self.id)
-        matched_craft = matched_craft.sort_by{|c| File.mtime(c.file_path)} 
+        matched_craft = matched_craft.sort_by{|c| File.mtime(c.file_path) if File.exists?(c.file_path) } 
         last_updated = matched_craft.last unless matched_craft.empty?
       end
     end
