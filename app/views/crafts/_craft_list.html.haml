@@ -62,7 +62,7 @@
             - version += 1 if changed
             - unless recent_history.nil?
               - recent_history.each_with_index do |prev_version, index|
-                = link_to "V#{version -= 1}", :controller => "crafts", :action => "edit", :id => current_project.id, :sha_id => prev_version.sha_id, :return_to => :campaign
+                = link_to "V#{version -= 1}", {:controller => "crafts", :action => "edit", :id => current_project.id, :sha_id => prev_version.sha_id, :return_to => :campaign}, :title => prev_version.message
                 -unless prev_version == recent_history.last
                   |
           .left
