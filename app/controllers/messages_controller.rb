@@ -45,7 +45,7 @@ class MessagesController < ApplicationController
         end
       
         commit = @object.repo.gcommit(params[:sha_id])
-        existing_message = commit.message
+        existing_message = commit.message if commit
 
         if params[:sha_id] == "most_recent" #this only happens when @object is a craft
           commit = params[:sha_id]

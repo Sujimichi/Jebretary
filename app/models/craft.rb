@@ -182,7 +182,6 @@ class Craft < ActiveRecord::Base
     messages = self.commit_messages
     messages.delete(key)
     self.commit_messages = messages
-    self.save
   end
 
 
