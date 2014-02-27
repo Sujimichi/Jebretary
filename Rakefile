@@ -12,6 +12,9 @@ task :reset do
   `rake db:create:all`
   `rake db:migrate`
   `rake db:test:prepare`
+   Dir.entries(File.join([Rails.root, "public"])).select{|f| f.include?('flag_for_campaign_')}.each{|flag|
+    File.delete( File.join([Rails.root, "public", flag]) )
+  }
 end
 
 

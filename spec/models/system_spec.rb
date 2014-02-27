@@ -33,7 +33,7 @@ describe System do
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
       make_sample_data     
       @campaign_1 = FactoryGirl.create(:campaign, :name => "test_campaign_1", :instance_id => @instance.id)
-      @campaign_2 = FactoryGirl.create(:campaign, :name => "test_campaign_1", :instance_id => @instance.id)
+      @campaign_2 = FactoryGirl.create(:campaign, :name => "test_campaign_2", :instance_id => @instance.id)
     end
 
     it 'should ensure a git repo has been created for each campaign' do 
@@ -201,24 +201,16 @@ describe System do
       @campaign.repo.untracked.should_not be_include("persistent.sfs")
     end
 
-    it 'should not track the save files when there are craft being tracked' do 
+    it 'should track changes to the save files' do 
       @campaign.track_save(:both) #to get saves files tracked
-      change_craft_contents @campaign.craft.first, "some different file data"
-      File.open(File.join([@campaign.path, 'quicksave.sfs']),'w'){|f| f.write("test data type stuff")}
-      File.open(File.join([@campaign.path, 'persistent.sfs']),'w'){|f| f.write("test data type stuff")}
-      System.process
-      @campaign.repo.untracked.should be_empty
-      @campaign.repo.changed.sort.should == [ 'persistent.sfs', 'quicksave.sfs'].sort
-
-    end
-
-    it 'should track the save files when craft are not being updated' do 
-      @campaign.track_save(:both) #to get saves files tracked
+      @campaign.repo.changed.should be_empty
 
       File.open(File.join([@campaign.path, 'quicksave.sfs']),'w'){|f| f.write("test data type stuff")}
       File.open(File.join([@campaign.path, 'persistent.sfs']),'w'){|f| f.write("test data type stuff")}
+      @campaign.repo.changed.should  == ["persistent.sfs", "quicksave.sfs"]
+
       System.process
-      @campaign.repo.untracked.should be_empty
+      @campaign.repo.changed.should be_empty
       @campaign.repo.changed.should == []
     end
   end
@@ -258,9 +250,7 @@ describe System do
       msgs = {}
       
       msgs[@craft.history[0]] = "change to update message"
-      msgs[@craft.history[1]] = "change to add message"
-      
-      
+      msgs[@craft.history[1]] = "change to add message"    
 
       @craft.commit_messages = msgs
       @craft.save
@@ -376,19 +366,15 @@ describe System do
       @craft1.reload
 
       @craft1.history.size.should == 2
-      @craft1.history.first.message.should == "updated #{@craft1.name}" #message will not have been changed in he repo yet
+      @craft1.history.first.message.should == "first version"
       
       #raise @craft1.commit_messages.inspect
-      @craft1.commit_messages.keys.size.should == 1
-      @craft1.commit_messages.keys.should_not be_include("most_recent") #most_recent should be replaced with correct sha_id
-      @craft1.commit_messages.keys.should be_include(@craft1.history.first.to_s)
+      @craft1.commit_messages.keys.size.should == 0
 
-
+      
       #2nd set of changes and launch
       change_craft_contents @craft1, "second version"
-      msgs = @craft1.commit_messages
-      msgs["most_recent"] = "second version"
-      @craft1.commit_messages = msgs
+      @craft1.commit_messages = {"most_recent" => "second version"}
       @craft1.save
 
       #edit P file to simulate craft being launched
@@ -397,25 +383,18 @@ describe System do
       System.process
       @craft1.reload
 
-
       @craft1.history.size.should == 3
-      @craft1.history.first.message.should == "updated #{@craft1.name}" #message will not have been changed in he repo yet
+      @craft1.history.first.message.should == "second version"
 
-      @craft1.commit_messages.keys.size.should == 2 #should now be two commit messages not yet written to repo
-      @craft1.commit_messages.keys.should_not be_include("most_recent") #most_recent should be replaced with correct sha_id
-      @craft1.commit_messages.keys.should be_include(@craft1.history.first.to_s)
-
-
-
+      @craft1.commit_messages.keys.size.should == 0 #should now be two commit messages not yet written to repo
 
       #edit P file to simulate craft autosave
       File.open("persistent.sfs", 'w') {|f| f.write("autowash") }
       System.process
       @craft1.reload
 
-      @craft1.commit_messages.should be_empty #messages should now be written to repo and no longer stored on craft
+      #@craft1.commit_messages.should be_empty #messages should now be written to repo and no longer stored on craft
       @craft1.history.map{|h| h.message}.should == ["second version", "first version", "added #{@craft1.name}"]
-
 
     end
   end

@@ -58,6 +58,9 @@ Jebretary
       - A craft posted on JebWb can just be updated with a click from Jerbretary.
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
+==0.1.4
+  - bug fix, campaigns with existing git repo where not getting detected by a fresh install of Jebretary
+  - minor interface tweeks
 
 ==0.1.3
   - rewrote controller logic for editing messages

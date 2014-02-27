@@ -27,11 +27,11 @@
     -if data["creating_craft_objects"]
       :javascript
 
-        $("#campaign_container_for_#{data['id']}").find('.campaign_info').append("<div class='update_action'>updating database, please wait</div>")
+        $("#campaign_container_for_#{data['id']}").find('.campaign_info').append("<div class='update_action'>Updating database, please wait</div>")
 
     -if data["added"] && (data["added"] != data['total_craft'])
       :javascript
-        $("#campaign_container_for_#{data['id']}").find('.campaign_info').append("<div class='update_action'>Verifying craft are in repository #{data['added']}/#{data['total_craft']}</div>")
+        $("#campaign_container_for_#{data['id']}").find('.campaign_info').append("<div class='update_action'>Adding craft to version control #{data['added']}/#{data['total_craft']}</div>")
 
 
 

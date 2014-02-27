@@ -38,7 +38,7 @@ class System
       campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.cache_instance(instance); c.exists? }#get all the campaign objects for those campaigns present in the save folder
       
       campaigns.each{|campaign| 
-        next unless campaign.should_process?
+        next unless campaign.should_process? unless new_campaigns.include?(campaign)
         campaign.set_flag 
         campaigns_to_process << campaign
       }
@@ -67,7 +67,8 @@ class System
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
         System.update_db_flag(data)        
-        campaign.verify_craft craft_in_campaigns[campaign.name] if campaign.has_untracked_changes? #ensure all present craft files have a matching craft object
+        #ensure all present craft files have a matching craft object
+        campaign.verify_craft craft_in_campaigns[campaign.name] if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign)
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
         System.update_db_flag(data)
 
@@ -78,7 +79,6 @@ class System
           new_and_changed = campaign.new_and_changed         
           #craft which need to be commited - anything that is new, changed or does not have a history_count
           to_commit = [ 
-            #craft.where(:history_count => nil).to_a,
             craft.select{|c| c.history_count.nil?},
             new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
             new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}}
@@ -99,19 +99,15 @@ class System
             puts "done" unless Rails.env.eql?("test")
           end
 
-          #added_craft = data[instance.id][:campaigns][campaign.name]
-          new_campaign = new_campaigns_for_instance[instance.id].include?(campaign)
-
           #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
-          if new_campaign || to_commit.empty? #track both, as P has been seen to change, but not if there are craft to update
-            campaign.update_persistence_checksum 
-            campaign.track_save(:both) 
-          end
-          #If there are craft to commit then it is launch and we don't want to track the P and Q files for every single launch.  
-        else
-          campaign.track_save(:quicksave) #if the persistence.sfs has changed then campaign.should_process? will return true so we won't be here with changed P file.
-        end
+          campaign.update_persistence_checksum 
 
+          #track saves, if there where craft to commit, assume it is a launch and use custom launch message for persistent
+          campaign.track_save(:persistent, :message => (to_commit.empty? ? nil : "updated persistent - launch")) 
+          campaign.track_save(:quicksave)          
+        else
+          campaign.track_save(:both) #track both saves types on each pass. will only track a save if it has actually changed.
+        end
 
         #write commit messages which are stored on the Craft objects into the Git repo.
         #This is the most high risk part of the system! Commit messages are not written at the time of the actual commit and so are 
