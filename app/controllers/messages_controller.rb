@@ -3,8 +3,6 @@ class MessagesController < ApplicationController
   respond_to :js
 
   def edit
-    # ({"commit_message"=>"true", "save_type"=>"quicksave", "sha_id"=>"c6c166155280f7ea8ae49451b716529686933e1f", "action"=>"edit", "controller"=>"messages", "id"=>"1"}):
-
     respond_to do |f|
       f.js {
 
@@ -31,8 +29,7 @@ class MessagesController < ApplicationController
 
   def update
     respond_to do |f|
-      f.js {
-      
+      f.js {    
         if params[:object_class].eql?("Craft")
           @object = Craft.find(params[:id])
           @holder = ".message_form"
@@ -70,5 +67,4 @@ class MessagesController < ApplicationController
       }
     end
   end
-
 end

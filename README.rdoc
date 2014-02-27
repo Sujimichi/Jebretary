@@ -58,6 +58,15 @@ Jebretary
       - A craft posted on JebWb can just be updated with a click from Jerbretary.
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
+==0.1.3
+  - rewrote controller logic for editing messages
+  - fixed bug where deleting a craft via KSP or OS was crashing interface
+  - more efficient selects of git history -> faster updating of craft list
+
+==0.1.2
+  - MAJOR change to backend.  Scrapped 3rd party code and wrote my own git interface, faster, stronger, better!!
+  (should really be several versions!)
+
 
 ==0.1.1
   - added sort 'n' search on the craft lists
