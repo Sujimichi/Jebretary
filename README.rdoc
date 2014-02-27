@@ -60,6 +60,10 @@ Jebretary
 
 ==0.1.4
   - bug fix, campaigns with existing git repo where not getting detected by a fresh install of Jebretary
+  - changes to background process
+    - message update now happens on same pass as craft commit
+    - preventing accidental commit of craft if the user quickly reutrns to editor and saves before the persistent has been checked.
+    - message for commit of persistent file when a craft has also changed (ie at launch) now is suffixed with -launch.
   - minor interface tweeks
 
 ==0.1.3
