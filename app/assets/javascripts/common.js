@@ -43,7 +43,7 @@ function ajax_send(url, data, callback, type){
 autohide_flash = function(){
   setTimeout(function(){
     $('#flash').slideUp('fast')},
-    5000
+    8000
   );
 }
 

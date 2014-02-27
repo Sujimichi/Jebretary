@@ -24,7 +24,10 @@
     = hidden_field_tag :campaign_id, @campaign.id
     = hidden_field_tag :show_deleted, false
     = hidden_field_tag :active_display, "current_project"
-    = hidden_field_tag :active_save_display, "quicksave"
+    -if notice && notice.include?("persistent.sfs")
+      = hidden_field_tag :active_save_display, "persistent"
+    - else
+      = hidden_field_tag :active_save_display, "quicksave"
 
     .clear
     .vblk_2

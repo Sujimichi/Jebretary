@@ -28,18 +28,22 @@ class SavesController < ApplicationController
     campaign = Campaign.find(params[:id])
     if params[:sha_id]
       commit = campaign.repo.gcommit(params[:sha_id])
-      campaign.revert_save params[:save_type], commit, :commit => true
+      campaign.revert_save params[:save_type], commit, :commit => true     
       note = "Your #{params[:save_type]}.sfs file has been reverted"
     end
+    
     if params[:revert_as_quicksave]
       campaign.persistent_to_quicksave 
       if params[:sha_id]
-        note << " and the quicksave file has be replaced with the persistent file"
+        note = "Your persistent.sfs file has been reverted and the quicksave has been replaced with it"
       else
         note = "Your quicksave file has been replaced with the persistent file"
       end
     end
+    if params[:save_type].eql?("quicksave") || params[:revert_as_quicksave]
+      note << "</br>Hold F9 in KSP to load it"
+    end
     campaign.update_attributes(:persistence_checksum => nil)
-    redirect_to :back, :notice => note
+    redirect_to :back, :notice => note.html_safe
   end
 end

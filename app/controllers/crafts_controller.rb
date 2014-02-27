@@ -52,8 +52,14 @@ class CraftsController < ApplicationController
     @craft = Craft.find(params[:id])
     @campaign = @craft.campaign
 
-    @craft.revert_to params[:sha_id], :commit => params[:commit_revert].eql?("true") if params[:revert_craft]
-    @craft.recover if @craft.deleted? && params[:recover_deleted]
+    if params[:revert_craft]
+      @craft.revert_to params[:sha_id], :commit => params[:commit_revert].eql?("true") 
+      message = "Your craft has been reverted.</br>Reload it in the KSP editor"
+    end
+    if @craft.deleted? && params[:recover_deleted]
+      message = "Your craft has been recovered.</br>You can now load it in KSP"
+      @craft.recover 
+    end
 
     if params[:force_commit]
       @craft.commit :m => @craft.commit_messages["most_recent"]
@@ -61,11 +67,11 @@ class CraftsController < ApplicationController
       @craft.save
     end
     respond_with(@craft) do |f|
-      f.html{
+      f.html{        
         if params[:return_to] && params[:return_to] == "campaign"
-          redirect_to @campaign
+          redirect_to @campaign, :notice => message.html_safe
         else
-          redirect_to @craft
+          redirect_to @craft, :notice => message.html_safe
         end
       }
       f.js{}
