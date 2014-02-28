@@ -151,8 +151,11 @@ class Campaign < ActiveRecord::Base
     self.update_persistence_checksum
   end
 
-  def latest_commit current_project = last_changed_craft, saves = save_history, new_and_changed = new_and_changed 
-    
+  #returns either :current_project, or :quicksave depending on which was most recently edited/commited.
+  #if the quicksave was commited most recently then return  :quicksave 
+  #if the current project was commited after a quicksave -> :current_project
+  #if the current project was edited but not commited    -> :current_project
+  def latest_commit current_project = last_changed_craft, saves = save_history, new_and_changed = new_and_changed    
     crft = "Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft" if current_project
        
     return :current_project if saves[:quicksave].nil? || saves[:quicksave].size.eql?(1)
