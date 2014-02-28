@@ -151,18 +151,17 @@ class Campaign < ActiveRecord::Base
     self.update_persistence_checksum
   end
 
-  def latest_commit current_project = nil, saves = nil, new_and_changed = nil
+  def latest_commit current_project = last_changed_craft, saves = save_history, new_and_changed = new_and_changed 
     
     crft = "Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft" if current_project
-
        
     return :current_project if saves[:quicksave].nil? || saves[:quicksave].size.eql?(1)
     if new_and_changed[:changed].include?(crft) || new_and_changed[:new].include?(crft)
       return :current_project
     else  
-      qs_commit = saves[:quicksave].first if saves[:quicksave]
+      qs_commit = saves[:quicksave].first if saves[:quicksave]     
       if qs_commit && current_project
-        craft_commit = current_project.history.first
+        craft_commit = current_project.history(:limit => 1).first
         t= [[:quicksave, qs_commit], [:current_project, craft_commit]].sort_by{|t, c| c.date}.last
         return t[0]
       else

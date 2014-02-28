@@ -104,6 +104,8 @@ class System
             #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
             campaign.update_persistence_checksum        
           end
+        else
+          campaign.track_save(:quicksave) 
         end
 
         #write commit messages which are stored on the Craft objects into the Git repo.

@@ -22,8 +22,8 @@ class CraftsController < ApplicationController
       }
       f.js{
         ensure_no_db_lock do         
-        @craft = Craft.find(params[:id])
-        @history = @craft.history
+          @craft = Craft.find(params[:id])
+          @history = @craft.history
         end
       }
     end

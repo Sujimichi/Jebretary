@@ -160,7 +160,7 @@ class Craft < ActiveRecord::Base
     return unless msgs.has_key?("most_recent")
     m = msgs["most_recent"]
     msgs.delete("most_recent")
-    msgs[history.first] = m
+    msgs[history(:linit => 1).first] = m
     self.commit_messages = msgs
     self.save
   end

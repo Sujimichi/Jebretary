@@ -532,4 +532,53 @@ describe Campaign do
 
   end
 
+
+  describe "latest_Commit" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+      
+    end
+
+    it 'should be :current_project if nothing has been commited' do 
+      @campaign.latest_commit.should == :current_project
+    end
+
+    it 'should return quicksave if it was the most recent commit' do 
+      System.process
+      @campaign.track_save :quicksave
+    
+      sleep(1) #so there is a difference on the commit timestamp
+      File.open("quicksave.sfs", 'w'){|f| f.write("this is the quicksave file I think")}
+      System.process    
+      @campaign.reload.latest_commit.should == :quicksave
+    end
+
+
+    it 'should return :current_project if it is editied (by not commited) after the quicksave' do 
+      System.process
+      @campaign.track_save :quicksave
+      sleep(1) #so there is a difference on the commit timestamp
+      File.open("quicksave.sfs", 'w'){|f| f.write("this is the quicksave file I think")}
+      System.process          
+      @campaign.reload.latest_commit.should == :quicksave
+      
+      File.open(@campaign.craft.first.file_name, 'w'){|f| f.write("craft change")}
+      @campaign.reload.latest_commit.should == :current_project
+    end
+
+    it 'should return :current_project if it commited after the quicksave' do 
+      System.process
+      @campaign.track_save :quicksave
+      sleep(1) #so there is a difference on the commit timestamp
+      File.open("quicksave.sfs", 'w'){|f| f.write("this is the quicksave file I think")}
+      System.process          
+      @campaign.reload.latest_commit.should == :quicksave
+      
+      File.open(@campaign.craft.first.file_name, 'w'){|f| f.write("craft change")}
+      @campaign.craft.first.commit
+      @campaign.reload.latest_commit.should == :current_project
+    end
+
+  end
+
 end

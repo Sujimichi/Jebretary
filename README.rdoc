@@ -26,6 +26,7 @@ Jebretary
 
   =General
     - occasionally shows the no campaigns messages on instances show page when there are campaigns present.
+    - find a fast way of getting the index of a commit, that doesnt involve having to select all commits, surly git must have a clever fast way of doing that.
 
 
 ==Planned/Todo
