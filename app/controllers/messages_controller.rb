@@ -15,6 +15,7 @@ class MessagesController < ApplicationController
           @message = stored_message if stored_message
           @is_changed = false
           @holder= "#edit_save_holder"
+          @save_type = params[:save_type]
         else
           @object = Craft.find(params[:id])
           @is_changed = @object.is_changed?    

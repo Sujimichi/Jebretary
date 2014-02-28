@@ -1,12 +1,21 @@
-
 var div = "#{@holder}"
 $('#message').remove();
 
 $(div).html("#{j render :partial => 'messages/form', :locals =>  {:object => @object, :commit => @commit, :commit_messages => @commit_messages, :is_changed => @is_changed} }");
-//$('.message_form').dialog();
-//$('.message_form').dialog( "close" );
 
-$(div).dialog({ height: 'auto', width: 600 });
+- if params[:save_type]
+  var title = "Edit Commit message for #{params[:save_type]}"
+-else
+  var title = "Edit Commit message for #{@object.name.truncate(50)}"
+
+$(div).dialog({ height: 'auto', width: 600, title: title }).on("keydown", function(evt){
+if (evt.keyCode === $.ui.keyCode.ESCAPE) {
+$('#message').unbind("blur")
+$(this).dialog('close');
+}
+evt.stopPropagation()
+});
+
 
 $('#message').focus();
 var v = $('#message').val();
