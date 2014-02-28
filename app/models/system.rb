@@ -109,7 +109,6 @@ class System
     end
 
     campaigns_to_process.flatten!
-    puts "\n#{campaigns_to_process.map{|c| c.name}}" unless Rails.env.eql?("test")
 
     #Second Step - main ittereation throu instances - variable, typically skips so is fast, but periodically runs for 10-15 times longer when actions are required.
     #Checks that each campaign that 'should_process' (ie has persistent.sfs change) has all the craft objects that it needs 
@@ -126,15 +125,14 @@ class System
 
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
-        System.update_db_flag(data)        
-        #ensure all present craft files have a matching craft object
-        campaign.verify_craft craft_in_campaigns[campaign.name] if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign)
-        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
-        System.update_db_flag(data)
+        System.update_db_flag(data) #these steps with System.update_db_flag(data) are just to provide info to the interface about the progress. 
+        #can't use DB as interface is waiting for the DB to become unlocked.
 
+        #Actuall Work step - ensure all present craft files have a matching craft object
+        campaign.verify_craft craft_in_campaigns[campaign.name] if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign)
         
-        
-        #craft = craft_in_campaigns[campaign.name]
+        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
+        System.update_db_flag(data) #inform interface step
 
         if campaigns_to_process.include?(campaign)        
           craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
@@ -186,6 +184,7 @@ class System
   end
 
 
+
   #write commit messages which are stored on the Craft objects into the Git repo.
   #This is the most high risk part of the system! Commit messages are not written at the time of the actual commit and so are 
   #written to the repo post commit.  This mean actually re-writing the repo history, something that goes against the grain of 
@@ -225,7 +224,7 @@ class System
       messages_to_process.each do |sha_id, message, commit, object|
         object.crafts_campaign = campaign if object.is_a?(Craft) #pass in already loaded campaign object into craft object.
         puts "\nWritting Message #{message}"
-        message_changed = object.change_commit_message(commit, message)
+        message_changed = object.change_commit_message(commit, message) #This is the DANGER step. Moves to a new branch, rewrites the commit mesages and then rebases
         if message_changed
           processed_ok[object] ||= []
           processed_ok[object] << sha_id
@@ -237,7 +236,6 @@ class System
         object.remove_message_from_temp_store(sha_ids)
         object.save
       end
-
     end
   end
 

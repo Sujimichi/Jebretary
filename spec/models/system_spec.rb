@@ -124,7 +124,7 @@ describe System do
 
   end
 
-  describe "commiting or reverting a craft should write the commit message at the time of the commit, not as a post commit change" do 
+  describe "writing commit messages during a update or revert" do 
     before(:each) do 
       set_up_sample_data
       @campaign.create_repo
@@ -164,8 +164,8 @@ describe System do
 
       @craft.is_changed?.should be_false
       @craft.history.size.should ==3       
-      @craft.commit_messages.keys.should be_empty 
       @craft.history.first.message.should == "this message was updated"
+      @craft.commit_messages.keys.should be_empty 
     end
     
 
@@ -182,8 +182,8 @@ describe System do
 
       @craft.is_changed?.should be_false
       @craft.history.size.should ==3       
-      @craft.commit_messages.keys.should be_empty 
       @craft.history.first.message.should == "reverted #{@craft.name} to V1"
+      @craft.commit_messages.keys.should be_empty 
     end
 
   end
