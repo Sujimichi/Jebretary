@@ -98,15 +98,12 @@ class System
             System.update_db_flag(data) #inform interface of how many craft have been commited.
             puts "done" unless Rails.env.eql?("test")
           end
-
-          #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
-          campaign.update_persistence_checksum 
-
-          #track saves, if there where craft to commit, assume it is a launch and use custom launch message for persistent
-          campaign.track_save(:persistent, :message => (to_commit.empty? ? nil : "updated persistent - launch")) 
-          campaign.track_save(:quicksave)          
-        else
-          campaign.track_save(:both) #track both saves types on each pass. will only track a save if it has actually changed.
+          
+          if to_commit.empty?
+            campaign.track_save(:both) #track saves when there are no craft to commit
+            #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
+            campaign.update_persistence_checksum        
+          end
         end
 
         #write commit messages which are stored on the Craft objects into the Git repo.
@@ -121,17 +118,16 @@ class System
         #At this point everything should be commited, all craft and the saves, and no other git activity should be happening.
         unless campaign.has_untracked_changes? || campaign.persistence_checksum == "skip"
           #update repo for any craft that are holding commit message info in the temparary store.
-          #to_update = craft.where("commit_messages is not null").select{|c| !c.history.empty? }.sort_by{|c| c.history.first.date }.reverse
-
 
           messages_to_process = [] #container for commit messages that need writing to repo
-
+          
           #first seclect the craft that have messages to write to repo
           #and put the messages into messages_to_process along with the commit and the craft object
           craft.select{|c| !c.read_attribute("commit_messages").nil?}.each do |craft|
           #craft.where("commit_messages is not null").each do |craft|
             craft.commit_messages.to_a.each{|sha_id, message| messages_to_process << [sha_id, message, craft] }             
           end
+
           #now add the messages that are on the campaign object (in the same formate [sha_id, message, commit, object]
           campaign.commit_messages.to_a.each{|sha_id, message| messages_to_process << [sha_id, message, campaign] }
 
@@ -161,9 +157,7 @@ class System
 
             #remove commit_messages from the DB object which were succsessfully added to the repo
             processed_ok.each do |object, sha_ids|
-              cms = object.commit_messages
-              sha_ids.each{|sha_id| cms.delete(sha_id) }
-              object.commit_messages = cms
+              object.remove_message_from_temp_store(sha_ids)
               object.save
             end
 

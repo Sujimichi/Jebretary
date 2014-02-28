@@ -1,5 +1,6 @@
 class Craft < ActiveRecord::Base
   include CommitMessageChanger
+  include CommonLogic
 
   attr_accessible :name, :craft_type, :deleted, :part_count, :history_count, :last_commit
   belongs_to :campaign
@@ -154,20 +155,6 @@ class Craft < ActiveRecord::Base
     self.save
   end 
 
-
-  def commit_messages
-    messages = super
-    return {} if messages.blank?
-    h = JSON.parse(messages)
-    HashWithIndifferentAccess.new(h)
-  end
-
-  def commit_messages= messages
-    messages = messages.to_json unless messages.blank?
-    messages = nil if messages.blank?
-    super messages
-  end
-
   def replace_most_recent_key_with_latest_commit_sha
     msgs = commit_messages
     return unless msgs.has_key?("most_recent")
@@ -178,13 +165,6 @@ class Craft < ActiveRecord::Base
     self.save
   end
 
-  def remove_message_from_temp_store key
-    messages = self.commit_messages
-    messages.delete(key)
-    self.commit_messages = messages
-  end
-
-
   #deleted the craft file and marks the craft object as being deleted.
   def delete_craft
     return unless File.exists?(self.file_path) && !self.deleted?
@@ -192,7 +172,6 @@ class Craft < ActiveRecord::Base
     self.deleted = true
     self.commit
   end
-
 
   def move_to campaign, opts = {}
     target_path = File.join([campaign.path, self.file_name])
