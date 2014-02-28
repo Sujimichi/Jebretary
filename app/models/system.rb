@@ -225,7 +225,7 @@ class System
   def run_monitor
     @heart_rate = 10
     @repeat_error_count = 0
-    @loop_count = 0
+    @loop_count = 500 #set equal to if clause so git GC runs to start with (incase the player never plays more that (500*10)/60 munites. yeah right, who only plays KSP for 80 mins
     while @heart_rate do
       begin
         System.process
@@ -238,7 +238,7 @@ class System
         @repeat_error_count += 1
         raise "System has error'd #{@repeat_error_count} times in a row, shutting down" if @repeat_error_count >= 5
       end
-      if @loop_count >= 200
+      if @loop_count >= 500
         puts "Compressing Git Repo (git gc)"
         Campaign.all.each{|c| c.repo.gc}
         @loop_count = 0
