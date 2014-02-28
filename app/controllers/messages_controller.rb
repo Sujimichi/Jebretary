@@ -52,7 +52,7 @@ class MessagesController < ApplicationController
           #and while they where writting the craft got automatically tracked.         
           commit = @object.history(:limit => 1).first if !@object.is_changed?
           #if the commit is the latest commit, set existing_message to it's message, otherwise (for most_recent) use ""
-          existing_message = commit.respond_to?(:message) ? commmit.message : ""
+          existing_message = commit.respond_to?(:message) ? commit.message : ""
         end
 
         params[:update_message].gsub!("\n","<br>") #replace new line tags with line break tags (\n won't commit to repo)
