@@ -90,13 +90,12 @@ describe Craft do
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write('something different')}
       
       @campaign.repo.untracked.should_not be_include "Ships/VAB/my_rocket.craft"
-
       @craft.commit
+
       message = @campaign.repo.log("Ships/VAB/my_rocket.craft").first.message
       message.should contain "updated"
       message.should contain "my_rocket"
     end 
-
 
     it 'should not commit anything if the craft has no changes' do 
       repo = @campaign.repo
@@ -114,6 +113,18 @@ describe Craft do
       @craft.commit :m => "custom message"
       message = @campaign.repo.log("Ships/VAB/my_rocket.craft").first.message
       message.should == "custom message"
+    end
+
+    it "should set the most_resent commit message stored in temp message store if present and remove the message from the store afterwards" do 
+      @craft.commit
+      change_craft_contents @craft, "some new content"
+
+      @craft.commit_messages = {"most_recent" => "this is a message"}
+      @craft.save
+
+      @craft.commit
+      @craft.history.first.message.should == "this is a message"
+      @craft.commit_messages.should be_empty
     end
 
     it 'should commit a deleted craft' do 
@@ -233,12 +244,26 @@ describe Craft do
     describe "without commiting" do 
 
       it 'should revert the contents of the file but not commit the change' do 
-        hist_count = @craft.history.size
         commit = @craft.history[2]       
         @craft.revert_to commit, :commit => false
         File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "first version"
-        @craft.history.size.should == hist_count
+        @craft.history.size.should == 3
+        @craft.commit_messages.keys.should be_include "most_recent"
+        @craft.commit_messages["most_recent"].should == "reverted my_rocket to V1"
       end
+
+      it 'should write the commit message to the repo on the next commit' do
+        commit = @craft.history[2]       
+        @craft.revert_to commit, :commit => false
+        File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "first version"
+        @craft.commit_messages["most_recent"].should == "reverted my_rocket to V1"
+
+        @craft.commit
+        @craft.commit_messages.keys.should be_empty       
+        @craft.history.size.should == 4
+        @craft.history.first.message.should == "reverted my_rocket to V1"
+      end
+
 
     end
   end

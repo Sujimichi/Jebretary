@@ -119,8 +119,71 @@ describe System do
       a.stub!(:where => [craft])
       #Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)
       Craft.should_receive(:where).with(:campaign_id => @campaign_1.id).at_least(1).times.and_return(a)
-      Craft.should_receive(:where).with(:campaign_id => @campaign_1.id, :deleted => false).at_least(1).times.and_return(a)
       System.process
+    end
+
+  end
+
+  describe "commiting or reverting a craft should write the commit message at the time of the commit, not as a post commit change" do 
+    before(:each) do 
+      set_up_sample_data
+      @campaign.create_repo
+      System.process
+      @campaign.track_save :both
+      @craft = @campaign.craft.first
+      change_craft_contents @craft, "version 2"
+      @craft.commit
+      @craft.history.size.should == 2
+      
+    end
+
+    it 'should write the standard message during the commit when the craft has been changed' do 
+      change_craft_contents @craft, "version 3"
+      @craft.is_changed?.should be_true    
+
+      File.open(File.join([@craft.campaign.path, "persistent.sfs"]), "w"){|f| f.write "pfile update"}
+      @craft.campaign.update_attributes(:persistence_checksum => nil)
+      System.process
+
+      @craft.is_changed?.should be_false
+      @craft.history.size.should ==3       
+      @craft.commit_messages.keys.should be_empty 
+      @craft.history.first.message.should == "updated #{@craft.name}"
+    end
+
+    it 'should write the custom message during the commit when the craft has been changed' do 
+      change_craft_contents @craft, "version 3"
+      @craft.is_changed?.should be_true    
+
+      @craft.commit_messages = {"most_recent" => "this message was updated"}
+      @craft.save
+
+      File.open(File.join([@craft.campaign.path, "persistent.sfs"]), "w"){|f| f.write "pfile update"}
+      @craft.campaign.update_attributes(:persistence_checksum => nil)
+      System.process
+
+      @craft.is_changed?.should be_false
+      @craft.history.size.should ==3       
+      @craft.commit_messages.keys.should be_empty 
+      @craft.history.first.message.should == "this message was updated"
+    end
+    
+
+    it 'should write the message during the commit when the craft has been reverted' do 
+      first_commit = @craft.history.last #because history is given newest first
+      @craft.revert_to first_commit, :commit => false
+      @craft.is_changed?.should be_true
+      @craft.commit_messages.keys.should be_include "most_recent"
+      @craft.commit_messages["most_recent"].should == "reverted #{@craft.name} to V1"
+
+      File.open(File.join([@craft.campaign.path, "persistent.sfs"]), "w"){|f| f.write "pfile update"}
+      @craft.campaign.update_attributes(:persistence_checksum => nil)
+      System.process
+
+      @craft.is_changed?.should be_false
+      @craft.history.size.should ==3       
+      @craft.commit_messages.keys.should be_empty 
+      @craft.history.first.message.should == "reverted #{@craft.name} to V1"
     end
 
   end
@@ -232,9 +295,6 @@ describe System do
       System.process
       @craft = @campaign.craft.first
     end
-    after(:each) do 
-      $this_test = false      
-    end
 
     it 'should write messages which are on craft objects to the repo' do 
       commit = @craft.history.first
@@ -251,17 +311,12 @@ describe System do
       sleep(0.5)
       change_craft_contents @craft, "foobar"
       @craft.commit
-
       @craft.history.size.should == 2
       @craft.history.map{|h| h.message}.should == ["updated #{@craft.name}", "added #{@craft.name}"]
 
       msgs = {}
-      
       msgs[@craft.history[0]] = "change to update message"
       msgs[@craft.history[1]] = "change to add message"
-      
-      
-
       @craft.commit_messages = msgs
       @craft.save
 
@@ -328,24 +383,18 @@ describe System do
     end
 
     it 'should set the most_recent message update on the most recent commit' do 
-      $this_test = true
       @craft.history.count.should == 1
-
       change_craft_contents @craft, "foobar"
       @craft.commit_messages = {"most_recent" => "this is a message apparently"}
       @craft.save
 
-      #File.open("persistent.sfs", 'w') {|f| f.write("some different test data") }
       @campaign.stub(:should_process? => true)
       Campaign.stub(:where => [@campaign])
-
       System.process
 
       @craft.reload
-
       @craft.history.count.should == 2
       @craft.history.first.message.should == "this is a message apparently"
-
     end
 
   end
@@ -376,12 +425,8 @@ describe System do
       @craft1.reload
 
       @craft1.history.size.should == 2
-      @craft1.history.first.message.should == "updated #{@craft1.name}" #message will not have been changed in he repo yet
-      
-      #raise @craft1.commit_messages.inspect
-      @craft1.commit_messages.keys.size.should == 1
-      @craft1.commit_messages.keys.should_not be_include("most_recent") #most_recent should be replaced with correct sha_id
-      @craft1.commit_messages.keys.should be_include(@craft1.history.first.to_s)
+      @craft1.history.first.message.should == "first version"    
+      @craft1.commit_messages.keys.size.should == 0
 
 
       #2nd set of changes and launch
@@ -397,16 +442,9 @@ describe System do
       System.process
       @craft1.reload
 
-
       @craft1.history.size.should == 3
-      @craft1.history.first.message.should == "updated #{@craft1.name}" #message will not have been changed in he repo yet
-
-      @craft1.commit_messages.keys.size.should == 2 #should now be two commit messages not yet written to repo
-      @craft1.commit_messages.keys.should_not be_include("most_recent") #most_recent should be replaced with correct sha_id
-      @craft1.commit_messages.keys.should be_include(@craft1.history.first.to_s)
-
-
-
+      @craft1.history.first.message.should == "second version"
+      @craft1.commit_messages.keys.size.should == 0 #should now be two commit messages not yet written to repo
 
       #edit P file to simulate craft autosave
       File.open("persistent.sfs", 'w') {|f| f.write("autowash") }
@@ -415,8 +453,6 @@ describe System do
 
       @craft1.commit_messages.should be_empty #messages should now be written to repo and no longer stored on craft
       @craft1.history.map{|h| h.message}.should == ["second version", "first version", "added #{@craft1.name}"]
-
-
     end
   end
 end

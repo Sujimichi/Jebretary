@@ -94,9 +94,9 @@ class Craft < ActiveRecord::Base
         repo.add(self.file_name)
       end
 
-      active_message = self.commit_messages[:latest]
-      message << " #{active_message.gsub(message,"")}" unless self.deleted? || active_message.blank? || active_message.eql?(message)
-      self.remove_message_from_temp_store(:latest)
+      active_message = self.commit_messages[:most_recent]
+      message = "#{active_message.gsub(message,"")}" unless self.deleted? || active_message.blank? || active_message.eql?(message)
+      self.remove_message_from_temp_store(:most_recent) unless active_message.blank?
       
       repo.commit(message)
       self.last_commit = repo.log.first.to_s
@@ -119,25 +119,25 @@ class Craft < ActiveRecord::Base
       repo = camp.repo
       index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
       repo.checkout_file(commit, file_name)
+      message = "reverted #{name} to V#{index}"
       if options[:commit]
-        begin
-          m = "reverted #{name} to V#{index}"
-          repo.commit(m)
+        begin          
+          repo.commit(message)
         rescue
         end
         update_history_count
+      else
+        cms = self.commit_messages
+        cms["most_recent"] = message
+        self.commit_messages = cms       
       end
-      cms = self.commit_messages
-      cms["most_recent"] = "reverted #{name} to V#{index}"
-      self.commit_messages = cms
-      self.save!
+      self.save
     end
   end
 
   def recover
     deleting_commit = self.last_commit
     commit = repo.gcommit(deleting_commit).parent
-
     repo.checkout_file(commit, self.file_name)
     repo.commit("recovered #{name}")
     self.deleted = false
