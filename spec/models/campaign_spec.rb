@@ -535,8 +535,7 @@ describe Campaign do
 
   describe "latest_Commit" do 
     before(:each) do 
-      @campaign = set_up_sample_data
-      
+      @campaign = set_up_sample_data      
     end
 
     it 'should be :current_project if nothing has been commited' do 
@@ -581,4 +580,21 @@ describe Campaign do
 
   end
 
+  
+  describe "dont_process_while" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+    end
+
+    it "should set the campaigns persistent_checksum to 'skip' while the block is being called" do 
+      @campaign.update_persistence_checksum
+      @campaign.persistence_checksum.should_not be_nil
+      @campaign.dont_process_while do 
+        @campaign.reload.persistence_checksum.should == "skip"
+      end
+      @campaign.reload.persistence_checksum.should_not == "skip"
+    end
+
+
+  end
 end

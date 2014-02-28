@@ -31,7 +31,6 @@ class Craft < ActiveRecord::Base
   def crafts_campaign= campaign
     @campaign = campaign
   end
-
   #returns a cached instance of the campaign
   def crafts_campaign
     return @campaign if defined?(@campaign) && !@campaign.nil?
@@ -41,9 +40,6 @@ class Craft < ActiveRecord::Base
   def repo
     return @repo if defined?(@repo) && !@repo.nil?
     @repo = crafts_campaign.repo
-  end
-  def reset_repo_cache
-    @repo = nil
   end
 
   #return true if the craft is not yet in the repo
@@ -76,8 +72,6 @@ class Craft < ActiveRecord::Base
     end
   end
 
-  #takes a block to run and while the block is being run the persistence_checksum on the craft campaign is set to 'skip'
-  #this means that the campaign will not be processed by the background monitor while the blocks actions are being carried out.
   def dont_process_campaign_while &blk
     self.campaign.update_attributes(:persistence_checksum => "skip") #unless self.campaign.persistence_checksum.eql?("skip")
     yield
@@ -87,45 +81,42 @@ class Craft < ActiveRecord::Base
 
   #stage the changes and commits the craft. simply returns if there are no changes.
   def commit args = {}
-    #dont_process_campaign_while do 
-      action = :deleted if self.deleted?
-      action ||= self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)     
+    action = :deleted if self.deleted?
+    action ||= self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)     
+    
+    unless action.eql?(:nothing_to_commit)
+      message = "#{action} #{name}"
+      message = args[:m] if args[:m]      
+      if action.eql?(:deleted)
+        repo.remove(self.file_name)
+        self.history_count += 1
+      else
+        repo.add(self.file_name)
+      end
+
+      active_message = self.commit_messages[:latest]
+      message << " #{active_message.gsub(message,"")}" unless self.deleted? || active_message.blank? || active_message.eql?(message)
+      self.remove_message_from_temp_store(:latest)
       
-      unless action.eql?(:nothing_to_commit)
-        message = "#{action} #{name}"
-        message = args[:m] if args[:m]      
-        if action.eql?(:deleted)
-          repo.remove(self.file_name)
-          self.history_count += 1
-        else
-          repo.add(self.file_name)
-        end
-
-        active_message = self.commit_messages[:latest]
-        message << " #{active_message.gsub(message,"")}" unless self.deleted? || active_message.blank? || active_message.eql?(message)
-        self.remove_message_from_temp_store(:latest)
-        
-        repo.commit(message)
-        self.last_commit = repo.log.first.to_s
-      end
-
-
-      unless action.eql?(:deleted)    
-        self.part_count ||= 1
-        self.part_count += 1 #temp till part count is implemented
-        self.history_count = self.history.size
-        self.history_count = 1 if self.history_count.eql?(0)        
-      end
-      self.save if self.changed?
-      return action
-    #end
+      repo.commit(message)
+      self.last_commit = repo.log.first.to_s
+    end
+    unless action.eql?(:deleted)    
+      self.part_count ||= 1
+      self.part_count += 1 #temp till part count is implemented
+      self.history_count = self.history.size
+      self.history_count = 1 if self.history_count.eql?(0)        
+    end
+    self.save if self.changed?
+    return action
   end
 
 
   #revert the craft to a previous commit
   def revert_to commit, options = {:commit => true}
-    dont_process_campaign_while do 
-      repo = self.campaign.repo
+    camp = self.campaign
+    camp.dont_process_while do 
+      repo = camp.repo
       index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
       repo.checkout_file(commit, file_name)
       if options[:commit]
@@ -191,7 +182,5 @@ class Craft < ActiveRecord::Base
     end
     true
   end
-
-
 
 end

@@ -123,7 +123,6 @@ class Campaign < ActiveRecord::Base
     commits
   end
 
-
   def revert_save save_type, commit, options = {}
     dont_process_while do 
       hist = save_history[save_type.to_sym]
@@ -145,6 +144,9 @@ class Campaign < ActiveRecord::Base
     File.open(File.join([self.path, 'quicksave.sfs']), 'w'){|f| f.write(p_file.join)}
   end
 
+
+  #takes a block to run and while the block is being run the persistence_checksum is set to 'skip'
+  #this means that the campaign will not be processed by the background monitor while the blocks actions are being carried out.
   def dont_process_while &blk
     self.update_attributes(:persistence_checksum => "skip") 
     yield
@@ -155,6 +157,7 @@ class Campaign < ActiveRecord::Base
   #if the quicksave was commited most recently then return  :quicksave 
   #if the current project was commited after a quicksave -> :current_project
   #if the current project was edited but not commited    -> :current_project
+  #if the quicksave was commited most recently, but the current project remains edited but no commits -> :current_project
   def latest_commit current_project = last_changed_craft, saves = save_history, new_and_changed = new_and_changed    
     crft = "Ships/#{current_project.craft_type.upcase}/#{current_project.name}.craft" if current_project
        

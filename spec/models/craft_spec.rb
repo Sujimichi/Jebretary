@@ -17,7 +17,6 @@ describe Craft do
       r = @campaign.repo
       r.add("Ships/VAB/my_rocket.craft")
       r.commit("added craft")
-      @craft.reset_repo_cache
       @craft.is_new?.should be_false
     end
 
@@ -43,7 +42,6 @@ describe Craft do
       @repo.add("Ships/VAB/my_rocket.craft")
       @repo.commit("added craft")      
      
-      @craft.reset_repo_cache
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write("something different")}
       @craft.is_changed?.should be_true
     end
@@ -336,29 +334,6 @@ describe Craft do
     end
 
   end
-
-  describe "dont_process_campaign_while" do 
-    before(:each) do 
-      set_up_sample_data
-      File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("first version")}
-      @campaign.create_repo
-      @craft = FactoryGirl.create(:craft, :campaign => @campaign, :name => "my_rocket", :craft_type => "vab")
-      @craft.commit
-    end
-
-    it "should set the campaigns persistent_checksum to 'skip' while the block is being called" do 
-      @craft.campaign.update_persistence_checksum
-      @craft.campaign.persistence_checksum.should_not be_nil
-      @craft.dont_process_campaign_while do 
-        @craft.campaign.persistence_checksum.should == "skip"
-      end
-      @craft.campaign.persistence_checksum.should_not == "skip"
-
-    end
-
-
-  end
-
 
   describe "deleting craft" do 
     before(:each) do 
