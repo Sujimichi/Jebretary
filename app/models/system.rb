@@ -37,12 +37,16 @@ class System
   def run_monitor
     @heart_rate = 10
     @repeat_error_count = 0
-    @loop_count = 500 #set equal to if clause so git GC runs to start with (incase the player never plays more that (500*10)/60 munites. yeah right, who only plays KSP for 80 mins
+    #set equal to if clause so git GC runs to start with (incase the player never plays more that (500*10)/60 munites. 
+    #yeah right, who only plays KSP for 80 mins
+    @loop_count = 500 
+    @first_pass = true
     while @heart_rate do
       begin
         if process
-          @heart_rate = 0
+          @heart_rate = 2
         end
+        @first_pass = false
         @repeat_error_count = 0
         @loop_count += 1
       rescue Exception => e 
@@ -53,8 +57,12 @@ class System
         raise "System has error'd #{@repeat_error_count} times in a row, shutting down" if @repeat_error_count >= 5
       end
       if @loop_count >= 500
-        puts "Compressing Git Repo (git gc)"
-        Campaign.all.each{|c| c.repo.gc} unless ["test", "development"].include?(Rails.env)
+        puts "\n\nCompressing Git Repos (git gc)\n\n"
+        sleep 1
+        Campaign.all.each{|c|
+          puts "#{c.name}..."
+          c.repo.gc
+        } unless ["test", "development"].include?(Rails.env)
         @loop_count = 0
       end
       sleep @heart_rate 
@@ -69,11 +77,12 @@ class System
 
     data = {} #the container for information to be passed to the front end. periodicaly updated and written to HD.
     instances = Instance.all
-    fast_re_run_on_next_pass = false
+    fast_re_run_of_next_pass = false
+    @first_pass ||= false
 
     #Console output
     output = "\nWaiting for an instance of KSP to be defined"
-    output = "\nchecking craft files..." unless instances.count.eql?(0)
+    output = (@first_pass ? "\n\nInitialzing......" : "\nchecking craft files...") unless instances.count.eql?(0)
     print output unless Rails.env.eql?("test")
     t = Time.now
 
@@ -129,7 +138,9 @@ class System
         #can't use DB as interface is waiting for the DB to become unlocked.
 
         #Actuall Work step - ensure all present craft files have a matching craft object
-        campaign.verify_craft craft_in_campaigns[campaign.name] if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign)
+        if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
+          campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => @first_pass 
+        end
         
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
         System.update_db_flag(data) #inform interface step
@@ -137,6 +148,7 @@ class System
         if campaigns_to_process.include?(campaign)        
           craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
           new_and_changed = campaign.new_and_changed         
+          
           #craft which need to be commited - anything that is new, changed or does not have a history_count
           to_commit = [ 
             craft.select{|c| c.history_count.nil?},
@@ -158,14 +170,16 @@ class System
             System.update_db_flag(data) #inform interface of how many craft have been commited.
             puts "done" unless Rails.env.eql?("test")
           end
+          
+          fast_re_run_of_next_pass = true
 
-          fast_re_run_on_next_pass = true
           if to_commit.empty?
-            fast_re_run_on_next_pass = false
+            fast_re_run_of_next_pass = false
             campaign.track_save(:both) #track saves when there are no craft to commit
             #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
             campaign.update_persistence_checksum        
           end
+          
         else
           campaign.track_save(:quicksave) 
         end
@@ -174,13 +188,13 @@ class System
         #update repo for any craft that are holding commit message info in the temparary store.
         unless campaign.has_untracked_changes? || campaign.persistence_checksum == "skip"                    
           update_commit_messages campaign
-        end
+        end    
       end
     end
 
     puts "done - (#{(Time.now - t).round(2)}seconds)" unless instances.count.eql?(0) || Rails.env.eql?("test")
     System.remove_db_flag
-    fast_re_run_on_next_pass
+    fast_re_run_of_next_pass
   end
 
 
@@ -223,7 +237,6 @@ class System
       #process the messages and then remove the message from the object if the update was succsessful.
       messages_to_process.each do |sha_id, message, commit, object|
         object.crafts_campaign = campaign if object.is_a?(Craft) #pass in already loaded campaign object into craft object.
-        puts "\nWritting Message #{message}"
         message_changed = object.change_commit_message(commit, message) #This is the DANGER step. Moves to a new branch, rewrites the commit mesages and then rebases
         if message_changed
           processed_ok[object] ||= []
@@ -238,8 +251,6 @@ class System
       end
     end
   end
-
-
 
 
   #return the path to folder where app or .exe is contained.

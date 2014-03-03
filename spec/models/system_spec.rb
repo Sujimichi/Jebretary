@@ -162,12 +162,12 @@ describe System do
       @craft.campaign.update_attributes(:persistence_checksum => nil)
       System.process
 
+      @craft.reload
       @craft.is_changed?.should be_false
       @craft.history.size.should ==3       
-      @craft.history.first.message.should == "this message was updated"
+      @craft.history.first.message.should == "this message was updated"     
       @craft.commit_messages.keys.should be_empty 
-    end
-    
+    end  
 
     it 'should write the message during the commit when the craft has been reverted' do 
       first_commit = @craft.history.last #because history is given newest first
@@ -178,8 +178,9 @@ describe System do
 
       File.open(File.join([@craft.campaign.path, "persistent.sfs"]), "w"){|f| f.write "pfile update"}
       @craft.campaign.update_attributes(:persistence_checksum => nil)
-      System.process
+      System.process 
 
+      @craft.reload
       @craft.is_changed?.should be_false
       @craft.history.size.should ==3       
       @craft.history.first.message.should == "reverted #{@craft.name} to V1"
@@ -321,6 +322,7 @@ describe System do
       @craft.save
 
       System.process
+      @craft.reload
       @craft.history.map{|h| h.message}.should == ["change to update message", "change to add message"]
     end
 
