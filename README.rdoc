@@ -64,6 +64,8 @@ Jebretary
   - bug fix, updating a message at the same time as the craft is commited was not working.
   - bug fix, only the most recent instance was being processed
   - reduced occurance of commit messages having to be written to repo after commit.
+  - system only performs check for previously deleted craft(ie craft deleted and commited to git before using Jebretary) once on startup.
+  - further improvments to runing speed of background monitor
   - minor interface tweeks
 
 ==0.1.3
