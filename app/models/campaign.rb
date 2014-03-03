@@ -240,8 +240,12 @@ class Campaign < ActiveRecord::Base
   end
 
 
-  #create Craft objects for each .craft found and mark existing Craft objects as deleted is the .craft no longer exists.
-  def verify_craft files = nil
+  #Check the database record of craft files against the actual files found in the campaign
+  #If there are .craft files present that don't have a DB entry then create entires
+  #If there are .craft files which have been deleted then set the corresponding DB record to deleted=true
+  #Discover if there where any files which where deleted and commited in the repo and for which no DB entry exists
+  #and create a DB entry which has deleted=true.  This is a slow step but only needs to be called once when the campaign is created.
+  def verify_craft files = nil, args = {:discover_deleted => false}
     files = self.instance.identify_craft_in(self.name) if files.nil?
 
     present_craft = {:sph => [], :vab => []}    
@@ -269,14 +273,17 @@ class Campaign < ActiveRecord::Base
       end
     end
     self.save if self.changed?
-   
-    ddc = [] #track to ensure each deleted craft is only processed once (in cases where a craft has been deleted multiple times)
-    self.discover_deleted_craft(existing_craft_map).each do |del_inf|
-      del_inf[:deleted].each do |craft_data|
-        next if ddc.include? [craft_data[:craft_type], craft_data[:name]] #skip if a craft of this craft_type and name has already been processed
-        ddc << [craft_data[:craft_type], craft_data[:name]] #otherwise add entry to store 
-        #and create a craft object for the deleted craft.
-        self.craft.create!(:name => craft_data[:name].sub(".craft",""), :craft_type => craft_data[:craft_type].downcase, :deleted => true, :last_commit => del_inf[:sha])
+    
+    #Discover deleted - any craft for which no file exists, but which at one point was in the repo
+    if args[:discover_deleted]      
+      ddc = [] #track to ensure each deleted craft is only processed once (in cases where a craft has been deleted multiple times)
+      self.discover_deleted_craft(existing_craft_map).each do |del_inf|
+        del_inf[:deleted].each do |craft_data|
+          next if ddc.include? [craft_data[:craft_type], craft_data[:name]] #skip if a craft of this craft_type and name has already been processed
+          ddc << [craft_data[:craft_type], craft_data[:name]] #otherwise add entry to store 
+          #and create a craft object for the deleted craft.
+          self.craft.create!(:name => craft_data[:name].sub(".craft",""), :craft_type => craft_data[:craft_type].downcase, :deleted => true, :last_commit => del_inf[:sha])
+        end
       end
     end
 
@@ -293,6 +300,7 @@ class Campaign < ActiveRecord::Base
   #find craft in the git repo which have already been deleted - in the case of Jebretary being setup on an existing git repo
   #Craft which hae been previously deleted will still get a Craft object assigned to enable recovery of them.
   #This uses command line git interface as the git-gem could not do --diff-filter commands (at least I couldn't find how to do it).
+  #TODO tidy this nasty method up and make it run faster.
   def discover_deleted_craft existing_craft_map = nil
 
     #In the root of the campaigns git repo run the --diff-filter command and then return to the current working dir.

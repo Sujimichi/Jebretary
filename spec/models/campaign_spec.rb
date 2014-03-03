@@ -280,6 +280,15 @@ describe Campaign do
       @campaign.craft.map{|craft| craft.deleted? }.all?.should be_false
       @campaign.craft.where(:craft_type => 'vab', :name => "my_other_rocket").first.deleted.should be_true
     end
+
+    it 'should call not call discover_deleted_craft' do 
+      @campaign.should_not_receive(:discover_deleted_craft)
+      @campaign.verify_craft nil
+    end
+    it 'should call discover_deleted_craft when instructed to' do 
+      @campaign.should_receive(:discover_deleted_craft).once.and_return([])
+      @campaign.verify_craft nil, :discover_deleted => true
+    end
   end
 
 
