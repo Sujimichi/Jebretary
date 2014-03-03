@@ -13,7 +13,6 @@ class CampaignsController < ApplicationController
     respond_with(@campaign) do |f|
       f.js{
         ensure_no_db_lock do 
-        
           @campaign = Campaign.find(params[:id])
           @repo = @campaign.repo 
 

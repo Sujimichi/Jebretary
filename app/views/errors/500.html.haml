@@ -11,11 +11,14 @@
       %h1 Awfully sorry about that.  Something went wrong!
 
 
-    -if Rails.env.eql?("development")
-      .grid_10.push_1.backtrace
+    #exception_message.hidden
+      .grid_12.push_1.backtrace
         = @exception.inspect
         - @exception.backtrace.each do |line|
-          .line=line
+          .small.line=line
 
 :javascript
-  $(function(){$('.clamp_holder').hide()});
+  $(function(){
+    $('.clamp_holder').hide()
+    $('#error_content').html($('#exception_message').html())
+  });

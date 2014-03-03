@@ -25,26 +25,16 @@ module Exceptional
   private
 
   def render_error code = 500, exception = nil, template = nil
-    respond_to do |f| 
+    #respond_to do |f| 
       @exception = exception
-      template ||= code
-      f.html do 
-        begin
-          return render :template => "errors/#{template}", :status => code 
-        rescue
-          return redirect_to :root, :alert => exception.message
-        end
+      template ||= code     
+      begin
+        return render :template => "errors/#{template}", :status => code 
+      rescue
+        return redirect_to :root, :alert => exception.message
       end
-      f.js do
-        
-        begin
-          return render :partial  => "errors/ajax_#{template}", :status => code, :locals => {:exception => exception }
-        rescue
-          script = exception.javascript if exception.respond_to?(:javascript)
-          return render :text => "<div class='inline_errors'>#{exception.message}</div>#{script}", :status => code
-        end
-      end
-    end
+      
+    #end
   end
 
   #Takes a Block to yield, but will call the not_found! redirect if the block throws an error.
