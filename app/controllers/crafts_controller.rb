@@ -34,12 +34,13 @@ class CraftsController < ApplicationController
       f.html{
         @craft = Craft.find(params[:id])
         @sha_id = params[:sha_id]
-        @commit = @craft.repo.gcommit(@sha_id)
-        @is_changed = @craft.is_changed?
         history = @craft.history
+        @commit = history.select{|c| c.to_s.eql?(@sha_id)}.first
+        @is_changed = @craft.is_changed?
+        
 
         unless @craft.deleted?          
-          @revert_to_version = history.reverse.map{|h| h.sha_id}.index(@commit.sha_id) + 1
+          @revert_to_version = history.reverse.map{|h| h.sha_id}.index(@sha_id) + 1
           @current_version = @craft.history_count
         end
         @latest_commit = history.first
