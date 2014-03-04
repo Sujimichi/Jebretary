@@ -14,10 +14,11 @@ end
 class KSP::LinuxDev
 
   def self.find_running_instances
-    []
+    return ["/home/sujimichi/KSP/KSPv0.21.1-Stock - tester"]
+    []   
   end
 
-  def self.start
+  def self.start path
     return true
   end
 

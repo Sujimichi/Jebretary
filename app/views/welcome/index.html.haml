@@ -11,13 +11,17 @@
       .instance_list
         %h2 Tracked Installs
         - @instances.each do |instance|
-          .instance
+          .instance{:id => "installed_instance_#{instance.id}"}
             .grid_8.alpha
               %a{:href => instance_path(instance)}
                 = instance.path
                 .small= "#{instance.campaigns.count} Campaigns"
-            .launch_link.grid_2.omega
-              = link_to "Launch KSP", launch_path(:id => instance.id)
+            - if RUBY_PLATFORM =~ /mswin|mingw|cygwin/ || Rails.env.eql?("development")
+              .launch_links.grid_2.omega
+                .shutdown_link.hidden
+                  = link_to "Shutdown KSP", launch_path(:id => instance.id), :method => :delete
+                .launch_link
+                  = link_to "Launch KSP", launch_path(:id => instance.id)
             .clear
 
         .clear

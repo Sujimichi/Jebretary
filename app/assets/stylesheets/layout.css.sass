@@ -317,7 +317,7 @@ a
       +clearfix
       :width 100%
 
-    .launch_link
+    .launch_links
       :padding-top 0.4em
       :text-align center
       &:hover
@@ -325,6 +325,13 @@ a
       a
         @extend .plain_link
 
+.inactive_install
+  .launch_links
+    :border-bottom 1px solid green
+
+.active_install
+  .launch_links
+    :border-bottom 1px solid red
 
 .help_for
   :display none

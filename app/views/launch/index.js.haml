@@ -1,1 +1,12 @@
 $('#detected_instances').html("#{j render :partial => 'launch/detected_instances', :locals => {:detected_instances => @instances}}")
+
+$('.instance').removeClass("active_install")
+$('.instance').addClass("inactive_install")
+
+$(".shutdown_link").hide();
+$(".launch_link").show();
+
+- @active_instances.each do |id|
+  $("#installed_instance_#{id}").addClass("active_install")
+  $("#installed_instance_#{id}").find(".launch_link").hide();
+  $("#installed_instance_#{id}").find(".shutdown_link").show();
