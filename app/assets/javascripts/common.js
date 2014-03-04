@@ -3,6 +3,7 @@ $(function(){
   autohide_flash();
 });
 
+var detect_running_ksp_timer = null
 var setup_timer = null
 var index_search_timer = null
 var craft_version_timer = null
@@ -42,6 +43,15 @@ autohide_flash = function(){
   );
 }
 
+
+function poll_for_running_instances_of_ksp(){
+  clearTimeout(detect_running_ksp_timer);
+  ajax_get("launch/", {}, function(){
+    detect_running_ksp_timer = setTimeout(function(){
+      poll_for_running_instances_of_ksp()
+    }, 5000);
+  });
+};
 
 function poll_for_updated_instance(){
   clearTimeout(setup_timer);

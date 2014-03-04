@@ -1,0 +1,8 @@
+-if detected_instances.empty?
+  %h4 If you run the copy of KSP you want tracked, then I will detect it
+  .small Then you just have to click on it, 'cos who wants to type file paths!?
+-else
+  %h4 You are currently running KSP. Is it this copy you want me to track?
+  .small (click on the path you want to track)
+  - detected_instances.each do |instance|
+    %p=link_to instance, {:controller => "instances", :action => "create", :full_path => instance}, :method => "post"

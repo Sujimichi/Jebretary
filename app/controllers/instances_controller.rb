@@ -8,7 +8,6 @@ class InstancesController < ApplicationController
   end
 
   def create
-    #raise params.inspect
     #/home/sujimichi/Share/KSPv0.19.1
     #r:\\Games\\KSPv0.19.1
     #params[:full_path] = "r:\\Games\\KSPv0.19.1"

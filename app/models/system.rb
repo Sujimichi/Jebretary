@@ -81,7 +81,7 @@ class System
     @first_pass ||= false
 
     #Console output
-    output = "\nWaiting for an instance of KSP to be defined"
+    output = (@first_pass ? "\n\nInitialzing......" : "\nWaiting for an instance of KSP to be defined")
     output = (@first_pass ? "\n\nInitialzing......" : "\nchecking craft files...") unless instances.count.eql?(0)
     print output unless Rails.env.eql?("test")
     t = Time.now
