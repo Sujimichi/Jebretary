@@ -1,0 +1,3 @@
+$("#installed_instance_#{@instance.id}").find(".shutdown_notice").hide()
+$("#installed_instance_#{@instance.id}").find(".shutdown_notice").html("#{@notice}")
+$("#installed_instance_#{@instance.id}").find(".shutdown_notice").show("fast")

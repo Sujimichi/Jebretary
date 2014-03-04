@@ -14,11 +14,16 @@ end
 class KSP::LinuxDev
 
   def self.find_running_instances
-    return ["/home/sujimichi/KSP/KSPv0.21.1-Stock - tester"]
+    #return ["/home/sujimichi/KSP/KSPv0.21.1-Stock - tester"]
+    #return ["/home/sujimichi/KSP/KSPv0.22.0-Stock"]
     []   
   end
 
   def self.start path
+    return true
+  end
+
+  def self.terminate arg = nil
     return true
   end
 
@@ -36,12 +41,6 @@ class KSP::Windows
   def self.start path
     path = File.join([path, "ksp.exe"])
     system "start #{path}"
-  end
-
-  def self.path_of_running_instances
-    find_running_instances.map{|instance|
-      File.join(instance.executablepath.split("\\"))
-    }    
   end
 
   def select_instance path = nil

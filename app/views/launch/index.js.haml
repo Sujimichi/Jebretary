@@ -10,3 +10,7 @@ $(".launch_link").show();
   $("#installed_instance_#{id}").addClass("active_install")
   $("#installed_instance_#{id}").find(".launch_link").hide();
   $("#installed_instance_#{id}").find(".shutdown_link").show();
+  $("#installed_instance_#{id}").find(".launch_notice").hide("fast")
+
+- (Instance.all.map{|i| i.id} - @active_instances).each do |id|
+  $("#installed_instance_#{id}").find(".shutdown_notice").hide("fast")

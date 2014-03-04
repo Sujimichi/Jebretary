@@ -316,14 +316,19 @@ a
     a
       +clearfix
       :width 100%
+      &:hover
+        :font-weight bold
 
     .launch_links
       :padding-top 0.4em
       :text-align center
-      &:hover
-        :font-weight bold
       a
         @extend .plain_link
+    .launch_notice
+      :text-align center
+    .shutdown_notice
+      :text-align center
+
 
 .inactive_install
   .launch_links

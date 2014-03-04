@@ -20,31 +20,65 @@ class LaunchController < ApplicationController
   end
 
   def show
-    running_instances = KSP.controller.find_running_instances
-    instance = Instance.find(params[:id])
-    run = true
+    respond_to do |f|
+      running_instances = KSP.controller.find_running_instances
+      @instance = Instance.find(params[:id])
+      run = false
 
-    if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-      running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
-      run = false if running_instances.include?(instance.path.split("/").join("\\"))    
-    else
-      run = false if running_instances.include?(instance.path) 
+      if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
+        running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
+        run = true unless running_instances.include?(@instance.path.split("/").join("\\"))    
+      else
+        run = true unless running_instances.include?(@instance.path) 
+      end
+
+      if run
+        KSP.controller.start @instance.path        
+        @notice = "Starting KSP..."
+      else
+        @notice = "This instance is already running</br>click the left side to view its campaigns"
+      end
+
+      f.html{
+        return_to = request.env["HTTP_REFERER"].nil? ? root_path : :back
+        redirect_to return_to, :notice => @notice.html_safe
+      }
+      f.js{      
+        @notice.sub!("</br>", ".  ")
+      }
+        
     end
 
-    if run
-      KSP.controller.start instance.path        
-      notice = "Starting KSP..."
-    else
-      notice = "This instance is already running</br>click the left side to view its campaigns"
-    end
-    redirect_to :back, :notice => notice.html_safe
+    
   end
 
   def edit
   end
 
   def destroy
-    raise params.inspect
+    respond_to do |f|
+      @instance = Instance.find(params[:id])
+      shutdown = false
+
+      running_instances = KSP.controller.find_running_instances
+      if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
+        shutdown = running_instances.select{|i| i.executablepath.sub("\\KSP.exe","") == @instance.path.split("/").join("\\")}
+      else
+        shutdown = running_instances.select{|i| i == @instance.path }
+      end
+
+      unless shutdown.empty?
+        KSP.controller.terminate shutdown.first
+        @notice = "Shutting down KSP :("
+      end
+
+      f.html{
+        return_to = request.env["HTTP_REFERER"].nil? ? root_path : :back
+        redirect_to return_to, :notice => @notice.html_safe       
+      }
+      f.js {}
+
+    end
   end
 
 end
