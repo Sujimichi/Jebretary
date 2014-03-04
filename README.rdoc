@@ -31,6 +31,7 @@ Jebretary
 
 ==Planned/Todo
   - tracking of subassemblies
+  - setting to disable shutdown from remote device, to block the annoying sibling/parent/housemate factor
 
   - ability to set a craft to exist in all (or select) campaigns and automatically reflect changes made in either campaign.
 
@@ -58,6 +59,13 @@ Jebretary
 
       - A craft posted on JebWb can just be updated with a click from Jerbretary.
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
+
+==0.1.5
+  - Can now detect a running instance of KSP and get the executable path
+    - rather than typing in the path you want to track, just run KSP and then select it.
+  - KSP can be launched and shutdown from the front page
+    - you can now launch KSP on your KSP machine from a mobile device somewhere on your network.
+
 
 ==0.1.4
   - bug fix, campaigns with existing git repo where not getting detected by a fresh install of Jebretary
