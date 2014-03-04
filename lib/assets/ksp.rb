@@ -1,5 +1,5 @@
 class KSP
- require 'win32ole'
+ 
  attr_accessor :platform
 
   def initialize 
@@ -22,20 +22,21 @@ class KSP
 end
 
 class KSP::Windows
+  require 'win32ole'
 
-  def start path
+  def self.start path
     path = File.join([path, "ksp.exe"])
     system "start #{path}"
   end
 
-  def find_running_instances
+  def self.find_running_instances
     win32 = WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process")
     processes = []
     win32.each{|process| processes << process}
     ksp_instances = processes.select{|p| p.name.downcase.eql?("ksp.exe")}
   end
 
-  def path_of_running_instances
+  def self.path_of_running_instances
     find_running_instances.map{|instance|
       File.join(instance.executablepath.split("\\"))
     }    
