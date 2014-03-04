@@ -62,21 +62,27 @@
 
 //Gradient Mixins
 =gradient($start_color, $end_color)
-  /* for webkit browsers */
+  /* for webkit, old firefox and IE browsers */
   background: -webkit-gradient(linear, left top, left bottom, from($start_color), to($end_color))
-  /* for firefox 3.6+ */
-  background: -moz-linear-gradient(top,  $start_color,  $end_color)
-  /* for IE */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$start_color}', endColorstr='#{$end_color}', GradientType=0)
+  background: -moz-linear-gradient(top,  $start_color, $end_color)
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#{$start_color}', endColorstr='#{$end_color}',GradientType=0)
+
+  background: -webkit-linear-gradient(top,  $start_color, $end_color)
+  background: -o-linear-gradient(top,  $start_color, $end_color)
+  background: -ms-linear-gradient(top, $start_color, $end_color)
+  background: linear-gradient(to bottom, $start_color, $end_color)
 
 
 =gradient_h($start_color, $end_color)
-  /* for webkit browsers */
+  /* for webkit, old firefox and IE browsers */
   background: -webkit-gradient(linear, left top, right top, from($start_color), to($end_color))
-  /* for firefox 3.6+ */
-  background: -moz-linear-gradient(left,  $start_color,  $end_color)
-  /* for IE */
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{$start_color}', endColorstr='#{$end_color}', GradientType=1)
+  background: -moz-linear-gradient(left,  $start_color, $end_color)
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#{$start_color}', endColorstr='#{$end_color}',GradientType=1 )
+
+  background: -webkit-linear-gradient(left,  $start_color, $end_color)
+  background: -o-linear-gradient(left,  $start_color, $end_color)
+  background: -ms-linear-gradient(left, $start_color, $end_color)
+  background: linear-gradient(to right, $start_color, $end_color)
 
 
 //Border Rounding Mixins
