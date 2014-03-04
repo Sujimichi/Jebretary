@@ -1,39 +1,40 @@
 class KSP
  
- attr_accessor :platform
-
-  def initialize 
+  def self.controller
     if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-      @platform = KSP::Windows.new
+      require 'win32ole'
+      KSP::Windows
     else
-      raise "OTHER OS TYPES NOT SUPPORTED YET"
+      KSP::LinuxDev
     end
+  end
+ 
+end
+
+class KSP::LinuxDev
+
+  def self.find_running_instances
+    []
   end
 
-  def method_missing name, *args
-    if @platform.respond_to?(name)
-      return @platform.send(name) if args.empty?
-      return @platform.send(name, args)
-    else
-      super
-    end
+  def self.start
+    return true
   end
-  
+
 end
 
 class KSP::Windows
-  require 'win32ole'
-
-  def self.start path
-    path = File.join([path, "ksp.exe"])
-    system "start #{path}"
-  end
-
+  
   def self.find_running_instances
     win32 = WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process")
     processes = []
     win32.each{|process| processes << process}
     ksp_instances = processes.select{|p| p.name.downcase.eql?("ksp.exe")}
+  end
+
+  def self.start path
+    path = File.join([path, "ksp.exe"])
+    system "start #{path}"
   end
 
   def self.path_of_running_instances

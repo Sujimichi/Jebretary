@@ -2,7 +2,7 @@
   $(function(){
     poll_for_running_instances_of_ksp();
   });
-#welcome  
+#welcome
   .grid_12
     %h1= "Jebretary v#{@version}"
     (It's alpha, so may require struts)
@@ -11,12 +11,15 @@
       .instance_list
         %h2 Tracked Installs
         - @instances.each do |instance|
-          .instance.grid_8.alpha
-            %a{:href => instance_path(instance)}
-              = instance.path
-              .small= "#{instance.campaigns.count} Campaigns"
-          .launch_link.grid_2.omega
-            = link_to "Launch KSP", launch_path(:id => instance.id)
+          .instance
+            .grid_8.alpha
+              %a{:href => instance_path(instance)}
+                = instance.path
+                .small= "#{instance.campaigns.count} Campaigns"
+            .launch_link.grid_2.omega
+              = link_to "Launch KSP", launch_path(:id => instance.id)
+            .clear
+
         .clear
         .vblk_2
         .small

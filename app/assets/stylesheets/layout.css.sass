@@ -306,10 +306,25 @@ a
     :margin-top 2em
     :font-size 120%
   .instance
+    &:hover
+      +rounded(8px)
+      :background
+        :color $link_back_color_hover
+        :filter alpha(opacity=20)
+        :opacity 0.2
     :margin-top 0.5em
     a
       +clearfix
       :width 100%
+
+    .launch_link
+      :padding-top 0.4em
+      :text-align center
+      &:hover
+        :font-weight bold
+      a
+        @extend .plain_link
+
 
 .help_for
   :display none

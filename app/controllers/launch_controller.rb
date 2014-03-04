@@ -1,19 +1,23 @@
 class LaunchController < ApplicationController
-  require 'assets/ksp'
+  #require 'assets/ksp'
   def index
     respond_to do |f|
       f.js { 
-        @instances = KSP::Windows.find_running_instances.map{|i| i.executablepath}
-        @instances = @instances.map{|path| path.sub("\\KSP.exe","")}
-        tracked_paths = Instance.all.map{|i| i.path.split("/").join("\\")}
-        @instances = @instances.select{|path| !tracked_paths.include?(path)}
+        running_instances = KSP.controller.find_running_instances
+        if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
+          running_instances = running_instances..map{|i| i.executablepath.sub("\\KSP.exe","")}
+          tracked_paths = Instance.all.map{|i| i.path.split("/").join("\\")}
+          @instances = running_instances.select{|path| !tracked_paths.include?(path)}
+        else
+          @instances = running_instances
+        end
       }
     end  
   end
 
   def show
     instance = Instance.find(params[:id])
-    KSP::Windows.start instance.path
+    KSP.controller.start instance.path
     redirect_to :back
   end
 
