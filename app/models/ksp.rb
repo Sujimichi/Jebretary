@@ -1,5 +1,5 @@
 class KSP
- 
+
   def self.controller
     if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
       require 'win32ole'
@@ -8,7 +8,7 @@ class KSP
       KSP::LinuxDev
     end
   end
- 
+
 end
 
 class KSP::LinuxDev
@@ -16,7 +16,7 @@ class KSP::LinuxDev
   def self.find_running_instances
     #return ["/home/sujimichi/KSP/KSPv0.21.1-Stock - tester"]
     #return ["/home/sujimichi/KSP/KSPv0.22.0-Stock"]
-    []   
+    []
   end
 
   def self.start path
@@ -30,7 +30,7 @@ class KSP::LinuxDev
 end
 
 class KSP::Windows
-  
+
   def self.find_running_instances
     win32 = WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process")
     processes = []
@@ -48,10 +48,10 @@ class KSP::Windows
     return nil if instances.empty?
     return instances.first unless path
     selected = instances.select{|inst| File.join(inst.executablepath.downcase.split("\\")).to_s.include?(path.to_s.downcase)}
-    selected.first   
+    selected.first
   end
 
-  def terminate args = nil
+  def self.terminate args = nil
     if args.is_a?(String) #assume it is a path
       instances = [select_instance(args)]
     elsif args.is_a?(WIN32OLE)

@@ -2,13 +2,13 @@ class LaunchController < ApplicationController
   #require 'assets/ksp'
   def index
     respond_to do |f|
-      f.js { 
+      f.js {
         running_instances = KSP.controller.find_running_instances
         if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
           running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
           tracked_paths = Instance.all.map{|i| i.path.split("/").join("\\")}
 
-          @active_instances = Instance.all.select{|i| running_instances.include?(i.path)}                  
+          @active_instances = Instance.all.select{|i| running_instances.include?(i.path.split("/").join("\\"))}.map{|i| i.id}
           @instances = running_instances.select{|path| !tracked_paths.include?(path)}
         else
           tracked_paths = Instance.all.map{|i| i.path}
@@ -16,7 +16,7 @@ class LaunchController < ApplicationController
           @instances = running_instances.select{|path| !tracked_paths.include?(path)}
         end
       }
-    end  
+    end
   end
 
   def show
@@ -27,13 +27,13 @@ class LaunchController < ApplicationController
 
       if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
         running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
-        run = true unless running_instances.include?(@instance.path.split("/").join("\\"))    
+        run = true unless running_instances.include?(@instance.path.split("/").join("\\"))
       else
-        run = true unless running_instances.include?(@instance.path) 
+        run = true unless running_instances.include?(@instance.path)
       end
 
       if run
-        KSP.controller.start @instance.path        
+        KSP.controller.start @instance.path
         @notice = "Starting KSP..."
       else
         @notice = "This instance is already running</br>click the left side to view its campaigns"
@@ -43,13 +43,13 @@ class LaunchController < ApplicationController
         return_to = request.env["HTTP_REFERER"].nil? ? root_path : :back
         redirect_to return_to, :notice => @notice.html_safe
       }
-      f.js{      
+      f.js{
         @notice.sub!("</br>", ".  ")
       }
-        
+
     end
 
-    
+
   end
 
   def edit
@@ -74,7 +74,7 @@ class LaunchController < ApplicationController
 
       f.html{
         return_to = request.env["HTTP_REFERER"].nil? ? root_path : :back
-        redirect_to return_to, :notice => @notice.html_safe       
+        redirect_to return_to, :notice => @notice.html_safe
       }
       f.js {}
 
