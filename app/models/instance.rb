@@ -42,6 +42,17 @@ class Instance < ActiveRecord::Base
     }
   end
 
+  def parts
+    if defined?(@parts) && !@parts.nil?
+      return @parts 
+    else
+      if File.exists?(File.join([self.path, "jebretary.partsDB"]))
+        return @parts = PartParser.new(self.path, :source => :from_file)
+      else
+        return @parts = PartParser.new(self.path, :source => :game_folder, :write_to_file => true)
+      end
+    end  
+  end
 
 
 end

@@ -13,11 +13,12 @@ describe CraftFileReader do
     @campaign.track_save :both
 
     @craft = @campaign.craft.where(:name => "test", :craft_type => "vab").first
-    @test_craft_file = File.open(File.join([@campaign.path, @craft.file_name]), "r"){|f| f.readlines}
+    @path = File.join([@campaign.path, @craft.file_name])
   end
 
-  it 'should have stuff' do 
-    raise @test_craft_file.inspect
+  it 'should identify parts' do 
+    reader = CraftFileReader.new(@path)
+    raise reader.parts.inspect
     
 
   end

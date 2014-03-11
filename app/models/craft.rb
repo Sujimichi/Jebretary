@@ -27,6 +27,12 @@ class Craft < ActiveRecord::Base
     true
   end
 
+  def parts
+    camp = crafts_campaign
+    reader = CraftFileReader.new(File.join([campaign.path, self.file_name]))
+    reader.parts
+  end
+
   #crafts_campaign= allows the campaign to be passed in and held in instance var if the campaign has already been loaded from the DB
   def crafts_campaign= campaign
     @campaign = campaign
@@ -34,7 +40,7 @@ class Craft < ActiveRecord::Base
   #returns a cached instance of the campaign
   def crafts_campaign
     return @campaign if defined?(@campaign) && !@campaign.nil?
-    craft_campaign = self.campaign
+    crafts_campaign = self.campaign
   end
 
   def repo
