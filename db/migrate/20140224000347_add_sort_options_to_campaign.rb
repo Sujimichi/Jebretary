@@ -4,6 +4,6 @@ class AddSortOptionsToCampaign < ActiveRecord::Migration
   end
 
   def self.down
-    _column :campaigns, :sort_options
+    remove_column :campaigns, :sort_options
   end
 end
