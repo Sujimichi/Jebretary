@@ -108,8 +108,7 @@ class Craft < ActiveRecord::Base
       self.last_commit = repo.log.first.to_s
     end
     unless action.eql?(:deleted)    
-      self.part_count ||= 1
-      self.part_count += 1 #temp till part count is implemented
+      update_basic_part_info
       self.history_count = self.history.size
       self.history_count = 1 if self.history_count.eql?(0)        
     end
@@ -117,6 +116,10 @@ class Craft < ActiveRecord::Base
     return action
   end
 
+  def update_basic_part_info   
+    self.part_count = parts.count
+    self.part_count ||= 0
+  end
 
   #revert the craft to a previous commit
   def revert_to commit, options = {:commit => true}

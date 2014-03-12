@@ -17,7 +17,7 @@ class CraftFileReader
     @all_parts = part_names.map{|name|                          #remove preceding and trailing text      
       p = name.sub("\tpart = ","").gsub("\"", "").split("_")    #remove preceding text and split on '_'
       p[0].chomp                 
-    }.uniq
+    }
   end
 
 end
