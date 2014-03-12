@@ -57,12 +57,14 @@ class System
         raise "System has error'd #{@repeat_error_count} times in a row, shutting down" if @repeat_error_count >= 5
       end
       if @loop_count >= 500
-        puts "\n\nCompressing Git Repos (git gc)\n\n"
-        sleep 1
-        Campaign.all.each{|c|
-          puts "#{c.name}..."
-          c.repo.gc
-        } unless ["test", "development"].include?(Rails.env)
+        if Rails.env.eql?("production") && Campaign.count != 0
+          puts "\n\nCompressing Git Repos (git gc)\n\n"
+          sleep 1
+          Campaign.all.each{|c|
+            puts "#{c.name}..."
+            c.repo.gc
+          } 
+        end
         @loop_count = 0
       end
       sleep @heart_rate 
