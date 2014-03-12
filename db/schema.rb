@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140224000347) do
+ActiveRecord::Schema.define(:version => 20140312231819) do
 
   create_table "campaigns", :force => true do |t|
     t.integer  "instance_id"
@@ -34,6 +34,7 @@ ActiveRecord::Schema.define(:version => 20140224000347) do
     t.datetime "created_at",                         :null => false
     t.datetime "updated_at",                         :null => false
     t.text     "commit_messages"
+    t.string   "part_data"
   end
 
   create_table "instances", :force => true do |t|
