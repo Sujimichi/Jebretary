@@ -58,7 +58,7 @@ class PartParser
         next
       end
       dir = cfg_path.sub("/part.cfg","")
-      part_info = {:dir => dir, :file => cfg, :path => cfg_path }
+      part_info = {:dir => dir, :path => cfg_path }
 
       if cfg_path.match(/^GameData/)
         folders = dir.split("/")
@@ -92,12 +92,14 @@ class PartParser
             @resources.merge!(name => part_info.clone)
             nil
           elsif type.eql?(:internal)
+            part_info.merge!(:file => cfg)
             @internals.merge!(name => part_info.clone)
             nil
           elsif type.eql?(:prop)
             @props.merge!(name => part_info.clone)
             nil
           else #its a part init'
+            part_info.merge!(:file => cfg)
             part_info.clone #return part info in the .map loop
           end
         end.compact
@@ -123,9 +125,13 @@ class PartParser
     @parts.each do |name, data|
       data[:internals] = associate_component(data[:file], @internals)
       data[:resources] = associate_component(data[:file], @resources)
+      data.delete(:file)
     end
     #associate props with internals
-    @internals.each{|name, data| data[:props] = associate_component(data[:file], @props) }
+    @internals.each do |name, data| 
+      data[:props] = associate_component(data[:file], @props) 
+      data.delete(:file)
+    end
   end
 
   #given the cfg_file of a part or internal and a group of sub comonents (internals, resources, props) 
@@ -133,7 +139,7 @@ class PartParser
   def associate_component cfg_file, components
     components.select{|name, data|
       cfg_file.select{|l| !l.match("//") && l.include?("name") && l.include?("=") }.map{|l| l.match(/\s#{name}\s/)}.any?
-    }.map{|name, data| components[name]}
+    }.map{|name, data| name}
   end
 
   def locate part_name
