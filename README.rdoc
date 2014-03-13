@@ -43,6 +43,14 @@ Jebretary
       - A craft posted on JebWb can just be updated with a click from Jerbretary.
       - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
+==0.1.6
+  - craft part information
+    - system builds and caches a map of the parts found in each instance
+    - determine if a craft is stock or mod
+    - determine if a crafts parts are missing from the game
+    - display of uses parts on a crafts page with link that opens a window to that part
+
+
 ==0.1.5
   - Can now detect a running instance of KSP and get the executable path
     - rather than typing in the path you want to track, just run KSP and then select it.

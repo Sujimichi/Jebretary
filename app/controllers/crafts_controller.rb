@@ -19,11 +19,39 @@ class CraftsController < ApplicationController
     respond_with(@craft) do |f|
       f.html{
         @craft = Craft.find(params[:id])
+        unless @craft.deleted?
+          @craft.update_part_data 
+          @craft.save if @craft.changed?
+          @parts = @craft.parts :load_data => true, :read_file => false
+          @part_for_list = @parts.found.group_by{|part| part[:name]}.to_a.sort_by{|part| part[1][0][:mod].downcase}.map{|p| [p[0], p[1].sort_by{|pt| pt[:name].downcase} ] }.in_groups(2)      
+        end        
       }
       f.js{
-        ensure_no_db_lock do         
+        if params[:open_part_folder]
           @craft = Craft.find(params[:id])
-          @history = @craft.history
+          path = File.join([@craft.campaign.instance.path, params[:open_part_folder]])
+
+          if path.match(/.cfg$/)
+            path = path.split("/")
+            path.pop
+            path = File.join(path)
+          end
+
+          begin 
+            if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
+              `start explorer.exe #{path}`
+            else
+              `nautilus #{path}`
+            end
+          rescue
+          end
+          return render :text => "done"
+
+        else
+          ensure_no_db_lock do         
+            @craft = Craft.find(params[:id])
+            @history = @craft.history
+          end
         end
       }
     end

@@ -27,6 +27,24 @@ class Craft < ActiveRecord::Base
     true
   end
 
+  def parts args = {:load_data => false, :read_file => true}
+    @parts = nil if args[:load_data]
+    return @parts if defined?(@parts) && !@parts.nil?
+    @parts = CraftFileReader.new(self, args)
+  end
+
+  def part_data
+    data = super
+    data = JSON.parse(data) unless data.blank?
+    data ||= {}
+    HashWithIndifferentAccess.new(data)
+  end
+
+  def part_data= data
+    data = data.to_json
+    super(data)
+  end
+
   #crafts_campaign= allows the campaign to be passed in and held in instance var if the campaign has already been loaded from the DB
   def crafts_campaign= campaign
     @campaign = campaign
@@ -34,7 +52,7 @@ class Craft < ActiveRecord::Base
   #returns a cached instance of the campaign
   def crafts_campaign
     return @campaign if defined?(@campaign) && !@campaign.nil?
-    craft_campaign = self.campaign
+    crafts_campaign = self.campaign
   end
 
   def repo
@@ -83,6 +101,7 @@ class Craft < ActiveRecord::Base
   def commit args = {}
     action = :deleted if self.deleted?
     action ||= self.is_new? ? :added : (self.is_changed? ? :updated : :nothing_to_commit)     
+    args[:skip_part_data] ||= false
     
     unless action.eql?(:nothing_to_commit)
       message = "#{action} #{name}"
@@ -102,8 +121,10 @@ class Craft < ActiveRecord::Base
       self.last_commit = repo.log.first.to_s
     end
     unless action.eql?(:deleted)    
-      self.part_count ||= 1
-      self.part_count += 1 #temp till part count is implemented
+      self.part_count = parts.count
+      self.part_count ||= 0      
+      update_part_data unless args[:skip_part_data]
+
       self.history_count = self.history.size
       self.history_count = 1 if self.history_count.eql?(0)        
     end
@@ -111,6 +132,13 @@ class Craft < ActiveRecord::Base
     return action
   end
 
+
+  def update_part_data
+    parts.locate_in self.crafts_campaign.instance.parts
+    data = {:parts => parts.found, :missing_parts => parts.missing, :stock => parts.stock?, :mods => parts.mods}
+    self.part_data = data
+    true
+  end
 
   #revert the craft to a previous commit
   def revert_to commit, options = {:commit => true}

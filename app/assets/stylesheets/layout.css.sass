@@ -504,8 +504,60 @@ a
     :margin-top 0.5em
     +clearfix
 
+.parts_list
+  :display none
+  .part
+    :font-size 80%
+    :padding-left 2px
+    .details
+      :display none
+      :padding
+        :left 0.5em
+        :bottom 0.2em
+
+  .selected_part
+    :border-left 2px solid blue
+    :padding-left none
+
+.stock_craft
+  :border-left 2px solid blue
+  $base_color: blue
+  +gradient_h(rgba($base_color, 0.2), rgba($site_high_tone, 0))
+  &:hover
+    +gradient_h(rgba($base_color, 0.4), rgba($site_high_tone, 0.1))
+
+.mod_craft
+  :border-left 2px solid green
+  $base_color: #03610B
+  +gradient_h(rgba($base_color, 0.2), rgba($site_high_tone, 0))
+  &:hover
+    +gradient_h(rgba($base_color, 0.4), rgba($site_high_tone, 0.1))
+
+.missing_parts
+  .missing
+    :color red
+  .error
+    :display inline
+    :float left
+    :color red
+    :font-weight bold
+    :padding
+      :left 0.2em
+      :right 0.2em
+
+.missing
+  :display inline
+
+.error
+  :display none
+
 .deleted_craft
-  :border-left 2px solid red
+  :border-left 4px solid red
+  $base_color: red
+  +gradient_h(rgba($base_color, 0.6), rgba($site_high_tone, 0))
+  &:hover
+    +gradient_h(rgba($base_color, 0.4), rgba($site_high_tone, 0.1))
+
 .craft
   :margin-top 0.5em
   .name
@@ -517,6 +569,7 @@ a
   .history
     :padding-left 1em
     :float left
+
 
   +clearfix
 

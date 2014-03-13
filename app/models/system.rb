@@ -41,6 +41,7 @@ class System
     #yeah right, who only plays KSP for 80 mins
     @loop_count = 500 
     @first_pass = true
+    @loops_without_action = 0
     while @heart_rate do
       begin
         if process
@@ -49,6 +50,7 @@ class System
         @first_pass = false
         @repeat_error_count = 0
         @loop_count += 1
+        @loops_without_action += 1
       rescue Exception => e 
         System.remove_db_flag
         puts "!!Monitor Error!!"
@@ -93,6 +95,9 @@ class System
     craft_in_campaigns_for_instance = {} #container to hold mapping of craft files to campaigns in instances.
     new_campaigns_for_instance = {}
     campaigns_to_process = []
+
+    instances.each{|instance| instance.reset_parts_db} if @first_pass #delete the file that contains references for this instances parts. This will be recreated when needed.
+      
 
     #First step - itteration throu instances - fast and provides some basic information to the user interface
     #determines which campaigns exist in each instance, creates new ones as appropriate
@@ -155,14 +160,18 @@ class System
           to_commit = [ 
             craft.select{|c| c.history_count.nil?},
             new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
-            new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}}
+            new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},            
           ].flatten.compact.uniq
 
-          puts "\n" unless to_commit.empty? || Rails.env.eql?("test")
+            puts "\n" unless to_commit.empty? || Rails.env.eql?("test")
           to_commit.each do |craft_object|        
             craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
             print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
-            craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed? in the rails sense)
+            if to_commit.size >= 4
+              craft_object.commit :skip_part_data => true
+            else
+              craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed? in the rails sense)
+            end
             data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
 
             #if the craft has a commit message for the most recent (and until now uncommited) change. 
@@ -180,11 +189,23 @@ class System
             campaign.track_save(:both) #track saves when there are no craft to commit
             #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
             campaign.update_persistence_checksum        
-          end
-          
+          else
+            @loops_without_action = 0
+          end        
         else
           campaign.track_save(:quicksave) 
         end
+             
+        if @loops_without_action >= 30
+          to_update = campaign.craft.where(:part_data => nil, :deleted => false).limit(15)
+          to_update.each{|c|
+            puts "updating parts info for #{c.name}"
+            c.update_part_data
+            c.save
+          }
+          @loops_without_action = 0 unless to_update.empty?
+        end
+        
 
         #At this point everything should be commited, all craft and the saves, and no other git activity should be happening.
         #update repo for any craft that are holding commit message info in the temparary store.

@@ -2,6 +2,7 @@ class TestCraft
   attr_accessor :craft, :campaign, :file
 
   def initialize campaign_id, name = "test_craft", craft_type = :vab
+    raise "am i still using this?"
     @campaign = Campaign.find(campaign_id)
     @file = File.join([@campaign.path, "Ships", craft_type.to_s.upcase, "#{name}.craft"])
     File.open(@file, 'w'){|f| f.write("A Craft")}
