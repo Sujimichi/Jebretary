@@ -116,10 +116,6 @@ class PartParser
     @parts = part_info.map{|n| {n[:name] => n} }.inject{|i,j| i.merge(j)}
   end
 
-  def process_part cfg_data
-
-  end
-
   def associate_components
     #associate internals and resources with parts
     @parts.each do |name, data|
