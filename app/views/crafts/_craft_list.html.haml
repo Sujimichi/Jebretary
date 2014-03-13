@@ -128,3 +128,11 @@
                   .small
                     = craft.part_count
                     = craft.part_count.eql?(1) ? "Part" : "Parts"
+                    - part_data = craft.part_data
+                    - unless part_data.empty?
+                      - unless part_data[:stock].nil?
+                        |
+                        = part_data[:stock] ? "Stock" : "Mod"
+                      - unless part_data[:missing_parts].empty?
+                        |
+                        = "missing #{part_data[:missing_parts].size} parts"

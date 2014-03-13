@@ -1,6 +1,6 @@
 class AddPartDataToCraft < ActiveRecord::Migration
   def self.up
-    add_column :crafts, :part_data, :string
+    add_column :crafts, :part_data, :text, :limit => nil
   end
 
   def self.down

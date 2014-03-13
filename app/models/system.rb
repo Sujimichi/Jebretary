@@ -160,7 +160,11 @@ class System
           to_commit.each do |craft_object|        
             craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
             print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
-            craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed? in the rails sense)
+            if to_commit.size >= 4
+              craft_object.commit :skip_part_data => true
+            else
+              craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed? in the rails sense)
+            end
             data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
 
             #if the craft has a commit message for the most recent (and until now uncommited) change. 

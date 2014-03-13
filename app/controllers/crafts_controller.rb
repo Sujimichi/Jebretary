@@ -19,6 +19,9 @@ class CraftsController < ApplicationController
     respond_with(@craft) do |f|
       f.html{
         @craft = Craft.find(params[:id])
+        @craft.update_part_data
+        @craft.save if @craft.changed?        
+        @craft.parts :load_data => true, :read_file => false
       }
       f.js{
         ensure_no_db_lock do         

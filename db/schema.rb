@@ -34,7 +34,7 @@ ActiveRecord::Schema.define(:version => 20140312231819) do
     t.datetime "created_at",                         :null => false
     t.datetime "updated_at",                         :null => false
     t.text     "commit_messages"
-    t.string   "part_data"
+    t.text     "part_data"
   end
 
   create_table "instances", :force => true do |t|

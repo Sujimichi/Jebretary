@@ -40,6 +40,29 @@
 
         = link_to 'Destroy', craft_path(@craft), :method => :delete, :class => 'submit_button', :id => :delete_submit
 
+      - parts = @craft.parts
+
+      -if parts.stock?
+        %h4= "#{@craft.name} is 100% Stock"
+      -else
+        %h4= "#{@craft.name} uses #{parts.mods.size} mod#{parts.mods.size.eql?(1) ? '' : 's'};"
+        = parts.mods.join(", ")
+
+      .clear
+      .vblk_1
+
+
+
+      -if parts.missing?
+        .missing_parts
+          %h4= "#{@craft.name} is missing these parts"
+          - parts.missing.in_groups(3) do |group|
+            .grid_3
+              - group.each do |part|
+                .small= part
+        .clear
+        .vblk_1
+        .clear
 
       %h3 Version History
       #history_list
