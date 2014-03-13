@@ -54,6 +54,11 @@ class Instance < ActiveRecord::Base
     end  
   end
 
+  def reset_parts_db
+    path = File.join([self.path, "jebretary.partsDB"])
+    File.delete(path) if File.exists?(path)
+  end
+
 
 end
 

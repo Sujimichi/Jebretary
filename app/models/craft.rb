@@ -137,6 +137,7 @@ class Craft < ActiveRecord::Base
     parts.locate_in self.crafts_campaign.instance.parts
     data = {:parts => parts.found, :missing_parts => parts.missing, :stock => parts.stock?, :mods => parts.mods}
     self.part_data = data
+    true
   end
 
   #revert the craft to a previous commit

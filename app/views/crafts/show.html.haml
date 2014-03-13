@@ -46,7 +46,20 @@
         %h4= "#{@craft.name} is 100% Stock"
       -else
         %h4= "#{@craft.name} uses #{parts.mods.size} mod#{parts.mods.size.eql?(1) ? '' : 's'};"
-        = parts.mods.join(", ")
+        = parts.mods.sort.join(", ")
+
+      .link= link_to_function "show parts", "$('.parts_list').is(':visible') ? $(this).html('show parts') : $(this).html('hide parts'); $('.parts_list').toggle('slow'); "
+
+      .clear
+      .parts_list.hidden
+
+        - parts.found.group_by{|part| part[:name]}.to_a.sort_by{|part| part[1][0][:mod].downcase}.map{|p| [p[0], p[1].sort_by{|pt| pt[:name].downcase} ] }.in_groups(2).each do |parts_group|
+          .grid_5.alpha
+            - parts_group.each do |part|
+              - next if  part.nil?
+              - mod = " #{part[1].first[:mod].sub('Squad', 'Stock')}" unless parts.stock?
+              - s = "#{part[1].count}#{mod} - #{part[0]}"
+              .small= s
 
       .clear
       .vblk_1
