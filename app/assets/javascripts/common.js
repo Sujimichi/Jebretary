@@ -30,7 +30,7 @@ function ajax_delete(url, data, callback){
 
 function ajax_send(url, data, callback, type){
   wrapped_error = function(r,t,e){
-     //$('#content').html(r.responseText);
+     $('#content').html(r.responseText);
   };
   $.ajax({ url: url, data: data, type: type, success: callback, error: wrapped_error, dataType: 'script' });
 };

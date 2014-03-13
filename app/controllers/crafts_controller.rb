@@ -21,10 +21,10 @@ class CraftsController < ApplicationController
         @craft = Craft.find(params[:id])
         unless @craft.deleted?
           @craft.update_part_data 
+          @craft.save if @craft.changed?
           @parts = @craft.parts :load_data => true, :read_file => false
           @part_for_list = @parts.found.group_by{|part| part[:name]}.to_a.sort_by{|part| part[1][0][:mod].downcase}.map{|p| [p[0], p[1].sort_by{|pt| pt[:name].downcase} ] }.in_groups(2)      
-        end
-        @craft.save if @craft.changed?        
+        end        
       }
       f.js{
         if params[:open_part_folder]

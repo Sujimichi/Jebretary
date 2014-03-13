@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
 
   helper_method :system, :h_truncate, :truncated_link_to, :time_ago
 
-  if Rails.env.eql?("production") 
+  #if Rails.env.eql?("production") 
     rescue_from( Exception                            ) { |error| render_error(500, error) }  #unless Rails.env.eql?("development") 
     rescue_from( RuntimeError                         ) { |error| render_error(500, error) }  #unless Rails.env.eql?("development") 
 
@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
 
     #Errors to still hook:
     #ActiveRecord::StatementInvalid: SQLite3::BusyException: database is locked
- end
+ #end
 
 
   private
