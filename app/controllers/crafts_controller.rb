@@ -19,9 +19,12 @@ class CraftsController < ApplicationController
     respond_with(@craft) do |f|
       f.html{
         @craft = Craft.find(params[:id])
-        @craft.update_part_data unless @craft.deleted?
+        unless @craft.deleted?
+          @craft.update_part_data 
+          @parts = @craft.parts :load_data => true, :read_file => false
+          @part_for_list = @parts.found.group_by{|part| part[:name]}.to_a.sort_by{|part| part[1][0][:mod].downcase}.map{|p| [p[0], p[1].sort_by{|pt| pt[:name].downcase} ] }.in_groups(2)      
+        end
         @craft.save if @craft.changed?        
-        @craft.parts :load_data => true, :read_file => false
       }
       f.js{
         ensure_no_db_lock do         

@@ -106,9 +106,15 @@
         - crafts.reverse! if reverse_order
         - crafts.each do |craft|
           -# next if craft.eql?(current_project)
+          - part_data = craft.part_data
           - craft.crafts_campaign = campaign
-          .craft_container{:class => (craft.deleted? ? 'deleted_craft' : '')}
+          - klass = ""
+          - klass << (part_data[:stock] ? "stock_craft" : "mod_craft")
+          - klass << " missing_parts" unless (part_data[:missing_parts] && part_data[:missing_parts].empty?)
+          - klass << " deleted_craft" if craft.deleted?
+          .craft_container{:class => klass}
             .craft
+              .error= "!!"
               .name= truncated_link_to craft.name, craft_path(craft)
               .clear
               .git_info
@@ -128,11 +134,11 @@
                   .small
                     = craft.part_count
                     = craft.part_count.eql?(1) ? "Part" : "Parts"
-                    - part_data = craft.part_data
                     - unless part_data.empty?
                       - unless part_data[:stock].nil?
                         |
                         = part_data[:stock] ? "Stock" : "Mod"
                       - unless part_data[:missing_parts].empty?
                         |
-                        = "missing #{part_data[:missing_parts].size} parts"
+                        .missing= "missing #{part_data[:missing_parts].size} parts"
+          .clear
