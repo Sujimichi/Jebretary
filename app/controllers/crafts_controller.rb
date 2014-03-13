@@ -27,9 +27,31 @@ class CraftsController < ApplicationController
         @craft.save if @craft.changed?        
       }
       f.js{
-        ensure_no_db_lock do         
+        if params[:open_part_folder]
           @craft = Craft.find(params[:id])
-          @history = @craft.history
+          path = File.join([@craft.campaign.instance.path, params[:open_part_folder]])
+
+          if path.match(/.cfg$/)
+            path = path.split("/")
+            path.pop
+            path = File.join(path)
+          end
+
+          begin 
+            if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
+              `start explorer.exe #{path}`
+            else
+              `nautilus #{path}`
+            end
+          rescue
+          end
+          return render :text => "done"
+
+        else
+          ensure_no_db_lock do         
+            @craft = Craft.find(params[:id])
+            @history = @craft.history
+          end
         end
       }
     end

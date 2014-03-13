@@ -50,20 +50,21 @@
       .link= link_to_function "show parts", "$('.parts_list').is(':visible') ? $(this).html('show parts') : $(this).html('hide parts'); $('.parts_list').toggle('slow'); "
 
       .clear
-      .parts_list.hidden
-
+      .parts_list
         - @part_for_list.each do |parts_group|
           .grid_5.alpha
             - parts_group.each do |part|
               - next if  part.nil?
               - mod = " #{part[1].first[:mod].sub('Squad', 'Stock')}" unless @parts.stock?
               - s = "#{part[1].count}#{mod} - #{part[0]}"
-              .small= s
+              .part
+                %b= s
+                .details
+                  .info= link_to "#{part[1].first[:dir]}", {:action => :show, :controller => :crafts, :id => @craft.id, :open_part_folder => "#{part[1].first[:dir]}"}, :remote => true
+                  .info= "#{part[1].first[:resources].join(', ')}"
 
       .clear
       .vblk_1
-
-
 
       -if @parts.missing?
         .missing_parts
@@ -82,7 +83,19 @@
         .ajax_loader
 
     :javascript
-      $(function(){poll_craft_version()});
+      $(function(){
+        poll_craft_version()
+        $('.part').on("mouseover", function(){
+          $('.details').hide();
+          $('.part').removeClass("selected_part")
+          $(this).find(".details").show();
+          $(this).addClass("selected_part")
+        });
+        $('.parts_list').on("mouseout", function(){
+          $('.details').hide();
+          $('.part').removeClass("selected_part")
+        });
+      });
 
   -else
     .grid_6.push_3
