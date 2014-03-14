@@ -30,7 +30,10 @@ function ajax_delete(url, data, callback){
 
 function ajax_send(url, data, callback, type){
   wrapped_error = function(r,t,e){
-     $('#content').html(r.responseText);
+    if(r.responseText == "" || r.responseText == "no_update"){
+    }else{
+      $('#content').html(r.responseText);
+    };
   };
   $.ajax({ url: url, data: data, type: type, success: callback, error: wrapped_error, dataType: 'script' });
 };
@@ -60,6 +63,8 @@ function poll_for_updated_instance(){
   }, 1000);
 };
 
+
+var poll_count = 0
 function poll_for_updated_list(){
   var campaign_id = $('#campaign_id').val();
   if(campaign_id != undefined){
@@ -70,6 +75,12 @@ function poll_for_updated_list(){
     data['search_opts'] = {}
     data['search_opts']['vab'] = $('#vab_search_field').val();
     data['search_opts']['sph'] = $('#sph_search_field').val();
+
+    if(poll_count == 0){
+      data["force_fetch"] = true
+    };
+    poll_count += 1
+    //if(poll_count >= 20){ poll_count = 0};
 
     clearTimeout(index_search_timer);
     ajax_get("/campaigns/"+ campaign_id, data, function(){

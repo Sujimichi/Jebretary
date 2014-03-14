@@ -1,5 +1,5 @@
 class CampaignsController < ApplicationController
-   
+
   respond_to :html, :js
 
   def index
@@ -13,13 +13,22 @@ class CampaignsController < ApplicationController
     respond_with(@campaign) do |f|
       f.js{
         ensure_no_db_lock do 
-          @campaign = Campaign.find(params[:id])
+        @campaign = Campaign.find(params[:id])
+
+        @new_and_changed = @campaign.new_and_changed
+        @current_project = @campaign.last_changed_craft(@new_and_changed)        
+        @saves = @campaign.save_history(:limit => 5)
+
+        state = [@campaign, @campaign.has_untracked_changes?, @current_project, @saves]
+        state = Digest::SHA256.hexdigest(state.to_s)
+
+
+        if Rails.cache.read("state_stamp") != state || params[:force_fetch]
+
           @repo = @campaign.repo 
 
-          @new_and_changed = @campaign.new_and_changed
-          @current_project = @campaign.last_changed_craft(@new_and_changed)
           @current_project_history = @current_project.history(:limit => 5) if @current_project
-          @saves = @campaign.save_history(:limit => 5)
+          
 
           @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
 
@@ -47,7 +56,11 @@ class CampaignsController < ApplicationController
           #this really needs optimising for windows.  
           #Takes around 4000ms on windows (in production mode) which is horrible, 
           #on Linux (in the slower dev mode) it takes under 200ms
+        else
+          return render :partial => "no_update"
 
+        end
+        Rails.cache.write("state_stamp", state)
         end
       }
       f.html{
@@ -79,5 +92,5 @@ class CampaignsController < ApplicationController
       format.html { redirect_to :back }
     end
   end
-  
+
 end

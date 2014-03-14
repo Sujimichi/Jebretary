@@ -109,8 +109,8 @@
           - part_data = craft.part_data
           - craft.crafts_campaign = campaign
           - klass = ""
-          - klass << (part_data[:stock] ? "stock_craft" : "mod_craft")
-          - klass << " missing_parts" unless (part_data[:missing_parts] && part_data[:missing_parts].empty?)
+          - klass << (part_data[:stock] ? "stock_craft" : "mod_craft") unless part_data.empty?
+          - klass << " missing_parts" if part_data[:missing_parts] && !part_data[:missing_parts].empty?
           - klass << " deleted_craft" if craft.deleted?
           .craft_container{:class => klass}
             .craft
