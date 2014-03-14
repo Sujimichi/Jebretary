@@ -49,6 +49,7 @@ Jebretary
     - determine if a craft is stock or mod
     - determine if a crafts parts are missing from the game
     - display of uses parts on a crafts page with link that opens a window to that part
+    - bug fix, an error in error-handling was preventing errors from being handled! ;)
 
 
 ==0.1.5
