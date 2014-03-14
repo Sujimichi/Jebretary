@@ -1,0 +1,4 @@
+//noupdate replaces the saves partials so that the time counts are updated
+$('#quicksave_partial').html("#{j render "saves/short_list", :saves => @saves, :save_type => "quicksave", :campaign => @campaign, :has_change => @campaign.changed_save?("quicksave", @repo), :campaign_commit_messages => @campaign_commit_messages}")
+
+$('#persistent_partial').html("#{j render "saves/short_list", :saves => @saves, :save_type => "persistent", :campaign => @campaign, :has_change => @campaign.changed_save?("persistent", @repo), :campaign_commit_messages => @campaign_commit_messages}")

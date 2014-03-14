@@ -17,13 +17,15 @@
         .left.label= "Quicksaves |"
         .left= link_to_function "Persistent", "toggle_save_display()"
         .clear
-        = render "saves/short_list", :saves => saves, :save_type => "quicksave", :campaign => campaign, :has_change => campaign.changed_save?("quicksave", repo), :campaign_commit_messages => campaign_commit_messages
+        #quicksave_partial
+          = render "saves/short_list", :saves => saves, :save_type => "quicksave", :campaign => campaign, :has_change => campaign.changed_save?("quicksave", repo), :campaign_commit_messages => campaign_commit_messages
 
       #persistent_display.hidden
         .left= link_to_function "Quicksaves", "toggle_save_display()"
         .left.label= "| Persistent"
         .clear
-        = render "saves/short_list", :saves => saves, :save_type => "persistent", :campaign => campaign, :has_change => campaign.changed_save?("persistent", repo), :campaign_commit_messages => campaign_commit_messages
+        #persistent_partial
+          = render "saves/short_list", :saves => saves, :save_type => "persistent", :campaign => campaign, :has_change => campaign.changed_save?("persistent", repo), :campaign_commit_messages => campaign_commit_messages
 
 
   .clear

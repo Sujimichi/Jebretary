@@ -64,7 +64,6 @@ function poll_for_updated_instance(){
 };
 
 
-var poll_count = 0
 function poll_for_updated_list(){
   var campaign_id = $('#campaign_id').val();
   if(campaign_id != undefined){
@@ -75,12 +74,6 @@ function poll_for_updated_list(){
     data['search_opts'] = {}
     data['search_opts']['vab'] = $('#vab_search_field').val();
     data['search_opts']['sph'] = $('#sph_search_field').val();
-
-    if(poll_count == 0){
-      data["force_fetch"] = true
-    };
-    poll_count += 1
-    //if(poll_count >= 20){ poll_count = 0};
 
     clearTimeout(index_search_timer);
     ajax_get("/campaigns/"+ campaign_id, data, function(){
@@ -278,8 +271,10 @@ function toggle_active_display(){
 
 var auto_switch_display = true
 var auto_switch_reset = null
+var current_display_type = null
 
 function auto_switch_display_based_on(most_recent_commit){
+  current_display_type = most_recent_commit;
   if(auto_switch_display == true){
     if(most_recent_commit == "quicksave"){
       show_campaign_saves();
@@ -305,7 +300,10 @@ function show_current_project(opts){
   clearTimeout(auto_switch_reset);
   if(opts['force'] == true){
     auto_switch_display = false;
-    auto_switch_reset = setTimeout(function(){auto_switch_display = true},300000)
+    auto_switch_reset = setTimeout(function(){
+      auto_switch_display = true;
+      auto_switch_display_based_on(current_display_type);
+    },300000)
   };
 };
 
@@ -317,7 +315,10 @@ function show_campaign_saves(opts){
   clearTimeout(auto_switch_reset);
   if(opts['force'] == true){
     auto_switch_display = false;
-    auto_switch_reset = setTimeout(function(){auto_switch_display = true},300000)
+    auto_switch_reset = setTimeout(function(){
+      auto_switch_display = true;
+      auto_switch_display_based_on(current_display_type);
+    },300000)
   };
 };
 
