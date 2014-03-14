@@ -196,16 +196,7 @@ class System
           campaign.track_save(:quicksave) 
         end
              
-        if @loops_without_action >= 2
-          to_update = campaign.craft.where(:part_data => nil, :deleted => false).limit(10)
-          to_update.each{|c|
-            puts "updating parts info for #{c.name}"
-            c.update_part_data
-            c.save
-          }
-          @loops_without_action = 0 unless to_update.empty?
-        end
-        
+       
 
         #At this point everything should be commited, all craft and the saves, and no other git activity should be happening.
         #update repo for any craft that are holding commit message info in the temparary store.
@@ -214,6 +205,18 @@ class System
         end    
       end
     end
+
+
+    if @loops_without_action >= 5
+      to_update = Craft.where(:part_data => nil, :deleted => false).limit(20)
+      to_update.each{|c|
+        puts "updating parts info for #{c.name}"
+        c.update_part_data
+        c.save
+      }
+      @loops_without_action = 0 
+    end
+            
 
     puts "done - (#{(Time.now - t).round(2)}seconds)" unless instances.count.eql?(0) || Rails.env.eql?("test")
     System.remove_db_flag
