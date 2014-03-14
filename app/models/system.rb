@@ -196,8 +196,8 @@ class System
           campaign.track_save(:quicksave) 
         end
              
-        if @loops_without_action >= 30
-          to_update = campaign.craft.where(:part_data => nil, :deleted => false).limit(15)
+        if @loops_without_action >= 2
+          to_update = campaign.craft.where(:part_data => nil, :deleted => false).limit(10)
           to_update.each{|c|
             puts "updating parts info for #{c.name}"
             c.update_part_data
