@@ -39,7 +39,7 @@ class CraftsController < ApplicationController
 
           begin 
             if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-              `start explorer.exe #{path}`
+              `start explorer.exe #{path.split("/").join("\\")}` #this has to be in windows format which is not what File.join returns 
             else
               `nautilus #{path}`
             end
