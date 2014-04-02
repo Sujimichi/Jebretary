@@ -1,145 +1,145 @@
-Jebretary
-
+=Jebretary
 
 
 ==Issues
+- Editing Commit Messages
+  - Response from adding/updating a message will sometimes crash the interface. Although most times the update is written.
 
-  =Editing Commit Messages
-    - Response from adding/updating a message will sometimes crash the interface. Although most times the update is written.
-
-  =General
-    - occasionally shows the no campaigns messages on instances show page when there are campaigns present.
-    - find a fast way of getting the index of a commit, that doesnt involve having to select all commits, surly git must have a clever fast way of doing that.
+- General
+  - occasionally shows the no campaigns messages on instances show page when there are campaigns present.
+  - find a fast way of getting the index of a commit, that doesnt involve having to select all commits, surly git must have a clever fast way of doing that.
 
 
 ==Planned/Todo
-  - tracking of subassemblies
-  - setting to disable shutdown from remote device, to block the annoying sibling/parent/housemate factor
+- tracking of subassemblies
+- setting to disable shutdown from remote device, to block the annoying sibling/parent/housemate factor
 
-  - ability to set a craft to exist in all (or select) campaigns and automatically reflect changes made in either campaign.
+- ability to set a craft to exist in all (or select) campaigns and automatically reflect changes made in either campaign.
 
-  - tracking of user defined files in GameData (maybe)
-
-
-==Later
-  - part count display
-  - indexing of installed parts in KSP, allowing the system to determin which mods a craft uses
-
-  - indicator by craft in list that show if they are in service (might not be possible as craft can be renammed in flight)
-
-  - screen shot auto-associating. Given a knowledge of where a players scr-shots go, during a certain period after launch or on demand, associate any new scr-shots with the craft
-    - this feature would introduce a dependence on the DB, up till now all info is recreatable from the git repo (the DB just acts to index).
-    - possibile upload to imgur option?
-
-   - ability to not track a craft (remove from repo)
-    - possibly, this may be problematic
-
-    ==MajorFeature- Online System - JebWeb
-      - users sign up for a free account online with JebWeb and get a token which they set in Jebretary
-      - Jebretary can use this token to access the users online account and can then upload craft to the users account
-      - This would enable online, cloud storage of craft and would be a way of sharing craft.
-        - craft will also have more info, including its required mods.
-
-      - A craft posted on JebWb can just be updated with a click from Jerbretary.
-      - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
-
-==0.1.6
-  - craft part information
-    - system builds and caches a map of the parts found in each instance
-    - determine if a craft is stock or mod
-    - determine if a crafts parts are missing from the game
-    - display of uses parts on a crafts page with link that opens a window to that part
-    - bug fix, an error in error-handling was preventing errors from being handled! ;)
-    - crafts list is no only updated if there has been a change to display. With large numbers of craft and the new parts info displayed this request was being slow
+- tracking of user defined files in GameData (maybe)
 
 
-==0.1.5
-  - Can now detect a running instance of KSP and get the executable path
-    - rather than typing in the path you want to track, just run KSP and then select it.
-  - KSP can be launched and shutdown from the front page
-    - you can now launch KSP on your KSP machine from a mobile device somewhere on your network.
+===Later
+- part count display
+- indexing of installed parts in KSP, allowing the system to determin which mods a craft uses
+
+- indicator by craft in list that show if they are in service (might not be possible as craft can be renammed in flight)
+
+- screen shot auto-associating. Given a knowledge of where a players scr-shots go, during a certain period after launch or on demand, associate any new scr-shots with the craft
+ - this feature would introduce a dependence on the DB, up till now all info is recreatable from the git repo (the DB just acts to index).
+ - possibile upload to imgur option?
+
+- ability to not track a craft (remove from repo)
+ - possibly, this may be problematic
+
+====MajorFeature- Online System - JebWeb
+- users sign up for a free account online with JebWeb and get a token which they set in Jebretary
+- Jebretary can use this token to access the users online account and can then upload craft to the users account
+- This would enable online, cloud storage of craft and would be a way of sharing craft.
+  - craft will also have more info, including its required mods.
+
+- A craft posted on JebWb can just be updated with a click from Jerbretary.
+- option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
+
+==Version History
+  
+  ==0.1.6
+    - craft part information
+      - system builds and caches a map of the parts found in each instance
+      - determine if a craft is stock or mod
+      - determine if a crafts parts are missing from the game
+      - display of uses parts on a crafts page with link that opens a window to that part
+      - bug fix, an error in error-handling was preventing errors from being handled! ;)
+      - crafts list is no only updated if there has been a change to display. With large numbers of craft and the new parts info displayed this request was being slow
+  
+  
+  ==0.1.5
+    - Can now detect a running instance of KSP and get the executable path
+      - rather than typing in the path you want to track, just run KSP and then select it.
+    - KSP can be launched and shutdown from the front page
+      - you can now launch KSP on your KSP machine from a mobile device somewhere on your network.
+  
+  
+  ==0.1.4
+    - bug fix, campaigns with existing git repo where not getting detected by a fresh install of Jebretary
+    - bug fix, updating a message at the same time as the craft is commited was not working.
+    - bug fix, only the most recent instance was being processed
+    - reduced occurance of commit messages having to be written to repo after commit.
+    - system only performs check for previously deleted craft(ie craft deleted and commited to git before using Jebretary) once on startup.
+    - further improvments to runing speed of background monitor
+    - minor interface tweeks
+  
+  ==0.1.3
+    - rewrote controller logic for editing messages
+    - fixed bug where deleting a craft via KSP or OS was crashing interface
+    - more efficient selects of git history -> faster updating of craft list
+    - improvment to background monitor, runs faster now!
+  
+  ==0.1.2
+    - MAJOR change to backend.  Scrapped 3rd party code and wrote my own git interface, faster, stronger, better!!
+    (should really be several versions!)
+  
+  
+  ==0.1.1
+    - added sort 'n' search on the craft lists
+    - fixed bug where a campaign without any craft hung the interface
+  
+  ==0.1.0
+    - test release version
+  
+  ==0.0.12
+    - changed entry point for background runner
+    - DB select and view loading optimisation
+    - ready for test release!?
+  
+  ==0.0.11
+    - quicksave can now be replaced with the persistent file allowing for f9 reload
+    - show deleted craft link only is shown if there are tracked deleted craft
+  
+  ==0.0.10
+    - bug fixes
+    - changed how commit messages for saves are shown
+    - minor System optimizaton
+    - more detailed elapsed time display
+    - updated help
+  
+  ==0.0.9
+    - major change to how commit messages are updated into the repo.  User can now edit commit messages while there are untracked changes in the repo.  The messages will be stored on the craft object and will be written to the repo later, once all changes have been tracked.
+    - quicksave and persistent files can now be reverted from interface
+    - interface automattically displays either current project or saves depending on which has been most recently changed. While editing a craft the current project is show, once the user does a quicksave it will switch to displaying saves.
+    - git garbage collector is called periodically to ensure the repo is kept compressed.
+  
+  
+  ==0.0.8
+    - added quicksave and persistent file tracking (but no facility to revert as yet).
+    - added ability to move/copy craft file to another campaign in the same or other instance.
+    - added ability to delete craft files.
+    - Fixed - editing a commit message at the same time as the craft is automatically commited no longer looses the message
+  
+  ==0.0.7
+    - improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update
+      + messages from previous commits can still be edited as before
+      + messages are edited in a dialog which gets around the page update issue
+    - changed how craft are reverted.  Instead of reverting automattically creating a new commit (version), now reverting a craft leaves it as untracked changes.  Makes it easier to quickly check a past version and then return to current state, or check out several past versions one after the other while looking for the right one (without each checkout automatically meaning a new commit).
+    - started adding help tips to appear on first use and on request
+    - added settings file which currently is used to track which help tips the user has seen.
+    - optimized System.process (background polling loop).
+  
+  ==0.0.6
+    - autosaved ships are no longer shown as current project
+    - flags for campaigns are processed sooner
+    - craft previously deleted in the repo are now detected (and craft object assigned as marked as deleted).  Now previously deleted craft can be recovered
+  
+  ==0.0.5
+    - can now choose to revert to a previous commit without commiting the revert.  This allows for a temporary revert without adding more to the timeline
+    - can now revert while there are untracked changes, with a warning to say untracked changes will be lost
+  
+  ==0.0.4
+    Stuff that happened before
 
 
-==0.1.4
-  - bug fix, campaigns with existing git repo where not getting detected by a fresh install of Jebretary
-  - bug fix, updating a message at the same time as the craft is commited was not working.
-  - bug fix, only the most recent instance was being processed
-  - reduced occurance of commit messages having to be written to repo after commit.
-  - system only performs check for previously deleted craft(ie craft deleted and commited to git before using Jebretary) once on startup.
-  - further improvments to runing speed of background monitor
-  - minor interface tweeks
 
-==0.1.3
-  - rewrote controller logic for editing messages
-  - fixed bug where deleting a craft via KSP or OS was crashing interface
-  - more efficient selects of git history -> faster updating of craft list
-  - improvment to background monitor, runs faster now!
-
-==0.1.2
-  - MAJOR change to backend.  Scrapped 3rd party code and wrote my own git interface, faster, stronger, better!!
-  (should really be several versions!)
-
-
-==0.1.1
-  - added sort 'n' search on the craft lists
-  - fixed bug where a campaign without any craft hung the interface
-
-==0.1.0
-  - test release version
-
-==0.0.12
-  - changed entry point for background runner
-  - DB select and view loading optimisation
-  - ready for test release!?
-
-==0.0.11
-  - quicksave can now be replaced with the persistent file allowing for f9 reload
-  - show deleted craft link only is shown if there are tracked deleted craft
-
-==0.0.10
-  - bug fixes
-  - changed how commit messages for saves are shown
-  - minor System optimizaton
-  - more detailed elapsed time display
-  - updated help
-
-==0.0.9
-  - major change to how commit messages are updated into the repo.  User can now edit commit messages while there are untracked changes in the repo.  The messages will be stored on the craft object and will be written to the repo later, once all changes have been tracked.
-  - quicksave and persistent files can now be reverted from interface
-  - interface automattically displays either current project or saves depending on which has been most recently changed. While editing a craft the current project is show, once the user does a quicksave it will switch to displaying saves.
-  - git garbage collector is called periodically to ensure the repo is kept compressed.
-
-
-==0.0.8
-  - added quicksave and persistent file tracking (but no facility to revert as yet).
-  - added ability to move/copy craft file to another campaign in the same or other instance.
-  - added ability to delete craft files.
-  - Fixed - editing a commit message at the same time as the craft is automatically commited no longer looses the message
-
-==0.0.7
-  - improved commit message editing.  Now current commit message can be editied while the git repo is not in a state to take a message update
-    + messages from previous commits can still be edited as before
-    + messages are edited in a dialog which gets around the page update issue
-  - changed how craft are reverted.  Instead of reverting automattically creating a new commit (version), now reverting a craft leaves it as untracked changes.  Makes it easier to quickly check a past version and then return to current state, or check out several past versions one after the other while looking for the right one (without each checkout automatically meaning a new commit).
-  - started adding help tips to appear on first use and on request
-  - added settings file which currently is used to track which help tips the user has seen.
-  - optimized System.process (background polling loop).
-
-==0.0.6
-  - autosaved ships are no longer shown as current project
-  - flags for campaigns are processed sooner
-  - craft previously deleted in the repo are now detected (and craft object assigned as marked as deleted).  Now previously deleted craft can be recovered
-
-==0.0.5
-  - can now choose to revert to a previous commit without commiting the revert.  This allows for a temporary revert without adding more to the timeline
-  - can now revert while there are untracked changes, with a warning to say untracked changes will be lost
-
-==0.0.4
-  Stuff that happened before
-
-
-
-==exe Build Processin windows
+====exe Build Processin windows
   - in git bash prompt in <path_to_jebretary>
   bundle install
   rake ocra_prepare
@@ -156,7 +156,7 @@ Jebretary
   -and ensure both are present (along with DB) in jebretary_build
 
 
-==CopyWrite
+====CopyWrite
 Copyright (c) 2014, Jeremy Comer
 All rights reserved.
 
