@@ -3,18 +3,22 @@ version 0.1.6
 
 Jebretary is a stand alone tool for the Kerbal Space Program.  It uses the git version control system to track changes to your craft and save files.
 It runs as a web server (written in Ruby on Rails) on your KSP machine so you can interface with it from any web enabled device on your network.
+Jebretary is designed to run on windows and comes packaged in an installer that contains everything that is required except git. git needs to be installed separately.
+
 
 - Each time you launch a craft that you've made changes to, Jebretary will track the changes as a new version.  You can revert a craft back to any past version just by clicking on the version you want.
 - It tracks every single quicksave and autosave and enables you to load any past save.
 - autosaves can also be loaded as quicksaves so they can be loaded in game by pressing f9.
 
-See the KSP forum for more details on installing and use
-http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Control-%28backups%29-for-craft-and-saves
 
+====Install git and then install Jebretary
 
 Download installer
-0.1.5 - http://www.mediafire.com/download/f6e0jspuhxybb78/jebretary_setup_v0.1.5.exe
+- 0.1.5 - http://www.mediafire.com/download/f6e0jspuhxybb78/jebretary_setup_v0.1.5.exe
 
+
+See the KSP forum for more details on installing and use
+http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Control-%28backups%29-for-craft-and-saves
 
 
 ==Issues
