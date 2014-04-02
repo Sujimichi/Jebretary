@@ -62,8 +62,8 @@ class ApplicationController < ActionController::Base
   end
 
   def time_ago time
-    seconds_ago = Time.now - time
-    
+    seconds_ago = Time.zone.now.to_time - time.to_time
+    seconds_ago += Time.now.utc_offset
 
     days_ago = (seconds_ago / 86400).floor
     remaining_seconds = seconds_ago - (days_ago * 86400)
