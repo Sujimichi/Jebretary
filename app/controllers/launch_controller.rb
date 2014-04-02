@@ -5,7 +5,11 @@ class LaunchController < ApplicationController
       f.js {
         running_instances = KSP.controller.find_running_instances
         if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-          running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
+          begin
+            running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
+          rescue
+            running_instances = []
+          end
           tracked_paths = Instance.all.map{|i| i.path.split("/").join("\\")}
 
           @active_instances = Instance.all.select{|i| running_instances.include?(i.path.split("/").join("\\"))}.map{|i| i.id}
@@ -26,7 +30,11 @@ class LaunchController < ApplicationController
       run = false
 
       if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-        running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
+        begin
+          running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
+        rescue
+          running_instance = []
+        end
         run = true unless running_instances.include?(@instance.path.split("/").join("\\"))
       else
         run = true unless running_instances.include?(@instance.path)
@@ -62,7 +70,11 @@ class LaunchController < ApplicationController
 
       running_instances = KSP.controller.find_running_instances
       if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-        shutdown = running_instances.select{|i| i.executablepath.sub("\\KSP.exe","") == @instance.path.split("/").join("\\")}
+        begin
+          shutdown = running_instances.select{|i| i.executablepath.sub("\\KSP.exe","") == @instance.path.split("/").join("\\")}
+        rescue
+          shutdown = []
+        end
       else
         shutdown = running_instances.select{|i| i == @instance.path }
       end
