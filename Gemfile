@@ -23,8 +23,8 @@ unless (RUBY_PLATFORM =~ /mswin|mingw|cygwin/) #unless defined?(Ocra)
   group :test, :development do
     gem 'rspec-rails'
     gem 'factory_girl_rails'
-    gem 'autotest-rails'
-    gem 'autotest'
+    #gem 'autotest-rails'
+    #gem 'autotest'
   end
 
 else
