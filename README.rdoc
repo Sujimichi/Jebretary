@@ -70,7 +70,7 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
       - determine if a crafts parts are missing from the game
       - display of uses parts on a crafts page with link that opens a window to that part
       - bug fix, an error in error-handling was preventing errors from being handled! ;)
-      - crafts list is no only updated if there has been a change to display. With large numbers of craft and the new parts info displayed this request was being slow
+      - crafts list is now only updated if there has been a change to display. With large numbers of craft and the new parts info displayed this request was being slow
 
 
   ==0.1.5
