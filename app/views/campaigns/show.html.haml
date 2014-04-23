@@ -3,15 +3,20 @@
     =link_to "back", instance_path(@campaign.instance)
   -if @campaign.exists?
     = render "help"
+    
 
     .grid_8.alpha
       .header
         %h2= @campaign.name
         .small= File.join(JSON.parse(@campaign.instance.full_path), 'saves', @campaign.name).inspect
 
-      = link_to_function "Current Project", "show_current_project({force: true})"
-      |
-      = link_to_function "Saves", "show_campaign_saves({force: true})"
+        = link_to_function "Current Project", "show_current_project({force: true})"
+        |
+        = link_to_function "Saves", "show_campaign_saves({force: true})"
+        .clear
+        - content_for :title_bar do 
+          = render "launch/instance", :instance => @campaign.instance
+        
       .grid_9.push_1.alpha
         #campaign_saves.hidden
         #current_project

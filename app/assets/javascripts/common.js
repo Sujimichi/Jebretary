@@ -49,7 +49,7 @@ autohide_flash = function(){
 
 function poll_for_running_instances_of_ksp(){
   clearTimeout(detect_running_ksp_timer);
-  ajax_get("launch/", {}, function(){
+  ajax_get("/launch/", {}, function(){
     detect_running_ksp_timer = setTimeout(function(){
       poll_for_running_instances_of_ksp()
     }, 5000);

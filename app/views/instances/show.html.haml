@@ -5,6 +5,8 @@
     =link_to "return home", root_path
 
   = hidden_field_tag(:available_flags, @flags)
+  - content_for :title_bar do 
+    = render "launch/instance", :instance => @instance
 
   -if system.show_help_for?("instance_page_for_#{@instance.id}")
     .help_for#instance_page_first_view.hidden

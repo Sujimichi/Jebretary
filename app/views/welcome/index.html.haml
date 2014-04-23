@@ -18,7 +18,7 @@
                 .small= "#{instance.campaigns.count} Campaigns"
             - if RUBY_PLATFORM =~ /mswin|mingw|cygwin/ || Rails.env.eql?("development")
               .launch_links.grid_2.omega
-                .shutdown_link.hidden
+                .shutdown_link
                   = link_to "Shutdown KSP", launch_path(:id => instance.id), :method => :delete, :confirm => "Are you sure?", :remote => true
                 .launch_link
                   = link_to "Launch KSP", launch_path(:id => instance.id), :remote => true

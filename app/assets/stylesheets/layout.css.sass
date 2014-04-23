@@ -148,6 +148,37 @@ a
   +clearfix
   @extend .default_shadow
 
+  &:hover
+    .title_bar
+      :background-color lighten($color_header, 45)
+      .inactive_install
+        .launch_links
+          :border 1px solid green
+
+      .active_install
+        .launch_links
+          :border 1px solid red      
+  
+.title_bar
+  :margin 0 auto
+  :width 25%
+  :margin-top 0.5em
+  :text-align center
+  :vertical-align middle
+  :background-color lighten($color_header, 15)
+  +rounded
+
+  .inactive_install
+    .launch_links
+      :border-bottom none
+  .active_install
+    .launch_links
+      :border-bottom none
+
+  .launch_links
+    +rounded
+  
+  
 #content
   :position relative
   +gradient(#0f1932, #95d3d2)

@@ -1,0 +1,18 @@
+- if RUBY_PLATFORM =~ /mswin|mingw|cygwin/ || Rails.env.eql?("development")
+  .instance.campaign_instance_launch_link{:id => "installed_instance_#{instance.id}"}
+    .launch_links
+      .shutdown_link
+        = link_to "Shutdown KSP", launch_path(:id => instance.id), :method => :delete, :confirm => "Are you sure?", :remote => true
+      .launch_link
+        = link_to "Launch this instance of KSP", launch_path(:id => instance.id), :remote => true
+  .goto_active_instance
+    - Instance.all.each do |inst|
+      - unless inst.id.eql?(instance.id)
+        .active_instance_link.hidden{:id => "goto_active_instance_#{inst.id}"}
+          %a{:href => instance_path(inst)}
+            = "A different instance of KSP is running, switch to it"
+            
+:javascript
+  $(function(){
+    poll_for_running_instances_of_ksp();
+  });            

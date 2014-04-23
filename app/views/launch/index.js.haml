@@ -6,11 +6,23 @@ $('.instance').addClass("inactive_install")
 $(".shutdown_link").hide();
 $(".launch_link").show();
 
+$(".active_instance_link").hide();
+
 - @active_instances.each do |id|
   $("#installed_instance_#{id}").addClass("active_install")
   $("#installed_instance_#{id}").find(".launch_link").hide();
   $("#installed_instance_#{id}").find(".shutdown_link").show();
   $("#installed_instance_#{id}").find(".launch_notice").hide("fast")
+  $("#goto_active_instance_#{id}").show();
+
+- if @active_instances.empty?
+  $(".campaign_instance_launch_link").find(".launch_link").show();
+-else 
+  $(".campaign_instance_launch_link").find(".launch_link").hide();
+  
+  
 
 - (Instance.all.map{|i| i.id} - @active_instances).each do |id|
   $("#installed_instance_#{id}").find(".shutdown_notice").hide("fast")
+  
+  

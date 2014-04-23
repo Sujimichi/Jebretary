@@ -14,7 +14,7 @@ end
 class KSP::LinuxDev
 
   def self.find_running_instances
-    #return ["/home/sujimichi/KSP/KSPv0.21.1-Stock - tester"]
+    #return ["/home/sujimichi/KSP/KSPv0.23.0-Mod"]
     #return ["/home/sujimichi/KSP/KSPv0.22.0-Stock"]
     []
   end
