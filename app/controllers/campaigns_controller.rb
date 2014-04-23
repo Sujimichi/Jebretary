@@ -21,12 +21,14 @@ class CampaignsController < ApplicationController
           @campaign_commit_messages = @campaign.commit_messages
           @repo = @campaign.repo 
 
+         
           #generate a checksum based on items that imply a need to update the page. The checksum will be stored so subsiquent requests
           #can be compaired.  If the checksums match then there is no need to update the page.
           state = [@campaign, @campaign.has_untracked_changes?, @current_project, @saves, params[:sort_opts],  params[:search_opts]]
           state = Digest::SHA256.hexdigest(state.to_s)
+          
 
-          if Rails.cache.read("state_stamp") != state
+          if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CampagnsController")
 
             
             @current_project_history = @current_project.history(:limit => 5) if @current_project

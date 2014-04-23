@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Exceptional
+  after_filter :record_last_controller
 
   protect_from_forgery
 
@@ -24,6 +25,10 @@ class ApplicationController < ActionController::Base
 
 
   private
+
+  def record_last_controller
+    Rails.cache.write("last_controller", self.class.to_s)
+  end
 
   def system
     return @system if defined?(@system) && !@system.nil?
