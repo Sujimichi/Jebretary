@@ -65,7 +65,7 @@ class PartParser
         mod_dir = folders[1] #mod dir is the directory inside GameData
 
         part_info.merge!(:mod => mod_dir)
-        part_info.merge!(:stock => true) if mod_dir == "Squad"
+        part_info.merge!(:stock => true) if ["Squad", "NASAmission"].include?(mod_dir)
    
         #determine the type of cfg file
         first_significant_line = cfg.select{|line| line.match("//").nil? && !line.chomp.empty? }.first #first line that isn't comments or empty space
