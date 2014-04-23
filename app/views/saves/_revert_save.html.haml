@@ -3,7 +3,8 @@
   = "Click ok to revert your #{save_type} to the previous version"
 -else
   = "Click ok to revert your #{save_type} to #{version} versions ago"
-.small= "(made #{time_ago_in_words(commit.date)} ago)"
+- date = Time.now.utc_offset.seconds.ago(commit.date)
+.small= "(made #{time_ago_in_words(date)} ago)"
 
 .vblk_1
 .small= "check 'revert as quicksave' so you can load the persistent save with f9" if save_type.eql?("persistent")
