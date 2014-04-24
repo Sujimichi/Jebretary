@@ -1,5 +1,5 @@
 =Jebretary
-version 0.1.6
+version 0.2.2
 
 Jebretary is a stand alone tool for the Kerbal Space Program.  It uses the git version control system to track changes to your craft and save files.
 It runs as a web server (written in Ruby on Rails) on your KSP machine so you can interface with it from any web enabled device on your network.
@@ -63,14 +63,16 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 
 ==Version History
 
-  ==0.1.6
+  ==0.2.0 -> 0.2.2
+    - bug fix, an error in error-handling was preventing errors from being handled! ;)
+    - crafts list is now only updated if there has been a change to display. With large numbers of craft and the new parts info displayed this request was being slow
+
+  ==0.2.0
     - craft part information
-      - system builds and caches a map of the parts found in each instance
+      - system builds and caches a map of the parts found in each KSP install
       - determine if a craft is stock or mod
       - determine if a crafts parts are missing from the game
-      - display of uses parts on a crafts page with link that opens a window to that part
-      - bug fix, an error in error-handling was preventing errors from being handled! ;)
-      - crafts list is now only updated if there has been a change to display. With large numbers of craft and the new parts info displayed this request was being slow
+      - display of used parts on a crafts page with link that opens a window to that part
 
 
   ==0.1.5
