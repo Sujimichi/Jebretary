@@ -1,5 +1,7 @@
 class LaunchController < ApplicationController
   #require 'assets/ksp'
+  skip_after_filter :record_last_controller
+
   def index
     respond_to do |f|
       f.js {

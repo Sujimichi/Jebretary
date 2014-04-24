@@ -24,13 +24,10 @@ class CampaignsController < ApplicationController
          
           #generate a checksum based on items that imply a need to update the page. The checksum will be stored so subsiquent requests
           #can be compaired.  If the checksums match then there is no need to update the page.
-          state = [@campaign, @campaign.has_untracked_changes?, @current_project, @saves, params[:sort_opts],  params[:search_opts]]
-          state = Digest::SHA256.hexdigest(state.to_s)
-          
+          state = [@campaign, @campaign.has_untracked_changes?, @current_project, @saves, params[:sort_opts],  params[:search_opts]].to_json
+          state = Digest::SHA256.hexdigest(state)
 
-          if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CampagnsController")
-
-            
+          if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CampaignsController")
             @current_project_history = @current_project.history(:limit => 5) if @current_project
             @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
             @deleted_craft_count = @campaign.craft.where(:deleted => true).count
@@ -49,9 +46,7 @@ class CampaignsController < ApplicationController
             params[:sort_opts][:sph] ||= "updated_at reverse"
             @sort_opts = params[:sort_opts]
 
-            @campaign.update_attributes(:sort_options => params[:sort_opts].to_json) unless @campaign.sort_options.eql?(params[:sort_opts].to_json)
-
-            
+            @campaign.update_attributes(:sort_options => params[:sort_opts].to_json) unless @campaign.sort_options.eql?(params[:sort_opts].to_json)           
             @current_project_commit_messages = @current_project.commit_messages if @current_project
 
             #this really needs optimising for windows.  
@@ -59,7 +54,6 @@ class CampaignsController < ApplicationController
             #on Linux (in the slower dev mode) it takes under 200ms
           else
             return render :partial => "no_update"
-
           end
           Rails.cache.write("state_stamp", state)
         end
