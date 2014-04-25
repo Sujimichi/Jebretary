@@ -20,7 +20,7 @@ $(".active_instance_link").hide();
 -else 
   $(".campaign_instance_launch_link").find(".launch_link").hide();
   
-  
+$(".campaign_instance_launch_link").show()  
 
 - (Instance.all.map{|i| i.id} - @active_instances).each do |id|
   $("#installed_instance_#{id}").find(".shutdown_notice").hide("fast")

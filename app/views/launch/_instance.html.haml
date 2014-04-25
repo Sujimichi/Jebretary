@@ -1,5 +1,5 @@
 - if RUBY_PLATFORM =~ /mswin|mingw|cygwin/ || Rails.env.eql?("development")
-  .instance.campaign_instance_launch_link{:id => "installed_instance_#{instance.id}"}
+  .instance.campaign_instance_launch_link.hidden{:id => "installed_instance_#{instance.id}"}
     .launch_links
       .shutdown_link
         = link_to "Shutdown KSP", launch_path(:id => instance.id), :method => :delete, :confirm => "Are you sure?", :remote => true

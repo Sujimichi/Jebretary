@@ -52,7 +52,7 @@ function poll_for_running_instances_of_ksp(){
   ajax_get("/launch/", {}, function(){
     detect_running_ksp_timer = setTimeout(function(){
       poll_for_running_instances_of_ksp()
-    }, 5000);
+    }, 10000);
   });
 };
 
