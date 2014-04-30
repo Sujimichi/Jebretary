@@ -15,11 +15,8 @@ class WelcomeController < ApplicationController
       changes = [current_stock_parts - new_stock_parts, new_stock_parts - current_stock_parts].flatten.uniq
 
       effected_craft = Craft.all.select{|c| c.part_data.has_key?("mods")}.select{|c| 
-        changes.map{|mod|
-          c.part_data["mods"].include?(mod)
-        }.any?
+        changes.map{|mod| c.part_data["mods"].include?(mod)}.any?
       }
-
       effected_craft.each{|c| c.update_part_data}
 
       sys.config_set "stock_parts", new_stock_parts
