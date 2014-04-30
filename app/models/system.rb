@@ -301,7 +301,8 @@ class System
 
   def default_config
     config = {
-      :seen_elements => []
+      :seen_elements => [],
+      :stock_parts => ["Squad", "NASAmission"]
     }
   end
 

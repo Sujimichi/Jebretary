@@ -8,6 +8,11 @@ class PartParser
   attr_accessor :parts, :resources, :internals, :props
 
   def initialize dir, args = {:source => :game_folder, :write_to_file => false}
+    begin
+      @stock_parts = System.new.get_config["stock_parts"]
+    rescue
+      @stock_parts = ["Squad", "NASAmission"]
+    end
     @instance_dir = dir
     if args[:source] == :game_folder
       cur_dir = Dir.getwd
@@ -65,7 +70,7 @@ class PartParser
         mod_dir = folders[1] #mod dir is the directory inside GameData
 
         part_info.merge!(:mod => mod_dir)
-        part_info.merge!(:stock => true) if ["Squad", "NASAmission"].include?(mod_dir)
+        part_info.merge!(:stock => true) if @stock_parts.include?(mod_dir)
    
         #determine the type of cfg file
         first_significant_line = cfg.select{|line| line.match("//").nil? && !line.chomp.empty? }.first #first line that isn't comments or empty space

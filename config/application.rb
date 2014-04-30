@@ -60,3 +60,21 @@ module Jebretary
     config.assets.version = '1.0'
   end
 end
+
+class Array
+  
+  #Joins the array elements with a comma and replaces the last comma with 'and'
+  #==== Examples
+  # ['a', 'b', 'c'].and_join # => 'a, b and c'
+  # ['a', 'b'].and_join # => 'a and b'
+  # ['a'].and_join # => 'a'
+  def and_join    
+    self.compact.join(", ").reverse.sub(",","dna ").reverse
+    #takes array and joins with a comma.  The resultant string is then reversed and the first comma is replaced with 'dna ' 
+    #'dna' is 'and' backwards, but is also a nice tribute to genomics and Douglas N. Adams.
+    #the resultant string is then reversed again so now the right way round and the last comma has been replaced with 'and '
+  end
+
+end
+
+

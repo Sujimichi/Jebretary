@@ -336,3 +336,5 @@ function toggle_deleted_craft(){
     $('.toggle_deleted_craft_link').html("show deleted craft")
   };
 };
+
+function toggle_settings(){$(".settings").toggle('slow')};
