@@ -1,5 +1,5 @@
 =Jebretary
-version 0.2.2
+version 0.2.3
 
 Jebretary is a stand alone tool for the Kerbal Space Program.  It uses the git version control system to track changes to your craft and save files.
 It runs as a web server (written in Ruby on Rails) on your KSP machine so you can interface with it from any web enabled device on your network.
@@ -62,6 +62,8 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
 ==Version History
+  ==0.2.3
+    - you can define which "mods" are considered stock for Jebretary to distinguish mod or stock craft. Defaults are "Squad" and "NASAmission"
 
   ==0.2.0 -> 0.2.2
     - bug fix, an error in error-handling was preventing errors from being handled! ;)
