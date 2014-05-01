@@ -21,6 +21,7 @@ class PartParser
       #puts "Done\n"
       #puts "ignored #{@ignored_cfgs}"    
       #puts "\n\nBuilding associations, please wait...\n\n"
+      @parts ||= {}
       associate_components  
       write_to_file if args[:write_to_file]
       Dir.chdir(cur_dir)
