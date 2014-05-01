@@ -78,7 +78,7 @@
 
 
     -else
-      .vblk_4
+      .vblk_2
       .grid_7.push_1
         %h3=link_to_function "Add another KSP instance", "$('.additional_instance_form').toggle('slow');"
         .additional_instance_form.hidden
@@ -96,8 +96,11 @@
         .info.small ie to consider MechJeb as part of stock put: Squad, NASAmission, MechJeb2
         %b.info.small updating this can take a while as all craft need to be rescanned for their part data.
         = form_tag "welcome/update" do |f|
-          = text_field_tag :stock_parts, @stock_parts.join(", ")
-          = submit_tag("update")
+          .left
+            = text_field_tag :stock_parts, @stock_parts.join(", ")
+            = submit_tag("update", {:onclick => "$(this).hide(); $('.update_stock_ajax_loader').show()"})
+          .left.update_stock_ajax_loader.ajax_loader.hidden
+          .clear
         
         .vblk_2
         %h4 Reset Help Tips

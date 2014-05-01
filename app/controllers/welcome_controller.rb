@@ -20,7 +20,7 @@ class WelcomeController < ApplicationController
       effected_craft.each{|c| c.update_part_data}
 
       sys.config_set "stock_parts", new_stock_parts
-      notice = "Parts in #{new_stock_parts.and_join} are now considered stock"
+      notice = "Parts in #{new_stock_parts.and_join} are now considered stock.  Part data on #{effected_craft.count} craft have been updated"
     end
     if params[:reset_help]
       system.config_set :seen_elements, []
