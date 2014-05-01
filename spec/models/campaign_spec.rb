@@ -1,5 +1,25 @@
 require 'spec_helper'
 
+def self_test campaign_id, craft_id
+  campaign = Campaign.find(campaign_id)
+  craft = campaign.craft.find(craft_id)
+  file = File.open(craft.file_path, "r"){|f| f.readlines}
+  first_part_line = file.select{|line| line.include?("part = ")}.first
+
+  updated_line = first_part_line.chomp << "foo\r\n"
+  file = file.join.sub(first_part_line, updated_line)
+  File.open(craft.file_path, "w"){|f| f.write(file)}
+
+  sleep(rand * 5.0)
+
+  p_file = File.open(File.join([campaign.path, "persistent.sfs"]), "r"){|f| f.readlines}
+  orig_line = p_file.select{|line| line.include?("CanQuickSave")}.first
+
+  updated_line = orig_line.chomp << "foo\r\n"
+  p_file = p_file.join.sub(orig_line, updated_line)
+  File.open(File.join([campaign.path, "persistent.sfs"]), "w"){|f| f.write(p_file)}
+
+end
 
 describe Campaign do
 
@@ -554,7 +574,7 @@ describe Campaign do
     it 'should return quicksave if it was the most recent commit' do 
       System.process
       @campaign.track_save :quicksave
-    
+
       sleep(1) #so there is a difference on the commit timestamp
       File.open("quicksave.sfs", 'w'){|f| f.write("this is the quicksave file I think")}
       System.process    
@@ -569,7 +589,7 @@ describe Campaign do
       File.open("quicksave.sfs", 'w'){|f| f.write("this is the quicksave file I think")}
       System.process          
       @campaign.reload.latest_commit.should == :quicksave
-      
+
       File.open(@campaign.craft.first.file_name, 'w'){|f| f.write("craft change")}
       @campaign.reload.latest_commit.should == :current_project
     end
@@ -581,7 +601,7 @@ describe Campaign do
       File.open("quicksave.sfs", 'w'){|f| f.write("this is the quicksave file I think")}
       System.process          
       @campaign.reload.latest_commit.should == :quicksave
-      
+
       File.open(@campaign.craft.first.file_name, 'w'){|f| f.write("craft change")}
       @campaign.craft.first.commit
       @campaign.reload.latest_commit.should == :current_project
@@ -589,7 +609,7 @@ describe Campaign do
 
   end
 
-  
+
   describe "dont_process_while" do 
     before(:each) do 
       @campaign = set_up_sample_data
