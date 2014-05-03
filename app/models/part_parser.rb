@@ -9,6 +9,7 @@ class PartParser
 
   def initialize dir, args = {:source => :game_folder, :write_to_file => false}
     @instance_dir = dir
+    #args[:source] = :game_folder if Rails.env.eql?("development")
     if args[:source] == :game_folder
       cur_dir = Dir.getwd
       Dir.chdir(@instance_dir)
@@ -113,7 +114,7 @@ class PartParser
       end
 
     end.flatten.compact
-    @parts = part_info.map{|n| {n[:name] => n} }.inject{|i,j| i.merge(j)}
+    @parts = part_info.map{|n| {n[:name].gsub("_",".") => n} }.inject{|i,j| i.merge(j)}
   end
 
   def associate_components
