@@ -50,7 +50,7 @@ class PartParser
     @props = {}
     @ignored_cfgs = []
     part_info = part_cfgs.map do |cfg_path|
-      cfg = File.open(cfg_path,"r"){|f| f.readlines}
+      cfg = File.open(cfg_path,"r:ASCII-8BIT"){|f| f.readlines}
       begin
         part_name = cfg.select{|line| line.include?("name =")}.first.sub("name = ","").gsub("\t","").gsub(" ","").chomp
         print "."
@@ -58,59 +58,64 @@ class PartParser
         @ignored_cfgs << cfg_path
         next
       end
-      dir = cfg_path.sub("/part.cfg","")
-      part_info = {:dir => dir, :path => cfg_path }
+      begin
+        dir = cfg_path.sub("/part.cfg","")
+        part_info = {:dir => dir, :path => cfg_path }
 
-      if cfg_path.match(/^GameData/)
-        folders = dir.split("/")
-        mod_dir = folders[1] #mod dir is the directory inside GameData
+        if cfg_path.match(/^GameData/)
+          folders = dir.split("/")
+          mod_dir = folders[1] #mod dir is the directory inside GameData
 
-        part_info.merge!(:mod => mod_dir)
-        part_info.merge!(:stock => true) if ["Squad", "NASAmission"].include?(mod_dir)
-   
-        #determine the type of cfg file
-        first_significant_line = cfg.select{|line| line.match("//").nil? && !line.chomp.empty? }.first #first line that isn't comments or empty space
-        type = :part     if first_significant_line.match(/^PART/)
-        type = :prop     if first_significant_line.match(/^PROP/)
-        type = :internal if first_significant_line.match(/^INTERNAL/)
-        type = :resource if first_significant_line.match(/^RESOURCE_DEFINITION/)
-        type ||= :part #assume undetected headings will be parts
-        part_info.merge!(:type => type)      
-        
-        #incases of a maim mod dir having sub divisions within it    
-        sub_mod_dir = folders[2] if type.eql?(:part) && folders[2].downcase != "parts" 
-        part_info.merge!(:sub_mod => sub_mod_dir) if sub_mod_dir
+          part_info.merge!(:mod => mod_dir)
+          part_info.merge!(:stock => true) if ["Squad", "NASAmission"].include?(mod_dir)
 
-        #subcompnents deals with when a .cfg includes info for more than one part or resouce etc.
-        cfg.split( first_significant_line ).map do |sub_component|
-          next if sub_component.blank?
-          name = sub_component.select{|line| line.include?("name =")}.first
-          next if name.blank?
-          name = name.sub("name = ","").gsub("\t","").gsub(" ","").chomp         
-          part_info.merge!(:name => name)
-          
-          if type.eql?(:resource)            
-            @resources.merge!(name => part_info.clone)
-            nil
-          elsif type.eql?(:internal)
-            part_info.merge!(:file => cfg)
-            @internals.merge!(name => part_info.clone)
-            nil
-          elsif type.eql?(:prop)
-            @props.merge!(name => part_info.clone)
-            nil
-          else #its a part init'
-            part_info.merge!(:file => cfg)
-            part_info.clone #return part info in the .map loop
-          end
-        end.compact
+          #determine the type of cfg file
+          first_significant_line = cfg.select{|line| line.match("//").nil? && !line.chomp.empty? }.first #first line that isn't comments or empty space
+          type = :part     if first_significant_line.match(/^PART/)
+          type = :prop     if first_significant_line.match(/^PROP/)
+          type = :internal if first_significant_line.match(/^INTERNAL/)
+          type = :resource if first_significant_line.match(/^RESOURCE_DEFINITION/)
+          type ||= :part #assume undetected headings will be parts
+          part_info.merge!(:type => type)      
 
-      elsif cfg_path.match(/^Parts/)
-        part_info.merge!(:name => part_name, :legacy => true, :type => :part, :mod => :unknown_legacy)
-        part_info
-      else
-        raise UnknownPartException, "part #{cfg_path} is not in either GameData or the legacy Parts folder"
-        #this could be a problem for people with legacy internals, props or resources
+          #incases of a maim mod dir having sub divisions within it    
+          sub_mod_dir = folders[2] if type.eql?(:part) && folders[2].downcase != "parts" 
+          part_info.merge!(:sub_mod => sub_mod_dir) if sub_mod_dir
+
+          #subcompnents deals with when a .cfg includes info for more than one part or resouce etc.
+          cfg.split( first_significant_line ).map do |sub_component|
+            next if sub_component.blank?
+            name = sub_component.select{|line| line.include?("name =")}.first
+            next if name.blank?
+            name = name.sub("name = ","").gsub("\t","").gsub(" ","").chomp         
+            part_info.merge!(:name => name)
+
+            if type.eql?(:resource)            
+              @resources.merge!(name => part_info.clone)
+              nil
+            elsif type.eql?(:internal)
+              part_info.merge!(:file => cfg)
+              @internals.merge!(name => part_info.clone)
+              nil
+            elsif type.eql?(:prop)
+              @props.merge!(name => part_info.clone)
+              nil
+            else #its a part init'
+              part_info.merge!(:file => cfg)
+              part_info.clone #return part info in the .map loop
+            end
+          end.compact
+
+        elsif cfg_path.match(/^Parts/)
+          part_info.merge!(:name => part_name, :legacy => true, :type => :part, :mod => :unknown_legacy)
+          part_info
+        else
+          raise UnknownPartException, "part #{cfg_path} is not in either GameData or the legacy Parts folder"
+          #this could be a problem for people with legacy internals, props or resources
+        end
+      
+      rescue
+        @ignored_cfgs << cfg_path
       end
 
     end.flatten.compact
