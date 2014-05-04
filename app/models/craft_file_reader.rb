@@ -35,7 +35,7 @@ class CraftFileReader
   def locate_in game_parts_db
     @details = @parts.map do |part|
       used_part = game_parts_db.locate(part)
-      used_part = game_parts_db.locate(part.gsub(".","_")) unless used_part #some parts have '.' in the craft file but '_' in the part name
+      #used_part = game_parts_db.locate(part.gsub(".","_")) unless used_part #some parts have '.' in the craft file but '_' in the part name
       used_part = game_parts_db.locate(part.gsub(" ",""))  unless used_part #some parts have ' ' in the craft file but no space in the part name
       used_part = {:name => part, :dir => "not found", :not_found => true} unless used_part#in the case a part can not be located in the PartDB
       used_part      
