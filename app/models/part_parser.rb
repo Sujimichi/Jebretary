@@ -8,6 +8,11 @@ class PartParser
   attr_accessor :parts, :resources, :internals, :props
 
   def initialize dir, args = {:source => :game_folder, :write_to_file => false}
+    begin
+      @stock_parts = System.new.get_config["stock_parts"]
+    rescue
+      @stock_parts = ["Squad", "NASAmission"]
+    end
     @instance_dir = dir
     #args[:source] = :game_folder if Rails.env.eql?("development")
     if args[:source] == :game_folder
@@ -17,6 +22,7 @@ class PartParser
       #puts "Done\n"
       #puts "ignored #{@ignored_cfgs}"    
       #puts "\n\nBuilding associations, please wait...\n\n"
+      @parts ||= {}
       associate_components  
       write_to_file if args[:write_to_file]
       Dir.chdir(cur_dir)
@@ -58,6 +64,7 @@ class PartParser
         @ignored_cfgs << cfg_path
         next
       end
+
       begin
         dir = cfg_path.sub("/part.cfg","")
         part_info = {:dir => dir, :path => cfg_path }
@@ -67,7 +74,7 @@ class PartParser
           mod_dir = folders[1] #mod dir is the directory inside GameData
 
           part_info.merge!(:mod => mod_dir)
-          part_info.merge!(:stock => true) if ["Squad", "NASAmission"].include?(mod_dir)
+          part_info.merge!(:stock => true) if @stock_parts.include?(mod_dir)
 
           #determine the type of cfg file
           first_significant_line = cfg.select{|line| line.match("//").nil? && !line.chomp.empty? }.first #first line that isn't comments or empty space

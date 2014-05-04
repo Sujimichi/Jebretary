@@ -43,7 +43,13 @@ class CraftFileReader
     @missing = @details.select{|p| p[:not_found]}.map{|p| p[:name]}.uniq.sort
     @found =   @details.select{|p| !p[:not_found]}
     @stock = @missing.empty? && @found.map{|p| p[:stock]}.all?
-    @mods = @found.map{|p| p[:mod]}.uniq.select{|m| !m.eql?("Squad")}
+      
+    begin
+      stock_parts = System.new.get_config["stock_parts"]
+    rescue
+      stock_parts = ["Squad", "NASAmission"]
+    end
+    @mods = @found.map{|p| p[:mod]}.uniq.select{|m| !stock_parts.include?(m) }
     true
   end
 

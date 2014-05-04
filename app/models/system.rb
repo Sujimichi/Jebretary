@@ -207,6 +207,7 @@ class System
     end
 
 
+    @loops_without_action = 0 if Rails.env.eql?("test")
     if @loops_without_action >= 5
       to_update = Craft.where(:part_data => nil, :deleted => false).limit(20)
       to_update.each{|c|
@@ -301,7 +302,8 @@ class System
 
   def default_config
     config = {
-      :seen_elements => []
+      :seen_elements => [],
+      :stock_parts => ["Squad", "NASAmission"]
     }
   end
 

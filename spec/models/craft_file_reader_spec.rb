@@ -17,10 +17,11 @@ describe CraftFileReader do
   end
 
   it 'should identify parts' do 
-    reader = CraftFileReader.new(@path)
-    raise reader.parts.inspect
+    reader = CraftFileReader.new(@craft)
     
+    expected_parts =  ["mk1pod", "fuelTankSmall", "fuelTankSmall", "parachuteSingle", "liquidEngine", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "solidBooster", "longAntenna"]
 
+    reader.parts.should == expected_parts
   end
 
 
