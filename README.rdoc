@@ -64,6 +64,8 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 ==Version History
   ==0.2.3
     - you can define which "mods" are considered stock for Jebretary to distinguish mod or stock craft. Defaults are "Squad" and "NASAmission"
+    - bug fix; parts that have non UTF-8 chars no longer cause a problem when parsing parts
+    - bug fix; parts that use both '.' and '_' in their part names are now identified correctly
 
   ==0.2.0 -> 0.2.2
     - bug fix, an error in error-handling was preventing errors from being handled! ;)
