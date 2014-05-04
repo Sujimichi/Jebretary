@@ -609,6 +609,22 @@ describe Campaign do
 
   end
 
+  describe "subassemblies" do 
+    before(:each) do 
+      @campaign = set_up_sample_data
+      make_sample_subassemblies 
+      Dir.chdir(Rails.root)
+    end
+
+    describe "verify_subassemblies" do 
+      it 'it should create subassenbly instances for each subassembly found' do 
+        Subassembly.count.should == 0
+        @campaign.verify_subassemblies
+        @campaign.reload.subassemblies.size.should == 2    
+      end
+    end
+
+  end
 
   describe "dont_process_while" do 
     before(:each) do 

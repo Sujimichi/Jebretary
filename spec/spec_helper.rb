@@ -71,6 +71,15 @@ def make_sample_data
   Dir.chdir(cur_dir)
 end
 
+def make_sample_subassemblies 
+  cur_dir = Dir.getwd
+  Dir.mkdir("Subassemblies")
+  Dir.chdir("Subassemblies")
+  File.open("subass1.craft", 'w') {|f| f.write("some test data") }
+  File.open("subass2.craft", 'w') {|f| f.write("some other test data") }
+  Dir.chdir(cur_dir)
+end
+
 def make_new_craft_in campaign = nil, c_type = "VAB", name = "some_rocket"
   return false unless 
   Dir.chdir campaign.path

@@ -6,6 +6,7 @@ class Campaign < ActiveRecord::Base
   
   belongs_to :instance
   has_many :craft, :dependent => :destroy
+  has_many :subassemblies, :dependent => :destroy
 
   validates :name, :instance_id, :presence => true
   validates :commit_messages, :git_compatible => true
@@ -346,6 +347,22 @@ class Campaign < ActiveRecord::Base
       commit_info = nil if commit_info[:deleted].compact.empty? #if all the entries were nil'ed then skip this commit
       commit_info
     }.compact #remove the nil'ed commits.
+  end
+
+
+  def verify_subassemblies    
+    #get names of existing subassemblies
+    existing_subs = self.subassemblies
+    existing_sub_names = existing_subs.map{|sub| sub.name}
+    
+    #find the files present in subassemblies
+    files = Dir.glob(File.join([self.path, "Subassemblies", "*.craft"])).map{|craft| craft.sub("#{self.path}/Subassemblies/", "").sub(".craft","") }
+
+    #itentify which ones are new and create subassembly instances for them
+    new_subs = files.select{|file| !existing_sub_names.include?(file) }    
+    new_subs.each{|sub| Subassembly.create(:campaign_id => self.id, :name => sub) }
+    
+
   end
 
 end
