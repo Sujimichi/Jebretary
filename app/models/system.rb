@@ -344,6 +344,15 @@ class System
     return false
   end
 
+  #basic error logger
+  def self.log_error error
+    log_file_path = File.join([System.root_path, "error.log"])   
+    File.open(log_file_path, "w"){|f| f.write "Jebretary error log\n\n"} unless File.exists?(log_file_path)
+
+    file = File.open(log_file_path, "r"){|f| f.readlines}
+    file << [Time.now.to_s, "\n", error, "\n", "#{Array.new(80){'='}.join}\n\n"]
+    file = File.open(log_file_path, "w"){|f| f.write(file.join)}
+  end
 
 
   def self.reset
