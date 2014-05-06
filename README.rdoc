@@ -169,7 +169,7 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 
 
 
-====exe Build Processin windows
+====exe Build Process in windows
   - in git bash prompt in <path_to_jebretary>
   bundle install
   rake ocra_prepare
@@ -186,7 +186,7 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
   -and ensure both are present (along with DB) in jebretary_build
 
 
-====CopyWrite
+====Copyright
 Copyright (c) 2014, Jeremy Comer
 All rights reserved.
 
