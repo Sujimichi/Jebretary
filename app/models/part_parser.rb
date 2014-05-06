@@ -8,23 +8,30 @@ class PartParser
   attr_accessor :parts, :resources, :internals, :props
 
   def initialize dir, args = {:source => :game_folder, :write_to_file => false}
+    args[:source] = :game_folder if Rails.env.eql?("development")
+    
     begin
       @stock_parts = System.new.get_config["stock_parts"]
-    rescue
+      raise "@stock_parts is not an array" unless @stock_parts.is_a?(Array)
+      raise "@stock_parts contains non string elements" unless @stock_parts.map{|i| i.is_a?(String)}.all?
+    rescue Exception => e
+      System.log_error "Could not read custom stock part definition\n#{@stock_parts.inspect}\n#{e}\n#{e.backtrace.first}"
       @stock_parts = ["Squad", "NASAmission"]
     end
+
     @instance_dir = dir
     #args[:source] = :game_folder if Rails.env.eql?("development")
     if args[:source] == :game_folder
       cur_dir = Dir.getwd
       Dir.chdir(@instance_dir)
-      index_parts
-      #puts "Done\n"
-      #puts "ignored #{@ignored_cfgs}"    
-      #puts "\n\nBuilding associations, please wait...\n\n"
-      @parts ||= {}
-      associate_components  
-      write_to_file if args[:write_to_file]
+      begin
+        index_parts
+        @parts ||= {}
+        associate_components  
+        write_to_file if args[:write_to_file]
+      rescue Exception => e
+        System.log_error "Failed to build map of installed parts\n#{e}\n#{e.backtrace.first}"
+      end      
       Dir.chdir(cur_dir)
     else
       read_from_file 
@@ -58,10 +65,13 @@ class PartParser
     part_info = part_cfgs.map do |cfg_path|
       cfg = File.open(cfg_path,"r:ASCII-8BIT"){|f| f.readlines}
       begin
+        next if cfg_path.include?("mechjeb_settings") #not all .cfg files are part files, some are settings, this ignores mechjeb settings (which are numerous). 
+        #Others will be ignored by the next line failing to run
         part_name = cfg.select{|line| line.include?("name =")}.first.sub("name = ","").gsub("\t","").gsub(" ","").chomp
         print "."
-      rescue
+      rescue Exception => e
         @ignored_cfgs << cfg_path
+        #System.log_error "Error in index_parts while attempting to read part name\nFailed Part path: #{cfg_path}\n#{e}"
         next
       end
 
@@ -91,6 +101,7 @@ class PartParser
 
           #subcompnents deals with when a .cfg includes info for more than one part or resouce etc.
           cfg.split( first_significant_line ).map do |sub_component|
+
             next if sub_component.blank?
             name = sub_component.select{|line| line.include?("name =")}.first
             next if name.blank?
@@ -111,6 +122,7 @@ class PartParser
               part_info.merge!(:file => cfg)
               part_info.clone #return part info in the .map loop
             end
+            part_info = {} if rand > 0.98
           end.compact
 
         elsif cfg_path.match(/^Parts/)
@@ -120,13 +132,21 @@ class PartParser
           raise UnknownPartException, "part #{cfg_path} is not in either GameData or the legacy Parts folder"
           #this could be a problem for people with legacy internals, props or resources
         end
-      
-      rescue
+
+      rescue Exception => e
+        System.log_error "Error in index_parts while attempting to read part file\nFailed Part path: #{cfg_path}\n#{e}\n#{e.backtrace.first}"
         @ignored_cfgs << cfg_path
+        part_info = {}
       end
 
     end.flatten.compact
-    @parts = part_info.map{|n| {n[:name].gsub("_",".") => n} }.inject{|i,j| i.merge(j)}
+
+    #Construct parts hash. ensuring that part info is not blank and that it has a name key
+    @parts = part_info.select{|part| 
+      !part.empty? && part.has_key?(:name)
+    }.map{|n| 
+      {n[:name].gsub("_",".") => n} 
+    }.inject{|i,j| i.merge(j)}   
   end
 
   def associate_components
