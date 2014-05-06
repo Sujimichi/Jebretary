@@ -8,8 +8,6 @@ class PartParser
   attr_accessor :parts, :resources, :internals, :props
 
   def initialize dir, args = {:source => :game_folder, :write_to_file => false}
-    args[:source] = :game_folder if Rails.env.eql?("development")
-    
     begin
       @stock_parts = System.new.get_config["stock_parts"]
       raise "@stock_parts is not an array" unless @stock_parts.is_a?(Array)
@@ -28,7 +26,7 @@ class PartParser
         index_parts
         @parts ||= {}
         associate_components  
-        write_to_file if args[:write_to_file]
+        write_to_file if args[:write_to_file] #unless Rails.env.eql?("development")
       rescue Exception => e
         System.log_error "Failed to build map of installed parts\n#{e}\n#{e.backtrace.first}"
       end      
@@ -121,8 +119,7 @@ class PartParser
             else #its a part init'
               part_info.merge!(:file => cfg)
               part_info.clone #return part info in the .map loop
-            end
-            part_info = {} if rand > 0.98
+            end            
           end.compact
 
         elsif cfg_path.match(/^Parts/)
@@ -141,7 +138,7 @@ class PartParser
 
     end.flatten.compact
 
-    #Construct parts hash. ensuring that part info is not blank and that it has a name key
+    #Construct parts hash. ensuring that part info is not blank and that it has a name key    
     @parts = part_info.select{|part| 
       !part.empty? && part.has_key?(:name)
     }.map{|n| 
