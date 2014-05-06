@@ -12,12 +12,7 @@ Jebretary is designed to run on windows and comes packaged in an installer that 
 
 
 ====Install git and then install Jebretary
-
-Download installer
-- 0.1.5 - http://www.mediafire.com/download/f6e0jspuhxybb78/jebretary_setup_v0.1.5.exe
-
-
-See the KSP forum for more details on installing and use
+See the KSP forum for latest download link and more details on installing and use
 http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Control-%28backups%29-for-craft-and-saves
 
 
@@ -39,10 +34,7 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 - tracking of user defined files in GameData (maybe)
 
 
-===Later
-- part count display
-- indexing of installed parts in KSP, allowing the system to determin which mods a craft uses
-
+===Later/possible ideas
 - indicator by craft in list that show if they are in service (might not be possible as craft can be renammed in flight)
 
 - screen shot auto-associating. Given a knowledge of where a players scr-shots go, during a certain period after launch or on demand, associate any new scr-shots with the craft
