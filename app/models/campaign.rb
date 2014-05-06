@@ -351,17 +351,30 @@ class Campaign < ActiveRecord::Base
 
 
   def verify_subassemblies    
-    #get names of existing subassemblies
-    existing_subs = self.subassemblies
-    existing_sub_names = existing_subs.map{|sub| sub.name}
-    
     #find the files present in subassemblies
     files = Dir.glob(File.join([self.path, "Subassemblies", "*.craft"])).map{|craft| craft.sub("#{self.path}/Subassemblies/", "").sub(".craft","") }
 
-    #itentify which ones are new and create subassembly instances for them
-    new_subs = files.select{|file| !existing_sub_names.include?(file) }    
-    new_subs.each{|sub| Subassembly.create(:campaign_id => self.id, :name => sub) }
+    #get names of existing subassemblies
+    existing_subs = self.subassemblies.where(:deleted => false)
+    existing_sub_names = existing_subs.map{|sub| sub.name}
     
+    #itentify which ones are new and create subassembly instances for them
+    #identify deleted subs that have returned and unmark them as deleted
+    new_subs = files.select{|file| !existing_sub_names.include?(file) }       
+    new_subs.each{|sub| 
+      deleted_sub = Subassembly.where(:campaign_id => self.id, :name => sub, :deleted => true).first
+      updated_sub = deleted_sub.update_attributes(:deleted => false) if deleted_sub
+      updated_sub ||= Subassembly.create(:campaign_id => self.id, :name => sub) 
+    }
+        
+    #identify subs that have been deleted and mark them deleted
+    campaign_path = self.path
+    existing_subs.each{|sub|
+      unless File.exists?(sub.path(campaign_path)) && !sub.deleted?
+        sub.update_attributes(:deleted => true) 
+      end
+    }
+
 
   end
 

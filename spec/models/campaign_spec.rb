@@ -614,6 +614,8 @@ describe Campaign do
       @campaign = set_up_sample_data
       make_sample_subassemblies 
       Dir.chdir(Rails.root)
+
+      $this_test = false
     end
 
     describe "verify_subassemblies" do 
@@ -621,6 +623,35 @@ describe Campaign do
         Subassembly.count.should == 0
         @campaign.verify_subassemblies
         @campaign.reload.subassemblies.size.should == 2    
+      end
+
+      it 'should mark missing subs as deleted' do
+        Subassembly.create(:campaign_id => @campaign.id, :name => "subass1")
+        Subassembly.create(:campaign_id => @campaign.id, :name => "subass2")
+
+        @campaign.reload.subassemblies.count.should == 2
+        File.delete(File.join([@campaign.path,"Subassemblies", "subass1.craft"]))
+        
+        @campaign.verify_subassemblies
+
+        Subassembly.where(:campaign_id => @campaign.id).count.should == 2
+        Subassembly.where(:campaign_id => @campaign.id, :deleted => false).count.should == 1
+      end
+
+      it 'should set deleted to false if the sub file has been returned' do 
+        $this_test = true
+        path = File.join([@campaign.path,"Subassemblies", "subass1.craft"])
+        File.delete(path)
+
+        Subassembly.create(:campaign_id => @campaign.id, :name => "subass1", :deleted => true)
+        Subassembly.create(:campaign_id => @campaign.id, :name => "subass2")
+        Subassembly.where(:campaign_id => @campaign.id, :deleted => false).count.should == 1
+
+        File.open(path, "w"){|f| f.write("some test data")}
+
+        @campaign.reload.verify_subassemblies
+        Subassembly.where(:campaign_id => @campaign.id, :deleted => false).count.should == 2      
+
       end
     end
 
