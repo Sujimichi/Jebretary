@@ -191,7 +191,7 @@ class Campaign < ActiveRecord::Base
   #return true if objects (.craft or .sfs) that are tracked by the repo have changes.
   def has_untracked_changes? 
     not [repo.changed, repo.untracked].flatten.select do |k| 
-      (k.include?("Ships") && k.include?(".craft")) || k.include?(".sfs") 
+      k.include?(".craft") || k.include?(".sfs") 
     end.empty?
   end
   def nothing_to_commit?
@@ -363,8 +363,12 @@ class Campaign < ActiveRecord::Base
     new_subs = files.select{|file| !existing_sub_names.include?(file) }       
     new_subs.each{|sub| 
       deleted_sub = Subassembly.where(:campaign_id => self.id, :name => sub, :deleted => true).first
-      updated_sub = deleted_sub.update_attributes(:deleted => false) if deleted_sub
-      updated_sub ||= Subassembly.create(:campaign_id => self.id, :name => sub) 
+      if deleted_sub
+        updated_sub = deleted_sub.update_attributes(:deleted => false) 
+      else
+        updated_sub = Subassembly.create(:campaign_id => self.id, :name => sub) 
+        updated_sub.commit
+      end
     }
         
     #identify subs that have been deleted and mark them deleted
@@ -376,6 +380,12 @@ class Campaign < ActiveRecord::Base
     }
 
 
+  end
+
+  def track_changed_subassemblies
+    changed_sub_names = repo.changed.select{|i| i.include?("Subassemblies")}.map{|sub| sub.split("/").last}.map{|name| name.gsub(".craft","")}
+    changed_subs = changed_sub_names.map{|sub| Subassembly.where(:campaign_id => self.id, :name => sub).first}.compact
+    changed_subs.each{|sub| sub.commit}
   end
 
 end

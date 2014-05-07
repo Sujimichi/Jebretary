@@ -129,6 +129,23 @@ describe Campaign do
       @campaign.should have_untracked_changes
     end
 
+    it 'should return true if there is a new subassembly' do 
+      @campaign.should_not have_untracked_changes
+      add_subassembly("test_sub", :in => @campaign)
+      @campaign.should have_untracked_changes
+    end
+
+    it 'should return true if an existing subassembly has changed' do 
+      add_subassembly("test_sub", :in => @campaign)
+      repo = @campaign.repo
+      repo.add "Subassemblies/test_sub.craft"
+      repo.commit "added sub"
+      @campaign.should_not have_untracked_changes
+      File.open("Subassemblies/test_sub.craft", "w"){|f| f.write("something new")}
+      @campaign.should have_untracked_changes
+
+    end
+
 
   end
 
@@ -613,9 +630,6 @@ describe Campaign do
     before(:each) do 
       @campaign = set_up_sample_data
       make_sample_subassemblies 
-      Dir.chdir(Rails.root)
-
-      $this_test = false
     end
 
     describe "verify_subassemblies" do 
@@ -639,7 +653,6 @@ describe Campaign do
       end
 
       it 'should set deleted to false if the sub file has been returned' do 
-        $this_test = true
         path = File.join([@campaign.path,"Subassemblies", "subass1.craft"])
         File.delete(path)
 
@@ -651,8 +664,37 @@ describe Campaign do
 
         @campaign.reload.verify_subassemblies
         Subassembly.where(:campaign_id => @campaign.id, :deleted => false).count.should == 2      
-
       end
+
+      it 'should commit new subassemblies as they are created' do 
+        @campaign.repo.tracked.should_not be_include "Subassemblies/subass1.craft"
+        @campaign.repo.tracked.should_not be_include "Subassemblies/subass2.craft"
+
+        @campaign.verify_subassemblies
+
+        @campaign.repo.tracked.should be_include "Subassemblies/subass1.craft"
+        @campaign.repo.tracked.should be_include "Subassemblies/subass2.craft"
+      end
+
+    end
+
+    describe "track changed subassemblies" do 
+      before :each do 
+        @campaign.verify_subassemblies
+      end
+
+      it 'should update changed subs in the repo' do         
+        @sub1 = Subassembly.where(:name => "subass1").first
+        @sub2 = Subassembly.where(:name => "subass2").first
+        [@sub1, @sub2].each{|s| s.history.count.should == 1}
+
+        File.open(@sub1.path, "w"){|f| f.write("some differet test data")}
+        @campaign.track_changed_subassemblies
+
+        @sub1.history.count.should == 2
+        @sub2.history.count.should == 1
+      end
+
     end
 
   end

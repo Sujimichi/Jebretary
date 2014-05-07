@@ -287,6 +287,47 @@ describe System do
     end
   end
 
+  describe "tracking subassemblies" do 
+    before :each do 
+      @campaign = set_up_sample_data
+      make_sample_subassemblies 
+      @campaign.create_repo     
+    end
+
+    it 'should add subassemblies that are found to the db' do 
+      Subassembly.count.should == 0
+      System.process 
+      Subassembly.count.should == 2
+    end
+
+    it 'should track new subassemblies' do 
+      @campaign.repo.tracked.should_not be_include "Subassemblies/subass1.craft"
+      @campaign.repo.tracked.should_not be_include "Subassemblies/subass2.craft"
+      System.process 
+
+      @campaign.repo.tracked.should be_include "Subassemblies/subass1.craft"
+      @campaign.repo.tracked.should be_include "Subassemblies/subass2.craft"
+    end
+
+    it 'should update existing subassemblies' do 
+      @campaign.verify_subassemblies
+      @campaign.repo.tracked.should be_include "Subassemblies/subass1.craft"
+      @campaign.repo.tracked.should be_include "Subassemblies/subass2.craft"
+
+      @sub = Subassembly.where(:name => "subass1").first
+      @sub.history.first.message.should == "added subassembly: subass1"
+
+      path = File.join([@campaign.path,"Subassemblies", "subass1.craft"])
+      File.open(path, "w"){|f| f.write("some different test data")}
+      
+      System.process
+      @sub.history.first.message.should == "updated subassembly: subass1"
+
+    end
+
+
+  end
+
   describe "commit messages" do 
     before(:each) do 
       @campaign = set_up_sample_data

@@ -87,6 +87,16 @@ def make_new_craft_in campaign = nil, c_type = "VAB", name = "some_rocket"
   File.open("#{name}.craft", 'w') {|f| f.write("some test data") }
 end
 
+def add_subassembly name, args = {}
+  cur_dir = Dir.getwd
+  args[:in] ||= @campaign
+  Dir.chdir args[:in].path
+  Dir.mkdir("Subassemblies") unless Dir.entries("./").include?("Subassemblies")
+  Dir.chdir("Subassemblies")
+  name << ".craft" unless name.include?(".craft")
+  File.open(name, 'w') {|f| f.write("some test data") }
+  Dir.chdir(cur_dir)
+end
 
 def verify_craft_for_campaign
   @campaign.create_repo      

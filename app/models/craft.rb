@@ -1,6 +1,7 @@
 class Craft < ActiveRecord::Base
   include CommitMessageChanger
   include CommonLogic
+  include RepoObject
 
   attr_accessible :name, :craft_type, :deleted, :part_count, :history_count, :last_commit
   belongs_to :campaign
@@ -14,12 +15,13 @@ class Craft < ActiveRecord::Base
   ###
 
   #retun the path to the .craft file, form the root of the repo.
-  def file_name
+  def local_path
     "Ships/#{craft_type.upcase}/#{name}.craft"
   end
+  alias file_name local_path 
 
   def file_path
-    File.join([self.campaign.path, self.file_name])
+    File.join([self.campaign.path, self.local_path])
   end
 
   #to be repalced with attribute to enable optional tracking of craft.
@@ -32,6 +34,13 @@ class Craft < ActiveRecord::Base
     return @parts if defined?(@parts) && !@parts.nil?
     @parts = CraftFileReader.new(self, args)
   end
+
+  def update_part_data
+    parts.locate_in self.crafts_campaign.instance.parts
+    data = {:parts => parts.found, :missing_parts => parts.missing, :stock => parts.stock?, :mods => parts.mods}
+    self.part_data = data
+    true
+  end  
 
   def part_data
     data = super
@@ -60,19 +69,8 @@ class Craft < ActiveRecord::Base
     @repo = crafts_campaign.repo
   end
 
-  #return true if the craft is not yet in the repo
-  def is_new?
-    return false if deleted?
-    repo.untracked.include?("Ships/#{craft_type.upcase}/#{name}.craft")
-  end
-  alias new_craft? is_new?
 
-  #return true if the craft is in the repo and has changes.  If not in repo it returns nil.
-  def is_changed? 
-    return nil if is_new? 
-    return false if deleted?
-    repo.changed.include?("Ships/#{craft_type.upcase}/#{name}.craft")
-  end
+  alias new_craft? is_new?
   alias changed_craft? is_changed?
 
   
@@ -80,15 +78,6 @@ class Craft < ActiveRecord::Base
     self.update_attributes(:history_count => self.history.size)   
   end
 
-  #return the commits for the craft (most recent first)
-  def history args = {:limit => false}
-    return [] if is_new? || deleted?
-    begin
-      logs = repo.log(file_name, :limit => args[:limit])
-    rescue
-      []
-    end
-  end
 
   def dont_process_campaign_while &blk
     self.campaign.update_attributes(:persistence_checksum => "skip") #unless self.campaign.persistence_checksum.eql?("skip")
@@ -130,14 +119,6 @@ class Craft < ActiveRecord::Base
     end
     self.save if self.changed?
     return action
-  end
-
-
-  def update_part_data
-    parts.locate_in self.crafts_campaign.instance.parts
-    data = {:parts => parts.found, :missing_parts => parts.missing, :stock => parts.stock?, :mods => parts.mods}
-    self.part_data = data
-    true
   end
 
   #revert the craft to a previous commit

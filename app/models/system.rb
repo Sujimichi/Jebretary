@@ -144,9 +144,11 @@ class System
         System.update_db_flag(data) #these steps with System.update_db_flag(data) are just to provide info to the interface about the progress. 
         #can't use DB as interface is waiting for the DB to become unlocked.
 
-        #Actuall Work step - ensure all present craft files have a matching craft object
+        #Actuall Work step - ensure all present craft and subassembly files have a matching DB object
         if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
           campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => @first_pass 
+          campaign.verify_subassemblies
+          campaign.track_changed_subassemblies
         end
         
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
