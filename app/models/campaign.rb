@@ -362,13 +362,15 @@ class Campaign < ActiveRecord::Base
     #identify deleted subs that have returned and unmark them as deleted
     new_subs = files.select{|file| !existing_sub_names.include?(file) }       
     new_subs.each{|sub| 
+      print "commiting new subassembly #{sub}..." unless Rails.env.eql?("test")
       deleted_sub = Subassembly.where(:campaign_id => self.id, :name => sub, :deleted => true).first
       if deleted_sub
         updated_sub = deleted_sub.update_attributes(:deleted => false) 
       else
         updated_sub = Subassembly.create(:campaign_id => self.id, :name => sub) 
-        updated_sub.commit
+        updated_sub.commit(self.repo)
       end
+      puts "done"
     }
         
     #identify subs that have been deleted and mark them deleted
@@ -378,14 +380,16 @@ class Campaign < ActiveRecord::Base
         sub.update_attributes(:deleted => true) 
       end
     }
-
-
   end
 
   def track_changed_subassemblies
     changed_sub_names = repo.changed.select{|i| i.include?("Subassemblies")}.map{|sub| sub.split("/").last}.map{|name| name.gsub(".craft","")}
     changed_subs = changed_sub_names.map{|sub| Subassembly.where(:campaign_id => self.id, :name => sub).first}.compact
-    changed_subs.each{|sub| sub.commit}
+    changed_subs.each{|sub| 
+      print "commiting subassembly #{sub.name}..." unless Rails.env.eql?("test")
+      sub.commit
+      puts "done"
+    }
   end
 
 end
