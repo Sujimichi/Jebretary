@@ -24,7 +24,7 @@ class CampaignsController < ApplicationController
          
           #generate a checksum based on items that imply a need to update the page. The checksum will be stored so subsiquent requests
           #can be compaired.  If the checksums match then there is no need to update the page.
-          state = [@campaign, @campaign.has_untracked_changes?, @current_project, @saves, params[:sort_opts],  params[:search_opts]].to_json
+          state = [@campaign, @campaign.has_untracked_changes?, @campaign.repo.log(:limit => 1).first.to_s, @current_project, @saves, params[:sort_opts],  params[:search_opts]].to_json
           state = Digest::SHA256.hexdigest(state)
 
           if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CampaignsController")
@@ -41,6 +41,8 @@ class CampaignsController < ApplicationController
                 @craft_for_list[type] = all_craft[type.to_s]
               end
             end
+
+            @subassemblies = @campaign.subassemblies
 
             params[:sort_opts][:vab] ||= "updated_at reverse"
             params[:sort_opts][:sph] ||= "updated_at reverse"

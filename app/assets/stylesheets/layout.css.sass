@@ -481,6 +481,81 @@ a
   .selected_marker
     :background-color red
 
+#subassemblies_container
+  :position relative
+  :display none
+  .subassemblies_heading
+    :position absolute
+    :left 24em
+    :top 3.5em
+    :width 10em
+    :cursor pointer
+
+  .subassemblies
+    :position absolute
+    :display none
+    :width 45%
+    :left 23%
+    :top 8em
+    :background
+      :color $site_white
+      :image url(diagonals-small.png)
+      :repeat repeat-x repeat-y
+    :z-index 1000
+    +cast_shadow(0px 2px 30px 2px grey)      
+    :padding 2em
+    :padding 
+      :left 1.5em
+      :right 1.5em
+    +rounded(8px 8px 8px 8px)
+
+  .subassemblies_panel_decoration
+    :z-index 1001
+    :position absolute
+    :display none
+    :top 5em
+    :left 21.5em
+    :background
+      :color $site_white
+      :image url(diagonals-small.png)
+      :repeat repeat-x repeat-y
+
+    $border_vals: 30% 30% 10% 10%/90% 90% 20% 20%
+    -webkit-border-radius: $border_vals
+    -moz-border-radius: $border_vals
+    -ms-border-radius: $border_vals
+    -o-border-radius: $border_vals
+    border-radius: $border_vals      
+    :height 4em
+    :width 15em
+
+  .main_link
+    :text-align center 
+    :font-weight bold
+    :font-size 120%
+
+#subassemblies_content  
+  :max-height 35em
+  :border 1px solid grey
+  :overflow auto
+  :background-color rgba(171, 171, 171, 0.5)
+  :padding
+    :bottom 0.5em
+
+.subassembly
+  :margin-top 0.5em
+  .name
+    :font-weight bold
+    :float left
+  .git_info
+    :padding-left 1em
+    :float left
+  .history
+    :padding-left 1em
+    :float left
+  +clearfix
+  
+
 .flag_link
   @extend .plain_link
 

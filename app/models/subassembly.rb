@@ -21,8 +21,10 @@ class Subassembly < ActiveRecord::Base
       message = "updated subassembly: #{name}"
     end
     repo.add self.path
-    
     repo.commit message
+
+    self.history_count = self.history.count
+    self.last_commit = history.first.to_s
   end
 
   def repo

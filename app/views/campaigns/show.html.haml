@@ -42,6 +42,15 @@
       = link_to_function "show deleted craft", "toggle_deleted_craft()", :class => 'toggle_deleted_craft_link'
 
     .clear
+    #subassemblies_container
+      .subassemblies_heading
+        .main_link
+          Subassemblies
+          .info.small click to expand
+      .subassemblies_panel_decoration
+      .subassemblies
+        #subassemblies_content
+
     -selected_sort_options = JSON.parse(@campaign.sort_options)
     - ["vab", "sph"].each do |type|
       .grid_5.push_1.hidden

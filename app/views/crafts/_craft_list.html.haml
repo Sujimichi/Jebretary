@@ -99,6 +99,12 @@
 
 
   .clear
+  #content_for_subassemblies
+    - subassemblies.each do |sub|
+      .subassembly
+        .name= truncated_link_to sub.name, "/subassembly"
+    
+  
   - craft_for_list.each do |type, crafts|
     %div{:id => "content_for_#{type}_list"}
       - unless crafts.blank?

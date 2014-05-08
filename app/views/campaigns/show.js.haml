@@ -1,5 +1,5 @@
 if("#{@background_process}" != "waiting"){
-$('#campaigns_list').html("#{j render :partial => 'crafts/craft_list', :locals => {:campaign => @campaign, :repo => @repo, :new_and_changed => @new_and_changed, :current_project => @current_project, :saves => @saves, :most_recent_commit => @most_recent_commit, :deleted_craft_count => @deleted_craft_count, :craft_for_list => @craft_for_list, :campaign_commit_messages => @campaign_commit_messages, :current_project_commit_messages => @current_project_commit_messages, :current_project_history => @current_project_history, :sort_opts => @sort_opts} }");
+$('#campaigns_list').html("#{j render :partial => 'crafts/craft_list', :locals => {:campaign => @campaign, :repo => @repo, :new_and_changed => @new_and_changed, :current_project => @current_project, :saves => @saves, :most_recent_commit => @most_recent_commit, :deleted_craft_count => @deleted_craft_count, :craft_for_list => @craft_for_list, :campaign_commit_messages => @campaign_commit_messages, :current_project_commit_messages => @current_project_commit_messages, :current_project_history => @current_project_history, :subassemblies => @subassemblies, :sort_opts => @sort_opts} }");
 
 
 $('#campaign_saves').html($('#content_for_campaign_saves').html());
@@ -18,8 +18,6 @@ $('#campaign_saves').hide();
 $('#current_project').show();
 };
 
-
-
 var current_project = $('#content_for_current_project').html()
 $('#current_project').html(current_project)
 
@@ -29,6 +27,9 @@ $('#vab_list').parents('.grid_5').show();
 $('#sph_list').html( $('#content_for_sph_list').html() )
 $('#sph_list').parents('.grid_5').show();
 
+$('#subassemblies_content').html($('#content_for_subassemblies').html());
+
+$('#subassemblies_container').show();
 $('#loading_holder').hide();
 
 

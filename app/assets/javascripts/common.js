@@ -109,7 +109,20 @@ function set_search_and_sort_fields(){
   $('#reset_vab_search').on("click", function(){$('#vab_search_field').val(""); poll_for_updated_list()});
   $('#reset_sph_search').on("click", function(){$('#sph_search_field').val(""); poll_for_updated_list()});
 
-  $('.craft_list_sort').on("change", function(){poll_for_updated_list()})
+  $('.craft_list_sort').on("change", function(){poll_for_updated_list()});
+  
+  $('.subassemblies_heading').bind("click", function(){
+    toggle_subassembly_list();
+  });
+  $('.subassemblies_panel_decoration  ').bind("click", function(){
+    toggle_subassembly_list();
+  });
+  
+  $('#subassemblies_content').bind("mouseover", function(){
+    $('#subassemblies_content').focus()
+  })
+
+
 };
 
 function change_message(div, current_text, craft_id, commit){
@@ -338,3 +351,21 @@ function toggle_deleted_craft(){
 };
 
 function toggle_settings(){$(".settings").toggle('slow')};
+
+function toggle_subassembly_list(force_hide){
+  var is_visible = $('.subassemblies').is(":visible");
+  if(is_visible || (force_hide == "hide")){
+    $('.subassemblies').animate({width: "18%", left: "36%"}, 150, function(){
+      $('.subassemblies').slideUp(100, function(){
+        $('.subassemblies_panel_decoration').slideUp(100);
+      });
+    })
+  }else{
+    $('.subassemblies').css({left: "36%", width: "18%"})
+    $('.subassemblies_panel_decoration').slideDown(100, function(){
+      $('.subassemblies').slideDown(150, function(){
+        $('.subassemblies').animate({width: "45%", left: "23%"}, 200)
+      })
+    });
+  };
+};
