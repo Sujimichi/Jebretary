@@ -25,6 +25,7 @@ class Subassembly < ActiveRecord::Base
 
     self.history_count = self.history.count
     self.last_commit = history.first.to_s
+    self.save
   end
 
   def repo

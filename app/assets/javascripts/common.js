@@ -99,7 +99,7 @@ function poll_craft_version(){
 };
 
 
-function set_search_and_sort_fields(){
+function set_campaign_page_bindings(){
   $('#vab_search_field').val("");
   $('#sph_search_field').val("");
 
@@ -122,7 +122,10 @@ function set_search_and_sort_fields(){
     $('#subassemblies_content').focus()
   })
 
-
+  $(document).mouseup(function (e){
+    var container = $("#subassemblies_container");
+    if (!container.is(e.target) && container.has(e.target).length === 0){toggle_subassembly_list('hide');}
+  });
 };
 
 function change_message(div, current_text, craft_id, commit){
@@ -355,13 +358,13 @@ function toggle_settings(){$(".settings").toggle('slow')};
 function toggle_subassembly_list(force_hide){
   var is_visible = $('.subassemblies').is(":visible");
   if(is_visible || (force_hide == "hide")){
-    $('.subassemblies').animate({width: "18%", left: "36%"}, 150, function(){
+    $('.subassemblies').animate({left: "36%", width: "19.5%"}, 150, function(){
       $('.subassemblies').slideUp(100, function(){
         $('.subassemblies_panel_decoration').slideUp(100);
       });
     })
   }else{
-    $('.subassemblies').css({left: "36%", width: "18%"})
+    $('.subassemblies').css({left: "36%", width: "19.5%"})
     $('.subassemblies_panel_decoration').slideDown(100, function(){
       $('.subassemblies').slideDown(150, function(){
         $('.subassemblies').animate({width: "45%", left: "23%"}, 200)
@@ -369,3 +372,5 @@ function toggle_subassembly_list(force_hide){
     });
   };
 };
+
+

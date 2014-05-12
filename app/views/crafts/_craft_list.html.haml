@@ -102,7 +102,9 @@
   #content_for_subassemblies
     - subassemblies.each do |sub|
       .subassembly
-        .name= truncated_link_to sub.name, "/subassembly"
+        .name= link_to_function sub.name.truncate(35), "alert('foo')"
+        .history= "#{sub.history_count} version#{sub.history_count.eql?(1) ? '' : 's'}" unless sub.history_count.nil?
+        
     
   
   - craft_for_list.each do |type, crafts|
