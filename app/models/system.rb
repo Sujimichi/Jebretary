@@ -56,7 +56,10 @@ class System
         puts "!!Monitor Error!!"
         puts e.message #unless Rails.env.eql?("production")
         @repeat_error_count += 1
-        raise "System has error'd #{@repeat_error_count} times in a row, shutting down" if @repeat_error_count >= 5
+        if @repeat_error_count >= 5
+          System.log_error "Error on Monitor:\n#{e}\n#{e.backtrace[0..4]}"
+          raise "System has error'd #{@repeat_error_count} times in a row, shutting down" 
+        end        
       end
       if @loop_count >= 500
         if Rails.env.eql?("production") && Campaign.count != 0

@@ -40,7 +40,7 @@ class KSP::Windows
 
   def self.start path
     path = File.join([path, "ksp.exe"])
-    system "start #{path}"
+    system "start \"\" \"#{path}\""
   end
 
   def select_instance path = nil
