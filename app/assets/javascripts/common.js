@@ -138,7 +138,9 @@ function set_campaign_page_bindings(){
 
   $(document).mouseup(function (e){
     var container = $("#subassemblies_container");
-    if (!container.is(e.target) && container.has(e.target).length === 0){toggle_subassembly_list('hide');}
+    var delete_link = $('.show_del_link_container');
+    
+    if (!container.is(e.target) && container.has(e.target).length === 0 && !delete_link.is(e.target) && delete_link.has(e.target).length === 0){toggle_subassembly_list('hide')};
   });
 };
 
@@ -378,10 +380,13 @@ function toggle_subassembly_list(force_hide){
       });
     })
   }else{
+    $("#subassemblies_content").animate({opacity: 0}, 0)
     $('.subassemblies').css({left: "36%", width: "19.5%"})
     $('.subassemblies_panel_decoration').slideDown(100, function(){
       $('.subassemblies').slideDown(150, function(){
-        $('.subassemblies').animate({width: "45%", left: "23%"}, 200)
+        $('.subassemblies').animate({width: "55%", left: "18.5%"}, 200, function(){
+          $("#subassemblies_content").animate({opacity: 1}, 400)
+        });
       })
     });
   };
