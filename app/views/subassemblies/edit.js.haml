@@ -1,0 +1,2 @@
+$('#revert_dialog').html("#{j render :partial => 'subassemblies/confirm_revert', :locals => {:subassembly => @subassembly, :versions_ago => @versions_ago, :commit => @commit} }");
+$('#revert_dialog').dialog({ height: 'auto', width: 'auto'});

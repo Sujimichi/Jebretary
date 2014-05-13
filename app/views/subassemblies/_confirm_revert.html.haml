@@ -1,0 +1,12 @@
+%h3= "Revert Subassembly"
+= "Click ok to revert #{subassembly.name} to #{versions_ago} version#{versions_ago.eql?(1) ? '' : 's'} ago"
+.small= "(made #{time_ago(commit.date)} ago)"
+
+.revert_form
+  = form_tag("/subassemblies/#{subassembly.id}", :method => "put") do |f|
+    = hidden_field_tag :sha_id, commit.to_s
+    = hidden_field_tag :revert_subassembly, true
+    .vblk_1
+    .left
+      = submit_tag("OK")
+  .right= button_to_function "Cancel", "$('#revert_dialog').dialog( 'close' );"

@@ -29,8 +29,8 @@ class Subassembly < ActiveRecord::Base
   end
 
   def repo
-    self.campaign.repo
+    return @repo if defined?(@repo) && !@repo.nil?
+    @repo = self.campaign.repo
   end
-
 
 end

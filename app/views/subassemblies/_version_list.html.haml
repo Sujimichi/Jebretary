@@ -9,13 +9,14 @@
     - history.each do |commit|
       .subassembly_info
         .subassembly_details
-          .version= "V#{1 + (version -= 1)}"
+          - version -= 1
+          .version= "V#{1 + (version)}"
           .value
             .hidden.sha_id= commit.sha_id
           .date= commit.date.to_formatted_s(:short)
           .restore_link
             - unless commit == history.first
-              = link_to "Restore", :controller => "subassemblies", :action => "edit", :id => @subassembly, :sha_id => commit.sha_id
+              = link_to "Restore", :controller => "subassemblies", :action => "edit", :id => @subassembly, :sha_id => commit.sha_id, :version => (1 + version), :remote => true
             -else
               Current Version
 
