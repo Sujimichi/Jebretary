@@ -23,6 +23,7 @@ class Craft < ActiveRecord::Base
   def file_path
     File.join([self.campaign.path, self.local_path])
   end
+  alias path file_path
 
   #to be repalced with attribute to enable optional tracking of craft.
   def track?
@@ -102,7 +103,7 @@ class Craft < ActiveRecord::Base
       self.remove_message_from_temp_store(:most_recent) unless active_message.blank?
       
       repo.commit(message)
-      self.last_commit = repo.log.first.to_s
+      self.last_commit = self.history(:limit => 1).first.to_s
     end
     unless action.eql?(:deleted)    
       self.part_count = parts.count
@@ -115,17 +116,6 @@ class Craft < ActiveRecord::Base
     self.save if self.changed?
     return action
   end
-
-  def recover
-    deleting_commit = self.last_commit
-    commit = repo.gcommit(deleting_commit).parent
-    repo.checkout_file(commit, self.file_name)
-    repo.commit("recovered #{name}")
-    self.deleted = false
-    self.history_count = self.history.size
-    self.last_commit = repo.log.first.to_s
-    self.save
-  end 
 
   def replace_most_recent_key_with_latest_commit_sha
     msgs = commit_messages

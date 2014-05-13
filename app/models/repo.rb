@@ -70,7 +70,9 @@ class Repo
 
   #return a commit object for a given sha_id
   def gcommit sha_id
-    self.log(sha_id).first
+    #self.log(sha_id).first
+    logs = git "log #{sha_id}"
+    read_log(logs).first
   end
 
   #call git GC, to run gits garbage collector and compress the repo
@@ -97,13 +99,17 @@ class Repo
   
     command = "log" #base command
     command << " -n #{args[:limit].to_i}" if args[:limit] #append limit arg -n x, if args[:limit] is given
-    command << " \"#{file}\"" if file   #append filename if file is given
+    command << " -- \"#{file}\"" if file   #append filename if file is given
     logs = git command   #run git command
     read_log logs   #send raw log string to be processed into separate Commit objects
   end
 
   def status
     git "status"
+  end
+
+  def do command
+    git command
   end
 
   private

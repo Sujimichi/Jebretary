@@ -42,6 +42,21 @@ describe Subassembly do
       @campaign.repo.log.first.message.should == "updated subassembly: subass1"     
     end
 
+    it 'should commit a deleted subassembly' do 
+      sub = Subassembly.create(:name => "subass1", :campaign_id => @campaign.id)
+      sub.commit
+      @campaign.repo.changed.should be_empty
+
+      File.delete(sub.path)
+      sub.deleted = true
+
+      sub.commit
+
+      @campaign.repo.changed.should be_empty
+      @campaign.repo.log.first.message.should == "deleted subassembly: #{sub.name}"
+            
+    end
+
   end
 
   describe "history" do 

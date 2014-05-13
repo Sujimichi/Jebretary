@@ -378,6 +378,7 @@ class Campaign < ActiveRecord::Base
     existing_subs.each{|sub|
       unless File.exists?(sub.path(campaign_path)) && !sub.deleted?
         sub.update_attributes(:deleted => true) 
+        sub.commit(self.repo)
       end
     }
   end

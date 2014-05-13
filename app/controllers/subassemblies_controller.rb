@@ -35,10 +35,10 @@ class SubassembliesController < ApplicationController
       @subassembly.revert_to params[:sha_id], :commit => true
       message = "Your subassembly has been reverted."
     end
-    #if @subassembly.deleted? && params[:recover_deleted]
-    #  message = "Your subassembly has been recovered.</br>You can now load it in KSP"
-    #  @subassembly.recover 
-    #end
+    if @subassembly.deleted? && params[:recover_deleted]
+      message = "Your subassembly has been recovered.</br>You can now load it in KSP"
+      @subassembly.recover 
+    end
     
     redirect_to :back, :notice => message
   end

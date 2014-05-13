@@ -100,10 +100,18 @@
 
   .clear
   #content_for_subassemblies
+    - if subassemblies.empty?
+      .centered
+        %h3 You don't have any Subassemblies in this Campaign
+      
     - subassemblies.each do |sub|
-      .subassembly{:id => "subassembly_#{sub.id}"}
+      .subassembly{:id => "subassembly_#{sub.id}", :class => sub.deleted? ? "deleted_craft" : ""}
         .name= link_to sub.name.truncate(35), subassembly_path(sub)
-        .history= "#{sub.history_count} version#{sub.history_count.eql?(1) ? '' : 's'}" unless sub.history_count.nil?
+        .history
+          -unless sub.deleted?
+            = "#{sub.history_count} version#{sub.history_count.eql?(1) ? '' : 's'}" unless sub.history_count.nil?
+          -else
+            = "deleted"
         .sub_container
         
     
