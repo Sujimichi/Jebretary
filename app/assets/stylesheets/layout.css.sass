@@ -292,7 +292,7 @@ a
     :image url(girder_section.gif)
 
 
-#welcome, #standard_page, #instance_page, #campaigns_page, #craft_page, #craft_edit, #new_instance_page, #campaign_save_index
+#welcome, #standard_page, #instance_page, #campaigns_page, #craft_page, #craft_edit, #new_instance_page, #campaign_save_index, #subassembly_page
   @extend .grid960
   :padding
     :top 1em
@@ -542,19 +542,6 @@ a
   :padding 0.5em
   :padding-top 0em
 
-.subassembly
-  :margin-top 0.5em
-  .name
-    :font-weight bold
-    :float left
-  .git_info
-    :padding-left 1em
-    :float left
-  .history
-    :padding-left 1em
-    :float right
-  +clearfix
-  
 
 .flag_link
   @extend .plain_link
@@ -600,15 +587,8 @@ a
 
 .untracked
   :color red
-#craft_page
-  .craft_info
-    :border-bottom 1px solid grey
-    :padding
-      :top 0.2em
-      :bottom 0.2em
-  .craft_details
-    :margin-top 0.5em
-    +clearfix
+
+
 
 .parts_list
   :display none
@@ -664,7 +644,9 @@ a
   &:hover
     +gradient_h(rgba($base_color, 0.6), rgba($site_high_tone, 0.1))
 
-.craft
+
+
+.craft, .subassembly
   :margin-top 0.5em
   .name
     :font-weight bold
@@ -675,11 +657,13 @@ a
   .history
     :padding-left 1em
     :float left
-
-
   +clearfix
 
-.craft_history
+.subassembly
+  .history
+    :float right
+
+.craft_history, .subassembly_history
   .version
     :width 3em
     :float left
@@ -692,6 +676,18 @@ a
   .message
     :margin-left 3em
 
+.craft_info, .subassembly_info
+  :border-bottom 1px solid grey
+  :padding
+    :top 0.2em
+    :bottom 0.2em
+
+.craft_details, .subassembly_details
+  :margin-top 0.5em
+  +clearfix
+  
+  
+  
 
 #move_copy_dialog
   select

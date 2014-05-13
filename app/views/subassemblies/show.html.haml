@@ -1,0 +1,38 @@
+#subassembly_page
+  #nav-box
+    =link_to "return to campaign", campaign_path(@subassembly.campaign)
+  .grid_10
+    - history = @subassembly.history
+    = hidden_field_tag :subassembly_id, @subassembly.id
+    %h1= "#{@subassembly.name} subassembly"
+    
+
+  .clear
+  .vblk_2
+  - unless @subassembly.deleted?
+    .grid_10.push_1
+      %h3 Version History
+      #history_list
+        Loading subassembly History
+        .ajax_loader
+
+    :javascript
+      $(function(){
+        poll_subassembly_version()
+      });
+
+  -else
+    .grid_6.push_3
+      .restore_subassembly
+        %h2 This subassembly has been deleted!
+        %h4 All is lost, will we ever see it again?
+        %h4 Oh wait, just click Recover it!
+
+        .restore_form
+          = form_tag(:back, :method => :get) do
+            = submit_tag "Cancel"
+          = form_for(@subassembly) do |f|
+            = hidden_field_tag :recover_deleted, true
+            = f.submit "Recover It!"    
+
+

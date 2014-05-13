@@ -101,9 +101,10 @@
   .clear
   #content_for_subassemblies
     - subassemblies.each do |sub|
-      .subassembly
-        .name= link_to_function sub.name.truncate(35), "alert('foo')"
+      .subassembly{:id => "subassembly_#{sub.id}"}
+        .name= link_to sub.name.truncate(35), subassembly_path(sub)
         .history= "#{sub.history_count} version#{sub.history_count.eql?(1) ? '' : 's'}" unless sub.history_count.nil?
+        .sub_container
         
     
   

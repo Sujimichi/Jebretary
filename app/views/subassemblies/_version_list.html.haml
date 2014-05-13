@@ -1,0 +1,31 @@
+
+-if @subassembly
+  - version = @subassembly.history_count
+  - version ||= 1
+  = "#{@subassembly.name} has #{version} versions"
+  .clear
+  .clear
+  .subassembly_history
+    - history.each do |commit|
+      .subassembly_info
+        .subassembly_details
+          .version= "V#{1 + (version -= 1)}"
+          .value
+            .hidden.sha_id= commit.sha_id
+          .date= commit.date.to_formatted_s(:short)
+          .restore_link
+            - unless commit == history.first
+              = link_to "Restore", :controller => "subassemblies", :action => "edit", :id => @subassembly, :sha_id => commit.sha_id
+            -else
+              Current Version
+
+        .message
+          - #onclick = "change_message(this, '#{commit.message}', #{@subassembly.id}, '#{commit.to_s}')"
+          - #edit of past messages disabled for now as it still can cause the repo to be left in an incomplete rebase
+          - message = commit.message
+
+          .message_text
+          - message.split("<br>").each do |m|
+            .small= m
+
+          .message_form{:id => "message_form_for_#{commit.to_s}"}

@@ -2,6 +2,7 @@ Jebretary::Application.routes.draw do
   get "welcome/index"
   post "welcome/update"
 
+  resources :subassemblies
   resources :launch
   resources :move_craft
   resources :messages

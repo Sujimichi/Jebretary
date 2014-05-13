@@ -7,6 +7,7 @@ var detect_running_ksp_timer = null
 var setup_timer = null
 var index_search_timer = null
 var craft_version_timer = null
+var subassembly_version_timer = null
 var rails_env = $('#rails_env').val();
 var show_setup_poller_help_timer = undefined
 
@@ -93,6 +94,19 @@ function poll_craft_version(){
       clearTimeout(craft_version_timer);
       craft_version_timer = setTimeout(function(){
         poll_craft_version();
+      }, 2000);
+    });
+  };
+};
+
+function poll_subassembly_version(){
+  var subassembly_id = $('#subassembly_id').val();
+  if(subassembly_id != undefined){
+    var data = {id: subassembly_id};
+    ajax_get("/subassemblies/"+ subassembly_id, data, function(){
+      clearTimeout(subassembly_version_timer);
+      subassembly_version_timer = setTimeout(function(){
+        poll_subassembly_version();
       }, 2000);
     });
   };
