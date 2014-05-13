@@ -262,7 +262,14 @@ class System
       #Sort the messages - IMPORTANT STEP
       #messages are now sorted by reversed date order
       messages_to_process = messages_to_process.map{|sha_id, message, object|
-        [sha_id, message, repo.gcommit(sha_id), object]                 #get the commit object from the sha_id
+
+        #get the commit object from the sha_id (try the faster method first)
+        path = object.path if object.is_a?(Craft)        
+        path = ["quicksave.sfs", "persistent.sfs"].map{|p| File.join([object.path, p])}.join("\" \"") if object.is_a?(Campaign)
+        commit = repo.get_commit(:for => path, :sha_id => sha_id) if path
+        commit ||= repo.gcommit(sha_id) #fall back to slower method
+
+        [sha_id, message, commit, object]                 
       }.sort_by{|sha_id, message, commit, object| commit.date}.reverse  #sort_by commit date and reverse order
 
       processed_ok = {}

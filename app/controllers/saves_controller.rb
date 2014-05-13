@@ -11,7 +11,11 @@ class SavesController < ApplicationController
     respond_with(@campaign) do |f|
       f.js{
         @save_type = params[:save_type]
-        @commit = @campaign.repo.gcommit(params[:sha_id])
+        
+        path = File.join([@campaign.path, "#{params[:save_type]}.sfs"])
+        @commit = @campaign.repo.get_commit(:for => path, :sha_id => params[:sha_id]) #attempt to fast find commit 
+        @commit ||= @campaign.repo.gcommit(params[:sha_id]) #fallback if above didn't work
+
         @version = @campaign.save_history[@save_type.to_sym].map{|c| c.to_s}.index(@commit.to_s)
 
         if params[:commit_message]
@@ -27,7 +31,10 @@ class SavesController < ApplicationController
   def update
     campaign = Campaign.find(params[:id])
     if params[:sha_id]
-      commit = campaign.repo.gcommit(params[:sha_id])
+      path = File.join([campaign.path, "#{params[:save_type]}.sfs"])
+      commit = campaign.repo.get_commit(:for => path, :sha_id => params[:sha_id]) #attempt to fast find commit 
+      commit ||= campaign.repo.gcommit(params[:sha_id]) #fallback if above didn't work
+      
       campaign.revert_save params[:save_type], commit, :commit => true     
       note = "Your #{params[:save_type]}.sfs file has been reverted"
     end

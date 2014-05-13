@@ -75,6 +75,15 @@ class Repo
     read_log(logs).first
   end
 
+  def get_commit args = {}
+    #attempt to find commit for given path in the 5 most recent commits
+    commit = self.log(args[:for], :limit => 10).select{|c| c.to_s == args[:sha_id]}.first
+    #if above didn't find it, attempt to find in all commits for given path
+    commit ||= self.log(args[:for]).select{|c| c.to_s == args[:sha_id]}.first
+
+    commit
+  end
+
   #call git GC, to run gits garbage collector and compress the repo
   def gc
     git "gc"

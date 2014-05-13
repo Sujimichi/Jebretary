@@ -59,7 +59,7 @@ module RepoObject
     deleting_commit = repo.log(self.local_path, :limit => 1).first #get the last commit of this deleted file, which should be deleting commit
     commit = deleting_commit.parent #get the parent of the deleting commit, which is the commit before it was deleted
 
-    raise "wrong commit" if self.last_commit != deleting_commit.to_s #TODO remove this debug line
+    raise "wrong commit" if self.last_commit != deleting_commit.to_s unless self.last_commit.empty? #TODO remove this debug line
     #commit = repo.gcommit(deleting_commit).parent
     
     repo.checkout_file(commit, self.local_path) #recover the deleted file

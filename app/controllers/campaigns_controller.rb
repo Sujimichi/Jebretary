@@ -68,6 +68,7 @@ class CampaignsController < ApplicationController
   end
 
   def update
+    raise "This should be depricated now" #TODO remove this
     @campaign = Campaign.find(params[:id])
     commit = @campaign.repo.gcommit(params[:sha_id])
     params[:update_message].gsub!("\n","<br>") #replace new line tags with line break tags (\n won't commit to repo)

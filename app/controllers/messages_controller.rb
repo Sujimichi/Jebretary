@@ -8,7 +8,12 @@ class MessagesController < ApplicationController
 
         if params[:save_type]
           @object = Campaign.find(params[:id])
-          @commit = @object.repo.gcommit(params[:sha_id])
+
+          
+          path = File.join([@object.path, "#{params[:save_type]}.sfs"])
+          @commit = @object.repo.get_commit(:for => path, :sha_id => params[:sha_id]) #select commit (faster method)
+          @commit ||= @object.repo.gcommit(params[:sha_id]) #select commit (slower method, if above didn't find it)
+
           @message = @commit.message
           @commit_messages = @object.commit_messages
           stored_message = @commit_messages[@commit.to_s]
@@ -18,8 +23,9 @@ class MessagesController < ApplicationController
           @save_type = params[:save_type]
         else
           @object = Craft.find(params[:id])
-          @is_changed = @object.is_changed?    
-          @commit = @object.repo.gcommit(params[:sha_id])
+          @is_changed = @object.is_changed?              
+          @commit = @object.repo.get_commit(:for => @object.path, :sha_id => params[:sha_id]) #select commit (faster method)
+          @commit ||= @object.repo.gcommit(params[:sha_id]) #select commit (slower method, if above didn't find it)
           @commit = "most_recent" if @commit.nil?
           @commit_messages = @object.commit_messages
           @holder = "#message_form_for_#{@commit.to_s}"
@@ -30,19 +36,30 @@ class MessagesController < ApplicationController
 
   def update
     respond_to do |f|
-      f.js {    
+      f.js {         
         if params[:object_class].eql?("Craft")
           @object = Craft.find(params[:id])
           @holder = ".message_form"
+          commit = @object.repo.get_commit(:for => @object.path, :sha_id => params[:sha_id]) unless params[:sha_id].eql?("most_recent")
         elsif params[:object_class].eql?("Campaign")
           @object = Campaign.find(params[:id])
+
+          path = File.join([@object.path, "quicksave.sfs"])
+          commit = @object.repo.get_commit(:for => path, :sha_id => params[:sha_id]) #attempt to fast find commit assuming its a quicksave
+          if commit.nil?
+            path.sub!("quicksave", "persistent") #if it wasn't a quicksave attempt to find it as a persistent (tends to be slower than for quicksaves)
+            commit = @object.repo.get_commit(:for => path, :sha_id => params[:sha_id])
+          end
+
           @holder = "#edit_save_holder"
         else
           @errors = {:update_message => "failed to find object"}
           return
         end
-      
-        commit = @object.repo.gcommit(params[:sha_id])
+
+        #if fast find for commits didn't work, fallback on slower gcommit method
+        commit = @object.repo.gcommit(params[:sha_id]) if commit.nil? && !params[:sha_id].eql?("most_recent")
+
         existing_message = commit.message if commit
 
         if params[:sha_id] == "most_recent" #this only happens when @object is a craft
