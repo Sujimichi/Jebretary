@@ -74,11 +74,6 @@ class Craft < ActiveRecord::Base
   alias changed_craft? is_changed?
 
   
-  def update_history_count
-    self.update_attributes(:history_count => self.history.size)   
-  end
-
-
   def dont_process_campaign_while &blk
     self.campaign.update_attributes(:persistence_checksum => "skip") #unless self.campaign.persistence_checksum.eql?("skip")
     yield
@@ -119,29 +114,6 @@ class Craft < ActiveRecord::Base
     end
     self.save if self.changed?
     return action
-  end
-
-  #revert the craft to a previous commit
-  def revert_to commit, options = {:commit => true}
-    camp = self.campaign
-    camp.dont_process_while do 
-      repo = camp.repo
-      index = history.reverse.map{|c| c.to_s}.index(commit.to_s) + 1
-      repo.checkout_file(commit, file_name)
-      message = "reverted #{name} to V#{index}"
-      if options[:commit]
-        begin          
-          repo.commit(message)
-        rescue
-        end
-        update_history_count
-      else
-        cms = self.commit_messages
-        cms["most_recent"] = message
-        self.commit_messages = cms       
-      end
-      self.save
-    end
   end
 
   def recover

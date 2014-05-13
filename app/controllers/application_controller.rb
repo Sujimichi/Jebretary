@@ -38,7 +38,11 @@ class ApplicationController < ActionController::Base
   def ensure_no_db_lock &blk
     Dir.chdir(System.root_path)
     if system_monitor_running?
-      status = File.open("#{Rails.env}_db_access", 'rb') {|f| f.readlines }.join
+      begin
+        status = File.open("#{Rails.env}_db_access", 'rb') {|f| f.readlines }.join
+      rescue
+        status = "wating"
+      end
       action_when_locked status
     else
       yield
@@ -83,7 +87,11 @@ class ApplicationController < ActionController::Base
 
     text = ""
     if days_ago != 0
-      text = "#{days_ago} days, #{hours_ago} hours"
+      text = "#{days_ago} days"
+      text << ", #{hours_ago} hours" if hours_ago != 0 
+      if days_ago > 31
+        text = "about #{days_ago/31} months"
+      end
     elsif hours_ago != 0 
       if hours_ago == 1 && minutes_ago != 0
         text = "#{hours_ago} hour, #{minutes_ago} mins"

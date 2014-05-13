@@ -370,7 +370,7 @@ class Campaign < ActiveRecord::Base
         updated_sub = Subassembly.create(:campaign_id => self.id, :name => sub) 
         updated_sub.commit(self.repo)
       end
-      puts "done"
+      puts "done" unless Rails.env.eql?("test")
     }
         
     #identify subs that have been deleted and mark them deleted
@@ -388,7 +388,7 @@ class Campaign < ActiveRecord::Base
     changed_subs.each{|sub| 
       print "commiting subassembly #{sub.name}..." unless Rails.env.eql?("test")
       sub.commit
-      puts "done"
+      puts "done" unless Rails.env.eql?("test")
     }
   end
 

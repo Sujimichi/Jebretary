@@ -4,11 +4,11 @@
 -else
   = "Click ok to revert your #{save_type} to #{version} versions ago"
 - date = Time.now.utc_offset.seconds.ago(commit.date)
-.small= "(made #{time_ago_in_words(date)} ago)"
+.small= "(made #{time_ago(date)} ago)"
 
 .vblk_1
 .small= "check 'revert as quicksave' so you can load the persistent save with f9" if save_type.eql?("persistent")
-.revert_save_form
+.revert_form
   = form_tag("/saves/#{campaign.id}", :method => "put") do |f|
     = hidden_field_tag :sha_id, commit.to_s
     = hidden_field_tag :save_type, save_type
