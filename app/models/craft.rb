@@ -103,7 +103,7 @@ class Craft < ActiveRecord::Base
       self.remove_message_from_temp_store(:most_recent) unless active_message.blank?
       
       repo.commit(message)
-      self.last_commit = self.history(:limit => 1).first.to_s
+      self.last_commit = repo.log(self.local_path, :limit => 1).first.to_s
     end
     unless action.eql?(:deleted)    
       self.part_count = parts.count

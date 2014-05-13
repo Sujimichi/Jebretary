@@ -68,7 +68,7 @@ module RepoObject
     #update db attributes
     self.deleted = false
     self.history_count = self.history.size
-    self.last_commit = repo.history(:limit => 1).first.to_s
+    self.last_commit = self.history(:limit => 1).first.to_s
     self.save
   end 
 
