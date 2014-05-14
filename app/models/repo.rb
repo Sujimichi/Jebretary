@@ -68,13 +68,16 @@ class Repo
     git "rm \"#{file}\""
   end
 
-  #return a commit object for a given sha_id
+  #return a commit object for a given sha_id. Slow in repos with large numbers of commits
   def gcommit sha_id
     #self.log(sha_id).first
     logs = git "log #{sha_id}"
     read_log(logs).first
   end
 
+  #performs similar function to gcommit, but faster and for specific file path
+  #given a file path it attempts to find the commit for the given sha_id in the 5 most recent commits
+  #otherwise it looks in all commits for that file.  Faster that gcommit which looks in the entire repo.
   def get_commit args = {}
     #attempt to find commit for given path in the 5 most recent commits
     commit = self.log(args[:for], :limit => 10).select{|c| c.to_s == args[:sha_id]}.first
