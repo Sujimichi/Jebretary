@@ -54,6 +54,14 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
 ==Version History
+  ==0.2.6
+    - Subassembly Tracking  
+
+  ==0.2.5
+    - bug fix; can now launch KSP if the path to KSP has spaces
+    - more error logging
+    - page load caching for campaign and craft show pages 
+
   ==0.2.4
     - better error handling in part parsing section
     - added a simple error logger, errors will be written to an error.log file in the root of Jebretary
