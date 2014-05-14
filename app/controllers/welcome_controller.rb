@@ -3,7 +3,10 @@ class WelcomeController < ApplicationController
   def index
     @version = Jebretary::VERSION
     @instances = Instance.all
-    @stock_parts = System.new.get_config["stock_parts"]
+    
+    @config = System.new.get_config
+    @config["show_error_report"] = true if @config["show_error_report"].nil?
+
   end
 
   def edit
@@ -56,6 +59,10 @@ class WelcomeController < ApplicationController
     if params[:reset_help]
       system.config_set :seen_elements, []
       notice = "Help Tips Reset"
+    end
+    if params.has_key?(:error_reporting)
+      system.config_set :show_error_report, params[:error_reporting].eql?("true")
+      notice = "Error reporting is now #{params[:error_reporting].eql?("true") ? 'On' : 'Off'}"
     end
     redirect_to :root, :notice => notice
   end

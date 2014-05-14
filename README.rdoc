@@ -57,7 +57,7 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
   == 0.3.1
     - page load caching for campaign, craft and subassembly show pages 
     - faster display of revert save dialogs
-    - shows a notice if there is an error.log to upload and instructions on how to upload
+    - shows a notice if there is an error.log to upload and instructions on how to upload (can be disabled in settings)
     - launches browser tab when started
   
   ==0.3.0

@@ -14,6 +14,7 @@
   .left  
     %h3= "Then click OK to wipe the log and carry on"
     .small= "If you don't want to send the log just click OK"
+    .small= "You can disable this message from being shown in settings on the front page"
   .right
     .vblk_1
     = button_to "OK", welcome_edit_path(:reset_log => true), :method => :get, :remote => true, :onclick => "$('#logged_error_dialog').dialog('close');"

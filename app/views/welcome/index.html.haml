@@ -97,15 +97,25 @@
         %b.info.small updating this can take a while as all craft need to be rescanned for their part data.
         = form_tag "welcome/update" do |f|
           .left
-            = text_field_tag :stock_parts, @stock_parts.join(", ")
+            = text_field_tag :stock_parts, @config["stock_parts"].join(", ")
             = submit_tag("update", {:onclick => "$(this).hide(); $('.update_stock_ajax_loader').show()"})
           .left.update_stock_ajax_loader.ajax_loader.hidden
           .clear
         
         .vblk_2
-        %h4 Reset Help Tips
-        .info.small Want the mildly helpful tips again? Then hit this reset button.
-        = button_to "reset help tips", :controller => :welcome, :action => :update, :method => :put, :reset_help => true
+        .grid_5.alpha
+          %h4 Show notification of errors
+          .info.small By default you will be notified if there have been errors. 
+          .info.small But you can change this;
+          .info
+            = "Error reporting is currently #{@config["show_error_report"] ? 'ON' : 'OFF'}"
+            = button_to "#{@config["show_error_report"] ? 'Disable' : 'Enable'}", :controller => :welcome, :action => :update, :method => :put, :error_reporting => !@config["show_error_report"] 
+          
+        
+        .grid_5.omega
+          %h4 Reset Help Tips
+          .info.small Want the mildly helpful tips again? Then hit this reset button.
+          = button_to "reset help tips", :controller => :welcome, :action => :update, :method => :put, :reset_help => true
 
       
       

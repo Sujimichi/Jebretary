@@ -315,7 +315,8 @@ class System
   def default_config
     config = {
       :seen_elements => [],
-      :stock_parts => ["Squad", "NASAmission"]
+      :stock_parts => ["Squad", "NASAmission"],
+      :show_error_report => true
     }
   end
 

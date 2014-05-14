@@ -28,6 +28,10 @@ class ApplicationController < ActionController::Base
   private
 
   def check_error_log
+    opt = System.new.get_config["show_error_report"]
+    opt = true if opt.nil?
+    return true if opt.to_s.eql?("false")
+
     path = File.join([System.root_path, "error.log"])
     if File.exists?(path)
       error_log = File.open(path, 'r'){|f| f.readlines}
