@@ -19,7 +19,8 @@
         .save_list{:class => klass}
           %h3= save_type
           - latest = saves[save_type].first
-          - v = saves[save_type].size + 1
+          - current_version = saves[save_type].size + 1
+          - v = current_version 
           - saves[save_type].each_with_index do |qsave, index|
             .save{:onmouseover => "show_restore_link_for(this)"}
               - v = v -=1
@@ -28,7 +29,7 @@
               .left.with_margin.small= "#{time_ago(qsave.date)} ago"
               .right
                 - unless index.eql?(0)
-                  .restore_link.hidden= link_to("restore to V#{v}", edit_save_path(:id => @campaign.id, :sha_id => qsave.to_s, :save_type => save_type), :remote => true)
+                  .restore_link.hidden= link_to("restore to V#{v}", edit_save_path(:id => @campaign.id, :sha_id => qsave.to_s, :save_type => save_type, :versions_ago => (current_version-v-1)), :remote => true)
                 -else
                   = "current #{save_type}"
                   -if save_type.eql?(:persistent)

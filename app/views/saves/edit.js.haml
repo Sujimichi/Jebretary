@@ -1,7 +1,7 @@
 if("#{params[:set_as_quicksave]}"){
-$('#edit_save_holder').html("#{j render :partial => 'saves/replace_quicksave_with_persistent', :locals => {:campaign => @campaign, :save_type => @save_type, :commit => @commit, :version => @version} }")
+$('#edit_save_holder').html("#{j render :partial => 'saves/replace_quicksave_with_persistent', :locals => {:campaign => @campaign, :save_type => @save_type, :commit => @commit, :versions_ago => @versions_ago} }")
 }else{
-$('#edit_save_holder').html("#{j render :partial => 'saves/revert_save', :locals => {:campaign => @campaign, :save_type => @save_type, :commit => @commit, :version => @version} }")
+$('#edit_save_holder').html("#{j render :partial => 'saves/revert_save', :locals => {:campaign => @campaign, :save_type => @save_type, :commit => @commit, :versions_ago => @versions_ago} }")
 };
 
 $('#edit_save_holder').dialog();

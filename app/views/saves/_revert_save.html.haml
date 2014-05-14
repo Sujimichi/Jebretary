@@ -1,8 +1,8 @@
 %h3= "Revert #{save_type} for #{campaign.name}"
--if version.eql?(1)
+-if versions_ago.eql?(1)
   = "Click ok to revert your #{save_type} to the previous version"
 -else
-  = "Click ok to revert your #{save_type} to #{version} versions ago"
+  = "Click ok to revert your #{save_type} to #{versions_ago} versions ago"
 - date = Time.now.utc_offset.seconds.ago(commit.date)
 .small= "(made #{time_ago(date)} ago)"
 

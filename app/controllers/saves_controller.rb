@@ -14,9 +14,10 @@ class SavesController < ApplicationController
         
         path = File.join([@campaign.path, "#{params[:save_type]}.sfs"])
         @commit = @campaign.repo.get_commit(:for => path, :sha_id => params[:sha_id]) #attempt to fast find commit 
-        @commit ||= @campaign.repo.gcommit(params[:sha_id]) #fallback if above didn't work
+        #@commit ||= @campaign.repo.gcommit(params[:sha_id]) #fallback if above didn't work
 
-        @version = @campaign.save_history[@save_type.to_sym].map{|c| c.to_s}.index(@commit.to_s)
+        @versions_ago = params[:versions_ago].to_i if params[:versions_ago]
+        @versions_ago ||= @campaign.save_history(:limit => 5)[@save_type.to_sym].map{|c| c.to_s}.index(@commit.to_s)
 
         if params[:commit_message]
           @message = @commit.message
