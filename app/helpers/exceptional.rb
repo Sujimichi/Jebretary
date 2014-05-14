@@ -28,6 +28,7 @@ module Exceptional
     #respond_to do |f| 
       @exception = exception
       template ||= code     
+      System.log_error "Server Error:\n#{exception}\n#{exception.backtrace[0..4]}"
       begin
         return render :template => "errors/#{template}", :status => code 
       rescue

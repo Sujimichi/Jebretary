@@ -21,7 +21,7 @@ class CampaignsController < ApplicationController
           @campaign_commit_messages = @campaign.commit_messages
           @repo = @campaign.repo 
 
-         
+       
           #generate a checksum based on items that imply a need to update the page. The checksum will be stored so subsiquent requests
           #can be compaired.  If the checksums match then there is no need to update the page.
           state = [@campaign, @campaign.has_untracked_changes?, @repo.log(:limit => 1).first.to_s, @current_project, @saves, params[:sort_opts],  params[:search_opts]].to_json
