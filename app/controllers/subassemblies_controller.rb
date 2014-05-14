@@ -19,8 +19,7 @@ class SubassembliesController < ApplicationController
     respond_with(@subassembly) do |f|
       f.js{
         @subassembly = Subassembly.find(params[:id])  
-        history = @subassembly.history
-        @commit = history.select{|commit| commit.to_s.eql?(params[:sha_id])}.first
+        @commit = @subassembly.campaign.repo.get_commit(:for => @subassembly.path, :sha_id => params[:sha_id])
         @versions_ago = @subassembly.history_count - params[:version].to_i
         @sha_id = params[:sha_id]
       }
@@ -33,10 +32,10 @@ class SubassembliesController < ApplicationController
 
     if params[:revert_subassembly]
       @subassembly.revert_to params[:sha_id], :commit => true
-      message = "Your subassembly has been reverted."
+      message = "Subassembly has been reverted."
     end
     if @subassembly.deleted? && params[:recover_deleted]
-      message = "Your subassembly has been recovered.</br>You can now load it in KSP"
+      message = "Subassembly has been recovered"
       @subassembly.recover 
     end
     

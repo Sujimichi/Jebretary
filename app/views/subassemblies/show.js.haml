@@ -1,3 +1,7 @@
 if("#{@background_process}" != "waiting"){
 $('#history_list').html("#{j render :partial => 'subassemblies/version_list', :locals => {:history => @history} }");
 };
+- if @subassembly.deleted?
+  if( $('.subassembly_history').html() != undefined){
+  location.reload(false)
+  };
