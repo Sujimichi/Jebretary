@@ -5,11 +5,21 @@ class SubassembliesController < ApplicationController
     respond_with(@subassembly) do |f|
       f.html{
         @subassembly = Subassembly.find(params[:id])  
+        Rails.cache.delete("state_stamp")
       }
       f.js{
-        ensure_no_db_lock do         
+        ensure_no_db_lock do 
           @subassembly = Subassembly.find(params[:id])  
-          @history = @subassembly.history
+          campaign = @subassembly.campaign
+          state = [campaign.repo.log(:limit => 1).first.to_s, campaign.has_untracked_changes?].to_json
+          state = Digest::SHA256.hexdigest(state)
+
+          if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("SubassembliesController") 
+            @history = @subassembly.history
+          else
+            return render :partial => "partials/no_update"
+          end
+          Rails.cache.write("state_stamp", state)
         end      
       }
     end

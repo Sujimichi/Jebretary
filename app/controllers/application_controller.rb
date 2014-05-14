@@ -28,6 +28,7 @@ class ApplicationController < ActionController::Base
 
   def record_last_controller
     Rails.cache.write("last_controller", self.class.to_s)
+    #Rails.cache.write("last_controller", rand) if Rails.env.eql?("development") #disables request caching in dev env
   end
 
   def system

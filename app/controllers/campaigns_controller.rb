@@ -27,7 +27,7 @@ class CampaignsController < ApplicationController
           state = [@campaign, @campaign.has_untracked_changes?, @repo.log(:limit => 1).first.to_s, @current_project, @saves, params[:sort_opts],  params[:search_opts]].to_json
           state = Digest::SHA256.hexdigest(state)
 
-          if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CampaignsController") || Rails.env.eql?("development")
+          if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CampaignsController")
             @current_project_history = @current_project.history(:limit => 5) if @current_project
             @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
             @deleted_craft_count = @campaign.craft.where(:deleted => true).count

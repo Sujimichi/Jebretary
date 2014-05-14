@@ -18,6 +18,7 @@ class CraftsController < ApplicationController
   def show
     respond_with(@craft) do |f|
       f.html{
+        Rails.cache.delete("state_stamp")
         @craft = Craft.find(params[:id])
         unless @craft.deleted?
           @craft.update_part_data 
@@ -48,9 +49,21 @@ class CraftsController < ApplicationController
           return render :text => "done"
 
         else
+
           ensure_no_db_lock do         
             @craft = Craft.find(params[:id])
-            @history = @craft.history
+            campaign = @craft.campaign
+
+            state = [campaign.repo.log(:limit => 1).first.to_s, campaign.has_untracked_changes?].to_json
+            state = Digest::SHA256.hexdigest(state)
+
+            if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CraftsController") 
+              @history = @craft.history  
+            else
+              return render :partial => "partials/no_update"
+            end
+            Rails.cache.write("state_stamp", state)
+
           end
         end
       }
