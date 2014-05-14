@@ -1,5 +1,6 @@
 Jebretary::Application.routes.draw do
   get "welcome/index"
+  get "welcome/edit"
   post "welcome/update"
 
   resources :subassemblies

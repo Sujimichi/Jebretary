@@ -42,4 +42,8 @@
   .right
     %p Katateochi
   .clear
-    #error_content
+  #error_content
+  
+  -if @logged_errors 
+    #logged_error_dialog.hidden
+      = render "errors/notify"

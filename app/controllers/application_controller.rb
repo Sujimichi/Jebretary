@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Exceptional
+  before_filter :check_error_log
   after_filter :record_last_controller
 
   protect_from_forgery
@@ -25,6 +26,17 @@ class ApplicationController < ActionController::Base
 
 
   private
+
+  def check_error_log
+    path = File.join([System.root_path, "error.log"])
+    if File.exists?(path)
+      error_log = File.open(path, 'r'){|f| f.readlines}
+      unless error_log.empty?
+        @logged_errors = true
+      end
+    end
+    
+  end
 
   def record_last_controller
     Rails.cache.write("last_controller", self.class.to_s)

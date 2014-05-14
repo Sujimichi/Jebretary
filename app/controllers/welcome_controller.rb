@@ -6,6 +6,37 @@ class WelcomeController < ApplicationController
     @stock_parts = System.new.get_config["stock_parts"]
   end
 
+  def edit
+    respond_to do |f|
+      f.js{
+
+        if params[:open_root_folder]
+          path = System.root_path
+          begin 
+            if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
+              `start explorer.exe #{path.split("/").join("\\")}`
+            else
+              `nautilus #{path}`
+            end      
+          rescue
+          end
+          
+        end
+        
+
+        if params[:reset_log]
+          path = File.join([System.root_path, "error.log"])   
+          File.open(path, "w"){|f| f.write ""}
+        end
+        return render :text => "ok"
+      }
+
+    end
+
+
+
+  end
+
 
   def update
     if params[:stock_parts]

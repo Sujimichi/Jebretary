@@ -1,6 +1,7 @@
 $(function(){
   clearTimeout(index_search_timer);
   autohide_flash();
+  check_error_log();
 });
 
 var detect_running_ksp_timer = null
@@ -45,8 +46,21 @@ autohide_flash = function(){
     $('#flash').slideUp('fast')},
     8000
   );
-}
+};
 
+function check_error_log(){
+  if( $('#logged_error_dialog')[0]){
+    setTimeout(function(){
+      $('#logged_error_dialog').dialog({ height: 'auto', width: 'auto', position: ["center", 100], title: "Jebretary Error Log" });
+    },1000);
+  };
+};
+
+function reset_error_log(){
+  ajax_get("welcome/edit", {}, function(){
+    alert("foo")
+  });
+};
 
 function poll_for_running_instances_of_ksp(){
   clearTimeout(detect_running_ksp_timer);

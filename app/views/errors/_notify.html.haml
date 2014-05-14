@@ -1,0 +1,20 @@
+%h2 Opps!! Jebretary has recently had an error.
+
+%p
+  .info= "An error log file has been created"
+  .info= "It would be extemely helpful if you could send the error log to Katateochi"
+%p
+  .info= link_to "click here to open the folder where the error.log file is", welcome_edit_path(:open_root_folder => true), :remote => true
+
+  .info= link_to "then click here to open a web page where you can drag and drop the error.log file", "http://www.mediafire.com/filedrop/filedrop_hosted.php?drop=3630bad06aec6a3c895857fe13ef76903d28197ccf96fa924bf4be89c90337ff", :target => "_blank"
+%p
+  .info= "When you've uploaded the log, hit submit and then enter your forum username so I know who sent the file"
+
+%p
+  .left  
+    %h3= "Then click OK to wipe the log and carry on"
+    .small= "If you don't want to send the log just click OK"
+  .right
+    .vblk_1
+    = button_to "OK", welcome_edit_path(:reset_log => true), :method => :get, :remote => true, :onclick => "$('#logged_error_dialog').dialog('close');"
+
