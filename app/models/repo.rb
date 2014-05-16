@@ -141,6 +141,7 @@ class Repo
     Dir.chdir(@path)
     action = yield
     Dir.chdir(cur_dir)
+    action = "" if action.nil? #ensure that a sting is retuned 
     return action
   end
 
