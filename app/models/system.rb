@@ -363,6 +363,7 @@ class System
     File.open(log_file_path, "w"){|f| f.write "Jebretary error log\n\n"} unless File.exists?(log_file_path)
 
     file = File.open(log_file_path, "r"){|f| f.readlines}
+    file << [Jebretary::VERSION, "\n"] if file.empty?
     file << [Time.now.to_s, "\n", error, "\n", "#{Array.new(80){'='}.join}\n\n"]
     file = File.open(log_file_path, "w"){|f| f.write(file.join)}
   end
