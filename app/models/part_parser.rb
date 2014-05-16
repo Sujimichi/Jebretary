@@ -18,7 +18,7 @@ class PartParser
     end
 
     @instance_dir = dir
-    #args[:source] = :game_folder if Rails.env.eql?("development")
+    args[:source] = :game_folder if Rails.env.eql?("development")
     if args[:source] == :game_folder
       cur_dir = Dir.getwd
       Dir.chdir(@instance_dir)
@@ -64,6 +64,8 @@ class PartParser
       cfg = File.open(cfg_path,"r:ASCII-8BIT"){|f| f.readlines}
       begin
         next if cfg_path.include?("mechjeb_settings") #not all .cfg files are part files, some are settings, this ignores mechjeb settings (which are numerous). 
+        next if cfg_path.match(/GameData\/\w+.cfg/) #ignore cfg files in the root of GameData
+
         #Others will be ignored by the next line failing to run
         part_name = cfg.select{|line| line.include?("name =")}.first.sub("name = ","").gsub("\t","").gsub(" ","").chomp
         print "."
