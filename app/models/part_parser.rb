@@ -131,6 +131,7 @@ class PartParser
           @ignored_cfgs << cfg_path
           #raise UnknownPartException, "part #{cfg_path} is not in either GameData or the legacy Parts folder"
           #this could be a problem for people with legacy internals, props or resources
+          part_info = {}
         end
 
       rescue Exception => e
