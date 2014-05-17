@@ -93,13 +93,11 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
       - determine if a crafts parts are missing from the game
       - display of used parts on a crafts page with link that opens a window to that part
 
-
   ==0.1.5
     - Can now detect a running instance of KSP and get the executable path
       - rather than typing in the path you want to track, just run KSP and then select it.
     - KSP can be launched and shutdown from the front page
       - you can now launch KSP on your KSP machine from a mobile device somewhere on your network.
-
 
   ==0.1.4
     - bug fix, campaigns with existing git repo where not getting detected by a fresh install of Jebretary
@@ -119,7 +117,6 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
   ==0.1.2
     - MAJOR change to backend.  Scrapped 3rd party code and wrote my own git interface, faster, stronger, better!!
     (should really be several versions!)
-
 
   ==0.1.1
     - added sort 'n' search on the craft lists
@@ -149,7 +146,6 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
     - quicksave and persistent files can now be reverted from interface
     - interface automattically displays either current project or saves depending on which has been most recently changed. While editing a craft the current project is show, once the user does a quicksave it will switch to displaying saves.
     - git garbage collector is called periodically to ensure the repo is kept compressed.
-
 
   ==0.0.8
     - added quicksave and persistent file tracking (but no facility to revert as yet).
