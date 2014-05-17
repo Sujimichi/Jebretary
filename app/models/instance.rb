@@ -3,6 +3,7 @@ class Instance < ActiveRecord::Base
 
   validates :full_path, :presence => true
   has_many :campaigns, :dependent => :destroy
+  has_many :craft, :through => :campaigns
 
   def path
     p = JSON.parse(self.full_path)
