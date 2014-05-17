@@ -360,11 +360,8 @@ class System
   #basic error logger
   def self.log_error error
     require 'assets/version'
-
     acceptable_errors = ["Permission denied - persistent.sfs", "Permission denied - quicksave.sfs"]
     return false if acceptable_errors.map{|allowed| error.match(allowed)}.any?
-
-
 
     log_file_path = File.join([System.root_path, "error.log"])   
     File.open(log_file_path, "w"){|f| f.write "Jebretary error log\n\n"} unless File.exists?(log_file_path)
@@ -385,4 +382,3 @@ class System
   end
 
 end
-
