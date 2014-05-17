@@ -26,10 +26,11 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 
 
 ==Planned/Todo
-- tracking of subassemblies
-- setting to disable shutdown from remote device, to block the annoying sibling/parent/housemate factor
+- remote backups; push the repos for each campaign in an instance into a user defined folder somewhere (possibly over network)
 
 - ability to set a craft to exist in all (or select) campaigns and automatically reflect changes made in either campaign.
+
+- setting to disable shutdown from remote device, to block the annoying sibling/parent/housemate factor
 
 - tracking of user defined files in GameData (maybe)
 
@@ -54,6 +55,11 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
 ==Version History
+  == 0.3.2
+    - bug fixs 
+      - cfg files in the root of GameData are now ignored
+      - Source folders from some mods which contain cfg files are ignored.
+      
   == 0.3.1
     - page load caching for campaign, craft and subassembly show pages 
     - faster display of revert save dialogs
