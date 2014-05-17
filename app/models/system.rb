@@ -359,6 +359,7 @@ class System
 
   #basic error logger
   def self.log_error error
+    require 'assets/version'
 
     acceptable_errors = ["Permission denied - persistent.sfs", "Permission denied - quicksave.sfs"]
     return false if acceptable_errors.map{|allowed| error.match(allowed)}.any?
