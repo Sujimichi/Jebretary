@@ -5,7 +5,7 @@ class PartParser
 
 
   require 'json'
-  attr_accessor :parts, :resources, :internals, :props
+  attr_accessor :parts, :resources, :internals, :props, :ignored_cfgs
 
   def initialize dir, args = {:source => :game_folder, :write_to_file => false}
     begin
@@ -18,7 +18,7 @@ class PartParser
     end
 
     @instance_dir = dir
-    args[:source] = :game_folder if Rails.env.eql?("development")
+    #args[:source] = :game_folder if Rails.env.eql?("development")
     if args[:source] == :game_folder
       cur_dir = Dir.getwd
       Dir.chdir(@instance_dir)
@@ -128,7 +128,8 @@ class PartParser
           part_info.merge!(:name => part_name, :legacy => true, :type => :part, :mod => :unknown_legacy)
           part_info
         else
-          raise UnknownPartException, "part #{cfg_path} is not in either GameData or the legacy Parts folder"
+          @ignored_cfgs << cfg_path
+          #raise UnknownPartException, "part #{cfg_path} is not in either GameData or the legacy Parts folder"
           #this could be a problem for people with legacy internals, props or resources
         end
 
