@@ -57,7 +57,7 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 ==Version History
   == 0.3.2
     - bug fixs 
-      - cfg files in the root of GameData are now ignored
+      - cfg files in the root of GameData and in saves are now ignored
       - Source folders from some mods which contain cfg files are ignored.
       
   == 0.3.1
