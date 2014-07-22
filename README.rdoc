@@ -57,6 +57,8 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 ==Version History
   == 0.3.3
     - support for x64 version of KSP
+    - applied patch from EdvardM to fix an edge case where a commit doesn't have a date stamp.
+    - fixed caching method in campaign_controller. Live info of changes was not being displayed as changes happed in some campaigns.
     
   == 0.3.2
     - bug fixs 
