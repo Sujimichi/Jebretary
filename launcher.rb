@@ -12,7 +12,7 @@ if @cleanup.eql?(:ok)
   Dir.chdir("..")
   system "start liquid.exe"   #start web server
   system "start oxidizer.exe" #start background monitor
-  sleep 4
+  sleep 5
   system "start http://localhost:3000" #open browser to connect to Jebretary  
 else
   puts "Appears we have a problem launching"

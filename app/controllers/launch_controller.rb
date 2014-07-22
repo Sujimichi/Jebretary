@@ -8,7 +8,7 @@ class LaunchController < ApplicationController
         running_instances = KSP.controller.find_running_instances
         if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
           begin
-            running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
+            running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","").sub("\\KSP_x64.exe","")}
           rescue
             running_instances = []
           end
@@ -33,7 +33,7 @@ class LaunchController < ApplicationController
 
       if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
         begin
-          running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","")}
+          running_instances = running_instances.map{|i| i.executablepath.sub("\\KSP.exe","").sub("\\KSP_x64.exe","")}
         rescue
           running_instance = []
         end
@@ -73,7 +73,7 @@ class LaunchController < ApplicationController
       running_instances = KSP.controller.find_running_instances
       if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
         begin
-          shutdown = running_instances.select{|i| i.executablepath.sub("\\KSP.exe","") == @instance.path.split("/").join("\\")}
+          shutdown = running_instances.select{|i| i.executablepath.sub("\\KSP.exe","").sub("\\KSP_x64.exe","") == @instance.path.split("/").join("\\")}
         rescue
           shutdown = []
         end

@@ -35,13 +35,14 @@ class KSP::Windows
     win32 = WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process")
     processes = []
     win32.each{|process| processes << process}
-    ksp_instances = processes.select{|p| p.name.downcase.eql?("ksp.exe")}
+    ksp_instances = processes.select{|p| p.name.downcase.eql?("ksp.exe") || p.name.downcase.eql?("ksp_x64.exe")}
   end
 
   def self.start path
-    path = File.join([path, "ksp.exe"])
-    path = File.join([path, "ksp_x64.exe"]) unless File.exists?(path)   
-    system "start \"\" \"#{path}\"" unless File.exists?(path)
+    ksp_path = File.join([path, "ksp.exe"])
+    ksp_path = File.join([path, "ksp_x64.exe"]) unless File.exists?(ksp_path)   
+    puts "\n\nmoo\n\n#{ksp_path}\n\nmoo\n\n"
+    system "start \"\" \"#{ksp_path}\"" if File.exists?(ksp_path)
   end
 
   def select_instance path = nil
