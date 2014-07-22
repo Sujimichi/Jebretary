@@ -30,7 +30,7 @@ class InstancesController < ApplicationController
     rescue
       @instance.errors.add(:base, "unable to open directory '#{params[:full_path]}'")
     end
-    @instance.errors.add(:base, "couldn't locate KSP.exe") if !files.blank? && !files.include?("KSP.exe")
+    @instance.errors.add(:base, "couldn't locate KSP.exe") if !files.blank? && !(files.include?("KSP.exe") || files.include?("KSP_x64.exe") )
 
 
     respond_with(@instance) do |f|      

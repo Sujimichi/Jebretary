@@ -55,6 +55,9 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
 ==Version History
+  == 0.3.3
+    - support for x64 version of KSP
+    
   == 0.3.2
     - bug fixs 
       - cfg files in the root of GameData and in saves are now ignored
