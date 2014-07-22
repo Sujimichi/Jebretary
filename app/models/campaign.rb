@@ -169,7 +169,7 @@ class Campaign < ActiveRecord::Base
       qs_commit = saves[:quicksave].first if saves[:quicksave]     
       if qs_commit && current_project
         craft_commit = current_project.history(:limit => 1).first
-        t= [[:quicksave, qs_commit], [:current_project, craft_commit]].sort_by{|t, c| c.date}.last
+        t= [[:quicksave, qs_commit], [:current_project, craft_commit]].sort_by{|_, c| c.try(:date) || Time.now}.last
         return t[0]
       else
         return :current_project
