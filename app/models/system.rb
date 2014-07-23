@@ -149,7 +149,7 @@ class System
 
         #Actuall Work step - ensure all present craft and subassembly files have a matching DB object
         if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
-          campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => @first_pass 
+          campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => true
           campaign.verify_subassemblies
           campaign.track_changed_subassemblies
         end

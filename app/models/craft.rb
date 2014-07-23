@@ -37,6 +37,7 @@ class Craft < ActiveRecord::Base
   end
 
   def update_part_data
+    return false if self.deleted?
     parts.locate_in self.crafts_campaign.instance.parts
     data = {:parts => parts.found, :missing_parts => parts.missing, :stock => parts.stock?, :mods => parts.mods}
     self.part_data = data
