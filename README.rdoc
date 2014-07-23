@@ -55,6 +55,10 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
 ==Version History
+  == 0.3.4
+    - bug fixes
+      - craft which had been deleted before re-installing Jebretary where not being detected
+  
   == 0.3.3
     - support for x64 version of KSP
     - applied patch from EdvardM to fix an edge case where a commit doesn't have a date stamp.

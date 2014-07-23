@@ -303,12 +303,8 @@ class Campaign < ActiveRecord::Base
   #This uses command line git interface as the git-gem could not do --diff-filter commands (at least I couldn't find how to do it).
   #TODO tidy this nasty method up and make it run faster.
   def discover_deleted_craft existing_craft_map = nil
-
     #In the root of the campaigns git repo run the --diff-filter command and then return to the current working dir.
-    cur_dir = Dir.getwd
-    Dir.chdir(self.path)  
-    log = `git log --diff-filter=D --summary` #find the commits in which a file was deleted.
-    Dir.chdir(cur_dir)
+    log = self.repo.log_filterD
     
 
     #Select the craft already present in the DB which can either be from passed in existing_craft_map or directly from the DB

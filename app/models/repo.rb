@@ -116,6 +116,12 @@ class Repo
     read_log logs   #send raw log string to be processed into separate Commit objects
   end
 
+  def log_filterD
+    command = "log --diff-filter=D --summary"
+    git command   #run git command
+    #read_log logs   #send raw log string to be processed into separate Commit objects
+  end
+
   def status
     git "status"
   end
