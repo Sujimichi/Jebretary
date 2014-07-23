@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140501021456) do
+ActiveRecord::Schema.define(:version => 20140723165743) do
 
   create_table "campaigns", :force => true do |t|
     t.integer  "instance_id"
@@ -39,8 +39,10 @@ ActiveRecord::Schema.define(:version => 20140501021456) do
 
   create_table "instances", :force => true do |t|
     t.string   "full_path"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",                              :null => false
+    t.datetime "updated_at",                              :null => false
+    t.string   "part_db_checksum"
+    t.boolean  "part_update_required", :default => false
   end
 
   create_table "sessions", :force => true do |t|
