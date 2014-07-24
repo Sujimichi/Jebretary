@@ -116,6 +116,21 @@
           %h4 Reset Help Tips
           .info.small Want the mildly helpful tips again? Then hit this reset button.
           = button_to "reset help tips", :controller => :welcome, :action => :update, :method => :put, :reset_help => true
+          
+        .clear
+        .vblk_2
+
+        .grid_10.alpha
+          %h4 Update Part DBs when Jebretary starts
+          .info.small When On Jebretary will refresh its map of what parts you have installed in each KSP install.
+          .info.small This allows Jebretary to know when you change your mods and recheck craft for missing parts
+          .info.small If you have lots of parts, or a slow disk, this can take a while.  If you are not going to change your installed parts you can switch it off, 
+          .info.small Just remember to tell Jebretary to re-scan your craft if you do update your mods.
+          
+
+          = "Updating part DBs on start is: #{@config["update_parts_db_on_load"] ? 'ON' : 'OFF'}"
+          = button_to "switch #{@config["update_parts_db_on_load"] ? 'Off' : 'On'}", :controller => :welcome, :action => :update, :method => :put, :update_parts_db_on_load => !@config["update_parts_db_on_load"] 
+          
 
       
       

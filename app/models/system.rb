@@ -44,6 +44,8 @@ class System
     @loops_without_action = 0
     Task.destroy_all #remove any task that may have been left over from last run. (may change this, but atm tasks get generated as needed so this seems cleaner)
 
+    @config = System.new.get_config
+    
     while @heart_rate do
       begin
         if process
@@ -104,12 +106,11 @@ class System
 
     if @first_pass #delete the file that contains references for this instances parts. This will be recreated when needed.
       instances.each{|instance| 
-        instance.reset_parts_db
+        instance.reset_parts_db if @config[:update_parts_db_on_load]
         Task.create(:action => ["generate_part_db_for", instance.id].to_json) unless File.exists?(File.join([instance.path, 'jebretary.partsDB']))
       } 
     end
       
-
     #First step - itteration throu instances - fast and provides some basic information to the user interface
     #determines which campaigns exist in each instance, creates new ones as appropriate
     #discovers the craft files associated with each campaign
@@ -217,20 +218,21 @@ class System
       end
     end
 
-    work_of_tasks :limit => Instance.count
 
+    System.remove_db_flag
+
+
+    work_of_tasks :limit => Instance.count
 
     @loops_without_action ||= 0 #if Rails.env.eql?("test")
     if @loops_without_action >= 5
       if Craft.where(:part_data => nil, :deleted => false).count >= 1
-        puts "\n\nADDING TASK\n\n"
         Task.create(:action => ["update_some_craft_data"].to_json) 
         @loops_without_action = 0 
       end      
     end
 
-    puts "done - (#{(Time.now - t).round(2)}seconds)" unless instances.count.eql?(0) || Rails.env.eql?("test")
-    System.remove_db_flag
+    puts "done - (#{(Time.now - t).round(2)}seconds)" unless instances.count.eql?(0) || Rails.env.eql?("test")   
     fast_re_run_of_next_pass
   end
 
@@ -331,14 +333,15 @@ class System
     config = {
       :seen_elements => [],
       :stock_parts => ["Squad", "NASAmission"],
-      :show_error_report => true
+      :show_error_report => true,
+      :update_parts_db_on_load => true
     }
   end
 
   def get_config 
     set_config unless File.exists?( File.join([System.root_path, "settings"]) )
     config_data = File.open(File.join([System.root_path, "settings"]), 'r'){|f| f.readlines}.join
-    JSON.parse(config_data)
+    HashWithIndifferentAccess.new self.default_config.merge(JSON.parse(config_data))
   end
 
   def set_config new_config = nil

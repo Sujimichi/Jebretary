@@ -36,7 +36,7 @@
 
 
 -else
-  -if campaigns.blank?
+  -if campaigns.blank? && background_process.nil?
 
     .no_campaigns_message.grid_8.push_2
       %p
@@ -56,6 +56,7 @@
           .small located in the same folder as this app)
     .clear
   -else
+    - campaigns ||= []
     - campaigns.each do |campaign|
       :javascript
         if($("#campaign_container_for_#{campaign.id}").html() == undefined){

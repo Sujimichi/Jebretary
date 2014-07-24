@@ -24,18 +24,38 @@
       .vblk_1
       .info It's best to just wait for this initial scan to complete before clicking on a campaign.
       .vblk_1
+      
   - if @instance.part_update_required?
     #part_update_required_dialog.hidden
       = render "errors/part_update_required", :instance => @instance
 
+          
   #temp_holder
 
   #campaigns_list
     .loading
       .ajax_loader
       Loading Stuff....
+  .clear
+  
+  .grid_8.push_2.rescan_link.hidden.centered
+    %h2= link_to "Re-scan parts and craft", edit_instance_path(:id => @instance.id, :rescan => true), :method => :get, :remote => true, :onclick => "rescanning_notification()"
+    .small= "(click this if you have changed/updated your mods/parts)"
+    
+  #rescan_notify_dialog.hidden
+    %h4= "The craft in this instance #{@instance.path} will have their parts re-scanned shortly"
+    %h4= "During the rescan changes to craft and saves will not be tracked, but you can carry on playing KSP and using Jebretary"
+    .right
+      .vblk_1
+      = button_to_function "OK", "$('#rescan_notify_dialog').dialog('close');"
+      
+     
 
 :javascript
   $(function(){
     poll_for_updated_instance();
   });
+  
+  function rescanning_notification(){
+    $('#rescan_notify_dialog').dialog({ height: 'auto', width: '800px', position: ["center", 100], title: "Part Info Rescan" })
+  };

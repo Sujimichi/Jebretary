@@ -4,7 +4,7 @@ $('#campaigns_list').html("")
 
 if("#{@background_process}" != "waiting"){
 $('#temp_holder').html("#{j render :partial => 'campaigns/list', :locals => {:instance => @instance, :campaigns => @campaigns, :background_process => @background_process} }");
-
+$('.rescan_link').show();
 };
 
 poll_for_updated_instance();

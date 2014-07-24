@@ -1,6 +1,7 @@
 class InstancesController < ApplicationController
 
   respond_to :html, :js
+  before_filter :assign_instance, :only => [:edit, :destroy]
 
 
   def index
@@ -36,6 +37,7 @@ class InstancesController < ApplicationController
     respond_with(@instance) do |f|      
       if @instance.errors.empty?
         @instance.save
+        Task.create(:action => ["generate_part_db_for", @instance.id].to_json) 
         f.js { }
       else
         f.html { render :action => "new", :status => 422 }
@@ -47,8 +49,6 @@ class InstancesController < ApplicationController
     respond_to do |f|           
       f.html{
         @instance = Instance.find(params[:id])
-        #Task.create(:action => ["generate_part_db_for", @instance.id].to_json) unless @instance.part_update_required? || File.exists?(File.join([@instance.path, 'jebretary.partsDB']))
-        
         unless @instance.campaigns.empty?
           @instance.prepare_campaigns
           @campaigns = @instance.reload.campaigns
@@ -66,15 +66,20 @@ class InstancesController < ApplicationController
 
   def edit
     respond_to do |f| 
-      f.js{
-        @instance = Instance.find(params[:id])
-        Task.create(:action => ["update_part_data_for", @instance.id].to_json)
+      f.js{ 
+        if params[:rescan]
+          @instance.reset_parts_db
+          Task.create(:action => ["generate_part_db_for", @instance.id].to_json) 
+          Task.create(:action => ["update_part_data_for", @instance.id].to_json) 
+        else
+          Task.create(:action => ["update_part_data_for", @instance.id].to_json) 
+        end
       }
+
     end
   end
 
   def destroy
-    @instance = Instance.find(params[:id])
     @instance.destroy
     respond_to do |format|
       format.html { redirect_to :back }
@@ -92,4 +97,7 @@ class InstancesController < ApplicationController
     @background_process ||= "waiting"
   end
 
+  def assign_instance
+    @instance = Instance.find(params[:id])
+  end
 end
