@@ -42,6 +42,8 @@ class System
     @loop_count = 500 
     @first_pass = true
     @loops_without_action = 0
+    Task.destroy_all #remove any task that may have been left over from last run. (may change this, but atm tasks get generated as needed so this seems cleaner)
+
     while @heart_rate do
       begin
         if process
@@ -84,7 +86,8 @@ class System
 
     data = {} #the container for information to be passed to the front end. periodicaly updated and written to HD.
     instances = Instance.all
-    fast_re_run_of_next_pass = false
+    fast_re_run_of_next_pass = false #if true, the next cycle will occur sooner than normal. (not the best variable name)
+
     @first_pass ||= false
 
     #Console output
@@ -99,7 +102,12 @@ class System
     new_campaigns_for_instance = {}
     campaigns_to_process = []
 
-    instances.each{|instance| instance.reset_parts_db} if @first_pass #delete the file that contains references for this instances parts. This will be recreated when needed.
+    if @first_pass #delete the file that contains references for this instances parts. This will be recreated when needed.
+      instances.each{|instance| 
+        instance.reset_parts_db
+        Task.create(:action => ["generate_part_db_for", instance.id].to_json) unless File.exists?(File.join([instance.path, 'jebretary.partsDB']))
+      } 
+    end
       
 
     #First step - itteration throu instances - fast and provides some basic information to the user interface
@@ -200,8 +208,6 @@ class System
         else
           campaign.track_save(:quicksave) 
         end
-             
-       
 
         #At this point everything should be commited, all craft and the saves, and no other git activity should be happening.
         #update repo for any craft that are holding commit message info in the temparary store.
@@ -211,24 +217,22 @@ class System
       end
     end
 
+    work_of_tasks :limit => Instance.count
+
 
     @loops_without_action ||= 0 #if Rails.env.eql?("test")
     if @loops_without_action >= 5
-      to_update = Craft.where(:part_data => nil, :deleted => false).limit(20)
-      to_update.each{|c|
-        puts "updating parts info for #{c.name}"
-        c.update_part_data
-        c.save
-      }
-      @loops_without_action = 0 
+      if Craft.where(:part_data => nil, :deleted => false).count >= 1
+        puts "\n\nADDING TASK\n\n"
+        Task.create(:action => ["update_some_craft_data"].to_json) 
+        @loops_without_action = 0 
+      end      
     end
-            
 
     puts "done - (#{(Time.now - t).round(2)}seconds)" unless instances.count.eql?(0) || Rails.env.eql?("test")
     System.remove_db_flag
     fast_re_run_of_next_pass
   end
-
 
 
   #write commit messages which are stored on the Craft objects into the Git repo.
@@ -289,6 +293,17 @@ class System
         object.save
       end
     end
+  end
+
+
+  #Arbitary actions can be saved as Taks objects by the interface and then be processed later by the background process.
+  def work_of_tasks args
+    args[:failed] ||= false
+    limit = args[:limit]
+    args.delete(:limit)
+
+    tasks_to_do = Task.where(args).limit(limit)    
+    tasks_to_do.each{|task|task.process } unless tasks_to_do.empty?   
   end
 
 

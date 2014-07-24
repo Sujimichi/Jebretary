@@ -1,0 +1,13 @@
+%h2 It looks like you have recently updated or changed your installed mods/parts
+
+%p
+  .info= "I need to update the info about the craft in this install;"
+  .info.small= "#{instance.path}"
+  .info= "This may take a couple minuites (depending on the curve of space time and Jeb's current velocity)."
+%p
+  .left
+    %h3= "During this time changes to craft and saves will not be tracked!"
+    .info.small="You can carry on using Jebretary and playing KSP as normal, and I'll catch up with you once I'm done."
+  .right
+    = button_to "OK", edit_instance_path(:id => instance.id, :update_craft_part_info => true), :method => :get, :remote => true, :onclick => "$('#part_update_required_dialog').dialog('close');"
+

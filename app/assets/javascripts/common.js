@@ -2,6 +2,7 @@ $(function(){
   clearTimeout(index_search_timer);
   autohide_flash();
   check_error_log();
+  check_part_update_required();
 });
 
 var detect_running_ksp_timer = null
@@ -56,6 +57,13 @@ function check_error_log(){
   };
 };
 
+function check_part_update_required(){
+  if( $('#part_update_required_dialog')[0]){
+    setTimeout(function(){
+      $('#part_update_required_dialog').dialog({ height: 'auto', width: 'auto', position: ["center", 100], title: "Part Info Update Required" });
+    },1000);
+  };
+};
 function reset_error_log(){
   ajax_get("welcome/edit", {}, function(){
     alert("foo")
@@ -405,5 +413,3 @@ function toggle_subassembly_list(force_hide){
     });
   };
 };
-
-

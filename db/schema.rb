@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140723165743) do
+ActiveRecord::Schema.define(:version => 20140723183431) do
 
   create_table "campaigns", :force => true do |t|
     t.integer  "instance_id"
@@ -63,6 +63,13 @@ ActiveRecord::Schema.define(:version => 20140723165743) do
     t.string   "last_commit"
     t.datetime "created_at",                       :null => false
     t.datetime "updated_at",                       :null => false
+  end
+
+  create_table "tasks", :force => true do |t|
+    t.string   "action"
+    t.boolean  "failed",     :default => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
   end
 
 end

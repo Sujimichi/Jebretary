@@ -1,5 +1,5 @@
 class Instance < ActiveRecord::Base
-  attr_accessible :full_path
+  attr_accessible :full_path, :part_db_checksum, :part_update_required
 
   validates :full_path, :presence => true
   has_many :campaigns, :dependent => :destroy
@@ -53,14 +53,18 @@ class Instance < ActiveRecord::Base
       if File.exists?(File.join([self.path, "jebretary.partsDB"]))
         return @parts = PartParser.new(self.path, :source => :from_file)
       else
-        return @parts = PartParser.new(self.path, :source => :game_folder, :write_to_file => true)
+        @parts = PartParser.new(self.path, :source => :game_folder, :write_to_file => true)
 
         #we need to know if there has been a change in the installed parts since the last time Jebretary was launched.
         #therefore a checksum of the partsDB is stored and if it differs from the current checksum then part_update_required is set to true
         #this will be used to prompt the user about re-processing all craft in this instance for thier parts.
         pdc = generate_part_db_checksum
-        self.update_attributes(:part_db_checksum => pdc, :part_update_required => true) if self.part_db_checksum != pdc
-
+        if self.part_db_checksum != pdc
+          self.part_update_required = true #unless self.part_db_checksum.nil?
+          self.part_db_checksum = pdc          
+          self.save
+        end
+        return @parts
       end
     end  
   end

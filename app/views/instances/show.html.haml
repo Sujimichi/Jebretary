@@ -24,7 +24,9 @@
       .vblk_1
       .info It's best to just wait for this initial scan to complete before clicking on a campaign.
       .vblk_1
-
+  - if @instance.part_update_required?
+    #part_update_required_dialog.hidden
+      = render "errors/part_update_required", :instance => @instance
 
   #temp_holder
 

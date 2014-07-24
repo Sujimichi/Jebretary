@@ -38,7 +38,7 @@ class Craft < ActiveRecord::Base
 
   def update_part_data
     return false if self.deleted?
-    parts.locate_in self.crafts_campaign.instance.parts
+    parts.locate_in self.crafts_campaign.campaigns_instance.parts
     data = {:parts => parts.found, :missing_parts => parts.missing, :stock => parts.stock?, :mods => parts.mods}
     self.part_data = data
     true
@@ -52,7 +52,7 @@ class Craft < ActiveRecord::Base
   end
 
   def part_data= data
-    data = data.to_json
+    data = data.to_json unless data.nil?
     super(data)
   end
 

@@ -47,6 +47,8 @@ class InstancesController < ApplicationController
     respond_to do |f|           
       f.html{
         @instance = Instance.find(params[:id])
+        #Task.create(:action => ["generate_part_db_for", @instance.id].to_json) unless @instance.part_update_required? || File.exists?(File.join([@instance.path, 'jebretary.partsDB']))
+        
         unless @instance.campaigns.empty?
           @instance.prepare_campaigns
           @campaigns = @instance.reload.campaigns
@@ -58,6 +60,15 @@ class InstancesController < ApplicationController
           @instance = Instance.find(params[:id])
           @campaigns = @instance.campaigns.select{|c| c.exists?}
         end      
+      }
+    end
+  end
+
+  def edit
+    respond_to do |f| 
+      f.js{
+        @instance = Instance.find(params[:id])
+        Task.create(:action => ["update_part_data_for", @instance.id].to_json)
       }
     end
   end
