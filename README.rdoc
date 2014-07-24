@@ -58,6 +58,15 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
   == 0.3.4
     - bug fixes
       - craft which had been deleted before re-installing Jebretary where not being detected
+    - new background processing system
+      - now responsible for all part checking actions
+    - Jebretary will now refresh its info about installed parts for each instance when Jebretary starts
+      - does mean it takes a bit longer to start, but it means Jebretary can know if you've changes/updated your parts
+      - upon detecting that parts have been changed Jebretary will re-scan craft part info to update it when the changed part (and check for missing parts)
+      - Users can disable the auto refresh of part info. If you are not changing you parts then updating the part info is not required.
+        - if you do change you parts, you can request a re-scan of part info on the page for a particular Instance.
+        
+      
   
   == 0.3.3
     - support for x64 version of KSP
