@@ -61,6 +61,7 @@ class PartParser
     @props = {}
     @ignored_cfgs = []
     part_info = part_cfgs.map do |cfg_path|
+      @alert = false
       cfg = File.open(cfg_path,"r:ASCII-8BIT"){|f| f.readlines}
       begin
         next if cfg_path.include?("mechjeb_settings") #not all .cfg files are part files, some are settings, this ignores mechjeb settings (which are numerous). 
@@ -70,8 +71,9 @@ class PartParser
         next if cfg_path.match(/^saves\//) #ignore cfg files in saves folder
 
         #Others will be ignored by the next line failing to run
-        part_name = cfg.select{|line| line.include?("name =")}.first.sub("name = ","").gsub("\t","").gsub(" ","").chomp
+        part_name = cfg.select{|line| line.include?("name =")}.first.sub("name = ","").sub("@","").gsub("\t","").gsub(" ","").chomp
         print "."
+        @alert = true if part_name.include?("pod")
       rescue Exception => e
         @ignored_cfgs << cfg_path
         #System.log_error "Error in index_parts while attempting to read part name\nFailed Part path: #{cfg_path}\n#{e}"
@@ -81,6 +83,7 @@ class PartParser
       begin
         dir = cfg_path.sub("/part.cfg","")
         part_info = {:dir => dir, :path => cfg_path }
+        
 
         if cfg_path.match(/^GameData/)
           folders = dir.split("/")
@@ -108,7 +111,7 @@ class PartParser
             next if sub_component.blank?
             name = sub_component.select{|line| line.include?("name =")}.first
             next if name.blank?
-            name = name.sub("name = ","").gsub("\t","").gsub(" ","").chomp         
+            name = name.sub("name = ","").gsub("\t","").gsub(" ","").sub("@",'').chomp         
             part_info.merge!(:name => name)
 
             if type.eql?(:resource)            
