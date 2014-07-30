@@ -10,20 +10,26 @@ class Task < ActiveRecord::Base
     end
   end
 
+  def action= args
+    unless args.is_a?(String)
+      args = args.to_json
+    end
+    super(args)
+  end
+
   def process
-    #begin
-      #eval(action) #yeah I know, horrible to use eval like this, but a) this is just while I rough out what I need this to do b) task actions will only ever be set by the system, never the user. But still eval is nasty, will do something else later.
+    begin
       print "\nProcessing Delayed Task: "
       self.send(*self.action)
       self.destroy
       puts "done"
-    #rescue
-    #  self.update_attributes(:failed => true)
-    #end
+    rescue
+      self.update_attributes(:failed => true)
+      puts "\n\nTask Failed to process. Could not perform #{self.action}\n\n"
+    end
   end
 
-  #Instance.find(id).craft.each{|c| c.update_part_data; c.save}
-
+  private
   
   def update_part_data_for instance_id
     instance = Instance.find(instance_id)
@@ -51,4 +57,14 @@ class Task < ActiveRecord::Base
     print "generating parts DB for #{instance.path}"
     instance.parts
   end
+
+  def run_git_garbage_collector
+    print "Compressing Git Repos (git gc)\n\n"
+    sleep 1
+    Campaign.all.each do |c|
+      puts "#{c.name}..."
+      c.repo.gc
+    end 
+  end
+
 end

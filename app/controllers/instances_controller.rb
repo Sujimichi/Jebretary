@@ -38,7 +38,7 @@ class InstancesController < ApplicationController
     respond_with(@instance) do |f|      
       if @instance.errors.empty?
         @instance.save
-        Task.create(:action => ["generate_part_db_for", @instance.id].to_json) 
+        Task.create(:action => ["generate_part_db_for", @instance.id]) 
         f.js { }
       else
         f.html { render :action => "new", :status => 422 }
@@ -70,13 +70,10 @@ class InstancesController < ApplicationController
       f.js{ 
         if params[:rescan]
           @instance.reset_parts_db
-          Task.create(:action => ["generate_part_db_for", @instance.id].to_json) 
-          Task.create(:action => ["update_part_data_for", @instance.id].to_json) 
-        else
-          Task.create(:action => ["update_part_data_for", @instance.id].to_json) 
+          Task.create(:action => ["generate_part_db_for", @instance.id])           
         end
+        Task.create(:action => ["update_part_data_for", @instance.id]) 
       }
-
     end
   end
 
