@@ -225,7 +225,7 @@ class System
     work_of_tasks :limit => Instance.count
 
     @loops_without_action ||= 0 #if Rails.env.eql?("test")
-    if @loops_without_action >= 5
+    if @loops_without_action >= 2
       if Craft.where(:part_data => nil, :deleted => false).count >= 1
         Task.create(:action => ["update_some_craft_data"].to_json) 
         @loops_without_action = 0 

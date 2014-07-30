@@ -37,7 +37,7 @@ class Task < ActiveRecord::Base
   end
 
   def update_some_craft_data
-    to_update = Craft.where(:part_data => nil, :deleted => false).limit(20)
+    to_update = Craft.where(:part_data => nil, :deleted => false).limit(40)
     print "updating part data on #{to_update.count} un-processed craft"
     to_update.each{|c|
       print "\n\tupdating #{c.name}"

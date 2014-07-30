@@ -12,6 +12,9 @@
     .help_for#instance_page_first_view.hidden
       %h3= "I've finished detecting campaigns and craft in this install of KSP"
       .info Click on a campaign to view its craft
+      .info.small Craft may not yet have their part info available.  I will gradually work through your craft and scan them in the background.
+      .info.small Craft that have been scanned will be color coded (blue for stock, green for modded).
+      .info.small= "If you want me to scan all your craft right now, click the 'Re-scan parts and craft' link below."
       .vblk_1
 
   -if system.show_help_for?("updating_several_craft_#{@instance.id}")

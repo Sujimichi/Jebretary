@@ -67,3 +67,4 @@
     - unless campaigns.map{|c| c.should_process?}.any?
       :javascript
         show_help('instance_page_first_view');
+        $('.rescan_link').show();
