@@ -24,6 +24,7 @@ class InstancesController < ApplicationController
     end
 
     @instance = Instance.new(:full_path => full_path.to_json)
+    
 
     begin
       files = Dir.open(File.join(full_path)).to_a

@@ -60,7 +60,7 @@ class Instance < ActiveRecord::Base
         #this will be used to prompt the user about re-processing all craft in this instance for thier parts.
         pdc = generate_part_db_checksum
         if self.part_db_checksum != pdc
-          self.part_update_required = true #unless self.part_db_checksum.nil?
+          self.part_update_required = true unless self.part_db_checksum.nil?
           self.part_db_checksum = pdc          
           self.save
         end
