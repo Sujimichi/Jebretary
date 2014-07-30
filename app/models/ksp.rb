@@ -39,9 +39,9 @@ class KSP::Windows
   end
 
   def self.start path
-    ksp_path = File.join([path, "ksp.exe"])
-    ksp_path = File.join([path, "ksp_x64.exe"]) unless File.exists?(ksp_path)   
-    system "start \"\" \"#{ksp_path}\"" if File.exists?(ksp_path)
+    ksp_path = File.join([path, "ksp_x64.exe"]) #default to the 64 bit version
+    ksp_path = File.join([path, "ksp.exe"]) unless File.exists?(ksp_path)  #switch to 32bit of 64bit exe is not present. 
+    system "start \"\" \"#{ksp_path}\"" if File.exists?(ksp_path) 
   end
 
   def select_instance path = nil
