@@ -41,7 +41,6 @@ class KSP::Windows
   def self.start path
     ksp_path = File.join([path, "ksp.exe"])
     ksp_path = File.join([path, "ksp_x64.exe"]) unless File.exists?(ksp_path)   
-    puts "\n\nmoo\n\n#{ksp_path}\n\nmoo\n\n"
     system "start \"\" \"#{ksp_path}\"" if File.exists?(ksp_path)
   end
 
