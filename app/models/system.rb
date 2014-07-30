@@ -37,13 +37,13 @@ class System
   def run_monitor
     @heart_rate = 10
     @repeat_error_count = 0
-    #set equal to if clause so git GC runs to start with (incase the player never plays more that (500*10)/60 munites. 
-    #yeah right, who only plays KSP for 80 mins
-    @loop_count = 500 
     @first_pass = true
     @loops_without_action = 0
-    Task.destroy_all #remove any task that may have been left over from last run. (may change this, but atm tasks get generated as needed so this seems cleaner)
 
+    @loop_count = 498 #set to 498 so it takes two passes before hitting 500 and running git cleanup actions. (incase the player never plays more that (500*10)/60 munites. 
+    #yeah right, who only plays KSP for 80 mins
+    
+    Task.destroy_all #remove any task that may have been left over from last run. (may change this, but atm tasks get generated as needed so this seems cleaner)
     @config = System.new.get_config
     
     while @heart_rate do
@@ -66,14 +66,7 @@ class System
         end        
       end
       if @loop_count >= 500
-        if Rails.env.eql?("production") && Campaign.count != 0
-          puts "\n\nCompressing Git Repos (git gc)\n\n"
-          sleep 1
-          Campaign.all.each{|c|
-            puts "#{c.name}..."
-            c.repo.gc
-          } 
-        end
+        Task.create!(:action => ["run_git_garbage_collector"]) if Rails.env.eql?("production") && Campaign.count != 0
         @loop_count = 0
       end
       sleep @heart_rate 
@@ -107,7 +100,7 @@ class System
     if @first_pass #delete the file that contains references for this instances parts. This will be recreated when needed.
       instances.each{|instance| 
         instance.reset_parts_db if @config[:update_parts_db_on_load]
-        Task.create(:action => ["generate_part_db_for", instance.id].to_json) unless File.exists?(File.join([instance.path, 'jebretary.partsDB']))
+        Task.create(:action => ["generate_part_db_for", instance.id]) unless File.exists?(File.join([instance.path, 'jebretary.partsDB']))
       } 
     end
       
@@ -150,6 +143,7 @@ class System
         campaign.cache_instance(instance) #put the already loaded instance object into a variable in the campaign object to be used rather than reloading from DB.
         next unless campaign.exists?
         campaign.git #ensure git repo is present
+        next unless campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
 
         #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
@@ -157,15 +151,16 @@ class System
         #can't use DB as interface is waiting for the DB to become unlocked.
 
         #Actuall Work step - ensure all present craft and subassembly files have a matching DB object
-        if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
+        #if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
           campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => true
           campaign.verify_subassemblies
           campaign.track_changed_subassemblies
-        end
-        
+        #end
+
         data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
         System.update_db_flag(data) #inform interface step
 
+        
         if campaigns_to_process.include?(campaign)        
           craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
           new_and_changed = campaign.new_and_changed         
@@ -219,6 +214,7 @@ class System
     end
 
 
+
     System.remove_db_flag
 
 
@@ -227,7 +223,7 @@ class System
     @loops_without_action ||= 0 #if Rails.env.eql?("test")
     if @loops_without_action >= 2
       if Craft.where(:part_data => nil, :deleted => false).count >= 1
-        Task.create(:action => ["update_some_craft_data"].to_json) 
+        Task.create(:action => ["update_some_craft_data"]) 
         @loops_without_action = 0 
       end      
     end
