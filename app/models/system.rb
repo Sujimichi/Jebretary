@@ -143,73 +143,75 @@ class System
         campaign.cache_instance(instance) #put the already loaded instance object into a variable in the campaign object to be used rather than reloading from DB.
         next unless campaign.exists?
         campaign.git #ensure git repo is present
-        next unless campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
+        if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
 
-        #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
-        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
-        System.update_db_flag(data) #these steps with System.update_db_flag(data) are just to provide info to the interface about the progress. 
-        #can't use DB as interface is waiting for the DB to become unlocked.
+          #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
+          data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
+          System.update_db_flag(data) #these steps with System.update_db_flag(data) are just to provide info to the interface about the progress. 
+          #can't use DB as interface is waiting for the DB to become unlocked.
 
-        #Actuall Work step - ensure all present craft and subassembly files have a matching DB object
-        #if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
-          campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => true
-          campaign.verify_subassemblies
-          campaign.track_changed_subassemblies
-        #end
+          #Actuall Work step - ensure all present craft and subassembly files have a matching DB object
+          #if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
+            campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => true
+            campaign.verify_subassemblies
+            campaign.track_changed_subassemblies
+          #end
 
-        data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
-        System.update_db_flag(data) #inform interface step
+          data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
+          System.update_db_flag(data) #inform interface step
 
-        
-        if campaigns_to_process.include?(campaign)        
-          craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
-          new_and_changed = campaign.new_and_changed         
           
-          #craft which need to be commited - anything that is new, changed or does not have a history_count
-          to_commit = [ 
-            craft.select{|c| c.history_count.nil?},
-            new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
-            new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},            
-          ].flatten.compact.uniq
+          if campaigns_to_process.include?(campaign)        
+            craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
+            new_and_changed = campaign.new_and_changed         
+            
+            #craft which need to be commited - anything that is new, changed or does not have a history_count
+            to_commit = [ 
+              craft.select{|c| c.history_count.nil?},
+              new_and_changed[:new].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},
+              new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},            
+            ].flatten.compact.uniq
 
-            puts "\n" unless to_commit.empty? || Rails.env.eql?("test")
-          to_commit.each do |craft_object|        
-            craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
-            print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
-            if to_commit.size >= 4
-              craft_object.commit :skip_part_data => true
-            else
-              craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed? in the rails sense)
+              puts "\n" unless to_commit.empty? || Rails.env.eql?("test")
+            to_commit.each do |craft_object|        
+              craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
+              print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
+              if to_commit.size >= 4
+                craft_object.commit :skip_part_data => true
+              else
+                craft_object.commit #commit any craft that is_new? or is_changed? (in the repo sense, ie different from new? and changed? in the rails sense)
+              end
+              data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
+
+              #if the craft has a commit message for the most recent (and until now uncommited) change. 
+              #Then replace the most_recent key with the sha_id for the latest commit
+              craft_object.replace_most_recent_key_with_latest_commit_sha
+
+              System.update_db_flag(data) #inform interface of how many craft have been commited.
+              puts "done" unless Rails.env.eql?("test")
             end
-            data[instance.id][:campaigns][campaign.name][:added] = Craft.where("history_count is not null and campaign_id = #{campaign.id}").count
+            
+            fast_re_run_of_next_pass = true
 
-            #if the craft has a commit message for the most recent (and until now uncommited) change. 
-            #Then replace the most_recent key with the sha_id for the latest commit
-            craft_object.replace_most_recent_key_with_latest_commit_sha
-
-            System.update_db_flag(data) #inform interface of how many craft have been commited.
-            puts "done" unless Rails.env.eql?("test")
-          end
-          
-          fast_re_run_of_next_pass = true
-
-          if to_commit.empty?
-            fast_re_run_of_next_pass = false
-            campaign.track_save(:both) #track saves when there are no craft to commit
-            #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
-            campaign.update_persistence_checksum        
+            if to_commit.empty?
+              fast_re_run_of_next_pass = false
+              campaign.track_save(:both) #track saves when there are no craft to commit
+              #update the checksum for the persistent.sfs file, indicating this campaign can be skipped until the file changes again.
+              campaign.update_persistence_checksum        
+            else
+              @loops_without_action = 0
+            end        
           else
-            @loops_without_action = 0
-          end        
+            campaign.track_save(:quicksave) 
+          end
         else
-          campaign.track_save(:quicksave) 
-        end
 
-        #At this point everything should be commited, all craft and the saves, and no other git activity should be happening.
-        #update repo for any craft that are holding commit message info in the temparary store.
-        unless campaign.has_untracked_changes? || campaign.persistence_checksum == "skip"                    
-          update_commit_messages campaign
-        end    
+          #At this point everything should be commited, all craft and the saves, and no other git activity should be happening.
+          #update repo for any craft that are holding commit message info in the temparary store.
+          unless campaign.has_untracked_changes? || campaign.persistence_checksum == "skip"                    
+            update_commit_messages campaign
+          end    
+        end
       end
     end
 
