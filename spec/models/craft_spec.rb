@@ -63,7 +63,6 @@ describe Craft do
     end
 
   end
-
   
   describe "commit" do 
     before(:each) do 
@@ -156,8 +155,6 @@ describe Craft do
 
       @craft.last_commit.should == latest_commit_sha.to_s
     end
-
-
   end
 
   describe "history" do    
@@ -465,25 +462,121 @@ describe Craft do
   end
 
 
-  describe "campaign spanning" do 
+  describe "syncing craft between campaigns" do 
     before(:each) do 
       make_campaign_dir "test_campaign_1", :reset => true
       make_campaign_dir "test_campaign_2", :reset => false
       @instance = FactoryGirl.create(:instance)
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
-      make_sample_data
+      make_sample_data :with_craft => true
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
-      make_sample_data
+      make_sample_data :with_craft => false
       System.process
 
       @campaign_1 = Campaign.where(:name => "test_campaign_1").first
       @campaign_2 = Campaign.where(:name => "test_campaign_2").first
-      make_new_craft_in @campaign_1, "VAB", "some_brand_new_rocket"
-      @craft = @campaign_1.craft.create!(:name => "some_brand_new_rocket", :craft_type => :vab)
+      make_new_craft_in @campaign_1, "VAB", "sync_this_rocket"
+      @craft = @campaign_1.craft.create!(:name => "sync_this_rocket", :craft_type => "vab")
       @craft.commit
     end
 
-    it 'should enable a craft to exist in multiple campaigns and relect changes made in one campaign over all selected campaigns'
+    describe "sync_with" do 
+
+      it "should add the given campaign to the crafts 'sync[:with]' list" do 
+        @craft.sync.should == {}
+        @craft.sync_with @campaign_2
+        @craft.sync[:with].should == [@campaign_2.id]
+      end
+
+      it 'should append additional campaing_ids to the sync_list' do
+        @craft.sync_with @campaign_2
+        @craft.sync[:with].should == [@campaign_2.id]
+
+        @craft.sync_with 42
+        @craft.sync[:with].should == [@campaign_2.id, 42]        
+      end
+    end
+
+    describe "synchronize" do
+      before(:each) do 
+        @craft.sync_with @campaign_2
+      end
+    
+      it 'should create the craft in another campaign if it doesnt already exist' do 
+        @campaign_2.craft.should be_empty
+        
+        @craft.synchronize
+        
+        @campaign_2.reload
+        @campaign_2.craft.count.should == 1
+        @campaign_2.craft.first.name.should == "sync_this_rocket"      
+      end
+
+      describe "with existing craft in target campaign" do 
+        before(:each) do 
+          make_new_craft_in @campaign_2, "VAB", "sync_this_rocket"
+          @campaign_2.craft.create!(:name => "sync_this_rocket", :craft_type => "vab").commit
+          @campaign_2.craft.count.should == 1
+          File.open(File.join([@campaign_2.path, "Ships", "VAB", "sync_this_rocket.craft"]), "r"){|f| f.readlines}.join.should == "some test data"
+
+          #change the data in the first craft 
+          change_craft_contents @craft, "some different file data"
+        end
+
+        it 'should update the craft in another campaing if it already exists' do 
+          @craft.commit
+          @craft.synchronize
+  
+          @campaign_2.reload
+          File.open(File.join([@campaign_2.path, "Ships", "VAB", "sync_this_rocket.craft"]), "r"){|f| f.readlines}.join.should == "some different file data"    
+        end
+
+        it 'should keep the id of the craft in the target campaign' do 
+          id = @campaign_2.craft.first.id
+          @craft.commit
+          @craft.synchronize
+  
+          @campaign_2.reload
+          @campaign_2.craft.first.id.should == id
+        end
+
+        it 'should copy the commit message over to the target craft' do 
+          @craft.commit :m => "this is a test commit"
+          @craft.synchronize          
+          @craft.reload.history.first.message.should == "this is a test commit"
+
+          @campaign_2.reload
+          @campaign_2.craft.first.history.first.message.should == "this is a test commit"
+        end
+
+      end
+
+
+      describe "syncing in both directions" do 
+        before(:each) do 
+          make_new_craft_in @campaign_2, "VAB", "sync_this_rocket"
+          @craft2 = @campaign_2.craft.create!(:name => "sync_this_rocket", :craft_type => "vab")
+          @craft2.commit
+
+          #first sync from campaign_1 to campaing_2 (as in the above tests)
+          change_craft_contents @craft, "change made in campaign_1"
+          @craft.commit :m => "changed craft in camp1"
+          @craft.synchronize          
+          [@craft, @craft2].each{|c| c.reload}
+        end
+
+        it 'should sync from campaign_2 to campaign_1' do 
+          change_craft_contents @craft2, "change made in campaign_2"
+          @craft2.commit :m => "changed craft in camp2"
+          @craft2.synchronize          
+
+          File.open(@craft.path, "r"){|f| f.readlines}.join.should == "change made in campaign_2"
+          @craft.history.first.message.should == "changed craft in camp2"
+        end
+
+      end
+  
+    end
 
   end
 

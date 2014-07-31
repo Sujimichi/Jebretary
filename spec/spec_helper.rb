@@ -54,7 +54,8 @@ def set_basic_mock_KSP_dir
   Dir.chdir Rails.root
 end
 
-def make_sample_data
+def make_sample_data args= {}
+  args[:with_craft] ||= true unless args[:with_craft].eql?(false)
   cur_dir = Dir.getwd
   File.open("quicksave.sfs", 'w') {|f| f.write("some test data") }
   File.open("persistent.sfs", 'w') {|f| f.write("some test data") }
@@ -63,11 +64,11 @@ def make_sample_data
   Dir.mkdir("VAB")
   Dir.mkdir("SPH")
   Dir.chdir("VAB")
-  File.open("my_rocket.craft", 'w') {|f| f.write("some test data") }
-  File.open("my_other_rocket.craft", 'w') {|f| f.write("some test data") }
+  File.open("my_rocket.craft", 'w') {|f| f.write("some test data") } if args[:with_craft]
+  File.open("my_other_rocket.craft", 'w') {|f| f.write("some test data") } if args[:with_craft]
   Dir.chdir('..')
   Dir.chdir('SPH')
-  File.open("my_rocket_car.craft", 'w') {|f| f.write("some test data") }
+  File.open("my_rocket_car.craft", 'w') {|f| f.write("some test data") } if args[:with_craft]
   Dir.chdir(cur_dir)
 end
 
