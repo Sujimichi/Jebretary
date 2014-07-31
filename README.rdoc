@@ -55,6 +55,10 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 - option to have private and public craft, like GitHub it will be free to store public craft and it will cost (a little) to have more than 5 private craft.
 
 ==Version History
+  == 0.4.0
+    - New Feature - Craft Synchronizing
+      - you can set certin craft to be sync'd between specific campaigns.  This means that changes to the craft made in 1 campaign will automatically be mirrored to the other campaigns it is in.
+
   == 0.3.4
     - bug fixes
       - craft which had been deleted before re-installing Jebretary where not being detected
