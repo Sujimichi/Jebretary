@@ -575,6 +575,73 @@ describe Craft do
         end
 
       end
+
+
+      describe "syncing a craft between 3 campaigns" do 
+        before(:each) do 
+          make_campaign_dir "test_campaign_3", :reset => false
+          Dir.chdir File.join(@instance.path, "saves", "test_campaign_3")
+          make_sample_data :with_craft => false
+          System.process
+
+          @campaign_3 = Campaign.where(:name => "test_campaign_3").first
+          @craft.sync_with @campaign_3
+          @craft.reload
+        end
+
+        it 'should be ready for test' do #just some sanity checks to ensure things are as expected before test
+          @campaign_1.craft.should_not be_empty
+          @campaign_2.craft.should be_empty
+          @campaign_3.craft.should be_empty
+          @craft.sync[:with].should == [@campaign_2.id, @campaign_3.id]
+          @craft.is_changed?.should be_false
+          @craft.is_new?.should be_false
+        end
+
+        it 'should sync the craft so that changes made in one campaign are reflected in the other two' do 
+          #first we synchronize the craft and it should appear in the other two campaigns
+          Campaign.all.map{|c| c.craft.map{|cr| cr.name}.include?(@craft.name)}.should == [true, false, false]  #craft only in first campaign
+
+          @craft.synchronize          
+          Campaign.all.map{|c| c.craft.map{|cr| cr.name}.include?(@craft.name)}.should == [true, true, true]    #craft in all campaigns
+
+          @craft_a, @craft_b, @craft_c = @craft, @campaign_2.craft.first, @campaign_3.craft.first #get each of the craft objects
+          craft = [@craft_a, @craft_b, @craft_c]
+
+          data = "some test data"
+          craft.map{|c| File.open(@craft.path, 'r'){|f| f.readlines.join}.eql?(data) }.all?.should be_true #all craft files should have same content
+
+          #next we change the craft in the first campaign and sync
+          change_craft_contents @craft_a, "change made in campaign_1"
+          @craft_a.commit :m => "made some changes"
+          @craft_a.synchronize          
+
+          data = "change made in campaign_1"
+          craft.map{|c| File.open(c.path, 'r'){|f| f.readlines.join}.eql?(data) }.all?.should be_true #all craft files should have same content
+          craft.map{|c| c.history.first.message.should == "made some changes"} #and have the same commit message
+
+          #next we change the craft in the 2nd campaign and sync
+          change_craft_contents @craft_b, "change made in campaign_2"
+          @craft_b.commit :m => "made some more changes"
+          @craft_b.synchronize          
+
+          data = "change made in campaign_2"
+          craft.map{|c| File.open(c.path, 'r'){|f| f.readlines.join}.eql?(data) }.all?.should be_true #all craft files should have same content
+          craft.map{|c| c.history.first.message.should == "made some more changes"} #and have the same commit message
+
+          #finally we change the craft in the 3rd campaign and sync
+          change_craft_contents @craft_c, "change made in campaign_3"
+          @craft_c.commit :m => "made even more changes"
+          @craft_c.synchronize          
+
+          data = "change made in campaign_3"
+          craft.map{|c| File.open(c.path, 'r'){|f| f.readlines.join}.eql?(data) }.all?.should be_true #all craft files should have same content
+          craft.map{|c| c.history.first.message.should == "made even more changes"} #and have the same commit message
+
+        end
+
+
+      end
   
     end
 

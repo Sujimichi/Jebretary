@@ -115,6 +115,8 @@ class Craft < ActiveRecord::Base
       self.history_count = 1 if self.history_count.eql?(0)        
     end
     self.save if self.changed?
+  
+    synchronize unless args[:dont_sync] || self.attributes["sync"].blank? #rather than calling sync.blank? to skip the JSON parsing step.
     return action
   end
 
@@ -196,11 +198,13 @@ class Craft < ActiveRecord::Base
   def synchronize
     return false if sync[:with].nil?
     sync[:with].each do |campaign_id|
-      next if campaign_id.eql?(self.campaign_id)
-      cpy = self.move_to(Campaign.find(campaign_id), :copy => true, :replace => true)
-      cpy.commit :m => self.history(:limit => 1).first.message
-      cpy.sync = {:with => [self.sync[:with], self.campaign_id].flatten}
-      cpy.save
+      next if campaign_id.eql?(self.campaign_id) #don't try to sync to itself!
+      
+      cpy = self.move_to(Campaign.find(campaign_id), :copy => true, :replace => true) #actual copy step (copies craft file ensures craft object is present)
+      cpy.commit :m => self.history(:limit => 1).first.message, :dont_sync => true    #commit the updated craft, passing in the commit message for this craft
+                                                                                      #dont_sync is true to prevent a infinate loop, only place dont_sync => true is used
+      cpy.sync = {:with => [self.sync[:with], self.campaign_id].flatten}              #update the sync_list on the remote craft
+      cpy.save if cpy.changed?
     end
   end
 
