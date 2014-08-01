@@ -51,6 +51,7 @@ class System
         if process
           @heart_rate = 2
         end
+        @heart_rate = 0 if @first_pass
         @first_pass = false
         @repeat_error_count = 0
         @loop_count += 1
@@ -143,8 +144,7 @@ class System
         campaign.cache_instance(instance) #put the already loaded instance object into a variable in the campaign object to be used rather than reloading from DB.
         next unless campaign.exists?
         campaign.git #ensure git repo is present
-        if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
-
+        if campaign.has_untracked_changes? || campaigns_to_process.include?(campaign) || @first_pass 
           #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
           data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
           System.update_db_flag(data) #these steps with System.update_db_flag(data) are just to provide info to the interface about the progress. 
@@ -159,7 +159,6 @@ class System
 
           data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
           System.update_db_flag(data) #inform interface step
-
           
           if campaigns_to_process.include?(campaign)        
             craft = Craft.where(:campaign_id => campaign.id, :deleted => false)
@@ -172,7 +171,7 @@ class System
               new_and_changed[:changed].map{|file_name| craft.to_a.select{|c| c.file_name == file_name}},            
             ].flatten.compact.uniq
 
-              puts "\n" unless to_commit.empty? || Rails.env.eql?("test")
+            puts "\n" unless to_commit.empty? || Rails.env.eql?("test")
             to_commit.each do |craft_object|        
               craft_object.crafts_campaign = campaign #pass in already loaded campaign object into craft object.
               print "commiting #{craft_object.name}..." unless Rails.env.eql?("test")
@@ -220,7 +219,7 @@ class System
     System.remove_db_flag
 
 
-    work_of_tasks :limit => Instance.count
+    work_of_tasks
 
     @loops_without_action ||= 0 #if Rails.env.eql?("test")
     if @loops_without_action >= 2
@@ -297,7 +296,7 @@ class System
 
 
   #Arbitary actions can be saved as Taks objects by the interface and then be processed later by the background process.
-  def work_of_tasks args
+  def work_of_tasks args = {}
     args[:failed] ||= false
     limit = args[:limit]
     args.delete(:limit)

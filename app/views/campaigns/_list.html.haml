@@ -1,4 +1,5 @@
 - background_process ||= nil
+
 - unless campaigns.blank? && background_process.nil?
   #process_notifier
     -unless background_process.nil?
@@ -63,8 +64,9 @@
           $('#campaigns_list').append("#{j render :partial => 'campaigns/template', :locals => {:name => campaign.name, :id => campaign.id} }");
         };
         $("#campaign_container_for_#{campaign.id}").find('.campaign_info').html("#{campaign.craft.where(:deleted => false).count} Craft")
+        $('.rescan_link').show();
 
-    - unless campaigns.map{|c| c.should_process?}.any?
+    - if !campaigns.empty? && !campaigns.map{|c| c.should_process?}.any?
       :javascript
         show_help('instance_page_first_view');
-        $('.rescan_link').show();
+
