@@ -40,8 +40,8 @@ class System
     @first_pass = true
     @loops_without_action = 0
 
-    @loop_count = 498 #set to 498 so it takes two passes before hitting 500 and running git cleanup actions. (incase the player never plays more that (500*10)/60 munites. 
-    #yeah right, who only plays KSP for 80 mins
+    @loop_count = 480 #set to 480 so it takes 20 passes before hitting 500 and running git cleanup actions. Mean git GC runs after ~3 mins of launch, rather than wait 80mins.
+    #(incase the player never plays more that (500*10)/60 munites. yeah right, who plays KSP for < 80 mins
     
     Task.destroy_all #remove any task that may have been left over from last run. (may change this, but atm tasks get generated as needed so this seems cleaner)
     @config = System.new.get_config
@@ -116,8 +116,8 @@ class System
       craft_in_campaigns = campaign_names.map{|name| {name => instance.identify_craft_in(name)} }.inject{|i,j| i.merge(j)}
       craft_in_campaigns_for_instance[instance.id] = craft_in_campaigns #store this mapping of craft files in campaigns against the instance id.
 
-      #instance_path = instance.path
-      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.cache_instance(instance); c.exists? }#get all the campaign objects for those campaigns present in the save folder
+      #get all the campaign objects for those campaigns present in the save folder
+      campaigns = Campaign.where(:instance_id => instance.id).select{|c| c.cache_instance(instance); c.exists? }
       campaigns_to_process << campaigns.select{|campaign| campaign.should_process? || new_campaigns.include?(campaign) }.map{|campaign|
         campaign.set_flag
         campaign
@@ -146,18 +146,19 @@ class System
         campaign.git #ensure git repo is present
 
         if campaign.has_untracked_changes? || campaigns_to_process.include?(campaign) || @first_pass 
-          puts "\n\t#{@first_pass ? 'checking' : 'in'} #{campaign.path}"
+          puts "\n\t#{@first_pass ? 'checking' : 'in'} #{campaign.path}" unless Rails.env.eql?("test")
           #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
           data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
           System.update_db_flag(data) #these steps with System.update_db_flag(data) are just to provide info to the interface about the progress. 
           #can't use DB as interface is waiting for the DB to become unlocked.
 
-          #Actuall Work step - ensure all present craft and subassembly files have a matching DB object
-          #if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
-            campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => (new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass )
+          #Actuall Work step - ensure all present craft and subassembly files have a matching DB object          
+          must_check_craft = (new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass ) #either its a new campaign, or we're on the first pass of process since run_monitor was called
+          if campaign.has_untracked_changes? || must_check_craft
+            campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => must_check_craft
             campaign.verify_subassemblies
             campaign.track_changed_subassemblies
-          #end
+          end
 
           data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = false #remove the markers
           System.update_db_flag(data) #inform interface step
