@@ -22,7 +22,7 @@ class Task < ActiveRecord::Base
       print "\nProcessing Delayed Task: "
       self.send(*self.action)
       self.destroy
-      puts "done"
+      puts "\n"
     rescue
       self.update_attributes(:failed => true)
       puts "\n\nTask Failed to process. Could not perform #{self.action}\n\n"
@@ -44,6 +44,7 @@ class Task < ActiveRecord::Base
 
   def update_some_craft_data
     to_update = Craft.where(:part_data => nil, :deleted => false).limit(40)
+    return if to_update.blank?
     print "updating part data on #{to_update.count} un-processed craft"
     to_update.each{|c|
       print "\n\tupdating #{c.name}"
