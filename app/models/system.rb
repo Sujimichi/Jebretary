@@ -144,7 +144,9 @@ class System
         campaign.cache_instance(instance) #put the already loaded instance object into a variable in the campaign object to be used rather than reloading from DB.
         next unless campaign.exists?
         campaign.git #ensure git repo is present
+
         if campaign.has_untracked_changes? || campaigns_to_process.include?(campaign) || @first_pass 
+          puts "\n\t#{@first_pass ? 'checking' : 'in'} #{campaign.path}"
           #check that all .craft files have a Craft object, or set Craft objects deleted=>true if file no longer exists
           data[instance.id][:campaigns][campaign.name][:creating_craft_objects] = true #put marker to say that we're now in the DB object creation step
           System.update_db_flag(data) #these steps with System.update_db_flag(data) are just to provide info to the interface about the progress. 
@@ -152,7 +154,7 @@ class System
 
           #Actuall Work step - ensure all present craft and subassembly files have a matching DB object
           #if campaign.has_untracked_changes? || new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass 
-            campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => true
+            campaign.verify_craft craft_in_campaigns[campaign.name], :discover_deleted => (new_campaigns_for_instance[instance.id].include?(campaign) || @first_pass )
             campaign.verify_subassemblies
             campaign.track_changed_subassemblies
           #end
