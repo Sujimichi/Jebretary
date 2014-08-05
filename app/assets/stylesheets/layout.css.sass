@@ -591,7 +591,46 @@ a
 .untracked
   :color red
 
+#campaign_selector
+  :max-height 20em
+  :overflow-y auto
+  :border
+    :top 3px solid grey
+    :bottom 2px solid grey
+    
+  .instance
+    :padding-bottom 1em
+    +clearfix
 
+    .campaign
+      :padding 0.2em
+      :cursor pointer
+      :width 150px
+      :float left
+        
+      .mini-flag
+        :width 128px
+        :margin 0 auto
+        img
+          :max-width 128px
+          :max-height 80px
+
+.unselected_campaign
+  .campaign
+    :border 2px solid transparent
+    &:hover
+      :border 2px solid blue
+      :background-color #78A8CF
+
+
+.selected_campaign
+  .campaign
+    :border 2px solid red 
+    :background-color lighten(green, 60%)
+    &:hover  
+      :border 2px solid red
+      :background-color green
+  
 
 .parts_list
   :display none

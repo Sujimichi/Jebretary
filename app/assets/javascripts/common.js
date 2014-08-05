@@ -193,9 +193,10 @@ function dialog_open(div_id){
 function move_copy_dialog(){
   $('#move_copy_dialog').dialog({
     position: ['center', 100],
-    width: 750,
+    width: 800,
     height: 'auto',
     closeOnEscape: true,
+    title: "Move, Copy or Sync craft to other campaigns",
     buttons: [
       { text: "Move", click: function(){$('#move_submit').click()} },
       { text: "Copy", click: function(){$('#copy_submit').click()} },
@@ -211,6 +212,7 @@ function delete_craft_dialog(){
     width: 750,
     height: 'auto',
     closeOnEscape: true,
+    title: "Delete Craft!?!",
     buttons: [
       { text: "Delete!", click: function(){$('#delete_submit').click()} },
       { text: "Cancel", click: function(){$(this).dialog('close')} }
