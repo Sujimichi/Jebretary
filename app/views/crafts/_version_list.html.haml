@@ -1,4 +1,15 @@
 
+- sync_targets ||= []
+
+-if @craft && !sync_targets.blank?
+  %h4= "This craft is sync'd with #{sync_targets.size} other campaign#{sync_targets.size.eql?(1) ? '' : 's'}"
+  - sync_targets.each do |campaign|
+    .sync_target
+      .mini-flag= image_tag("/flag_for_campaign_#{campaign.id}.png")
+      .path= link_to campaign.path, campaign_path(campaign)
+
+%h3 Version History
+
 -if @craft
   - version = @craft.history_count
   - version ||= 1

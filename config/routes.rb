@@ -15,6 +15,8 @@ Jebretary::Application.routes.draw do
   resources :crafts
   resources :instances
 
+  match "reset_cache" => "application#cache_reset"
+
   #match 'campaigns/:id/saves' => 'saves#index'
 
 

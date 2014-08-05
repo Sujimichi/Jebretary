@@ -2,9 +2,9 @@
   #nav-box
     =link_to "return to campaign", campaign_path(@craft.campaign)
   .grid_10
-    - history = @craft.history
     = hidden_field_tag :craft_id, @craft.id
     %h1= @craft.name
+    %h4= "in #{@craft.campaign.name}"
 
 
   .clear
@@ -16,10 +16,11 @@
         |
         = link_to_function "Delete Craft", "delete_craft_dialog()"
       .vblk_1
+      
       #move_copy_dialog.hidden
-
         = form_for(@craft, :url => move_craft_path(@craft)) do |f|
           = hidden_field_tag :move_copy, true
+          = hidden_field_tag :selected_campaigns
           .info select another campaign(s) to move, copy or sync this craft to
           
           - instances = Instance.all
@@ -29,20 +30,24 @@
                 %h3{:title => File.split(instance.path).first}= File.split(instance.path).last
                 .clear
                 - instance.campaigns.each do |campaign|
-                  .campaign_holder
+                  - klass = ""
+                  - klass << (campaign.eql?(@craft.campaign) ? " dont-select" : "")
+                  - klass << (@sync_targets.include?(campaign) ? " selected_campaign" : "")
+                  .campaign_holder{"data-campaign_id" => campaign.id, :class => klass}
                     .campaign
                       = campaign.name
                       .mini-flag
                         = image_tag("/flag_for_campaign_#{campaign.id}.png")
                     
+
           .hidden
-            - campaigns = Campaign.all.select{|c| c.id != @craft.campaign_id}
-            = select_tag "move_copy_to_select", options_from_collection_for_select(campaigns, "id", "path"), :multiple => true
             .small= "existing craft with the same name in the #{@craft.craft_type} of the selected campaign(s) will get replaced"
             .small= "(but don't worry, you're using GIT, you can always revert them!)"
             = f.submit "Move", :id => :move_submit, :class => "submit_button"
             = f.submit "Copy", :id => :copy_submit, :class => "submit_button"
-            
+            = f.submit "Sync", :id => :sync_submit, :class => "submit_button"
+
+        =# javascript_tag "ajaxify_form('#edit_craft_#{@craft.id}')"    
 
       #delete_craft_dialog.hidden
         %h4= "That bad huh? How many died!?"
@@ -90,38 +95,13 @@
         .vblk_1
         .clear
 
-      %h3 Version History
       #history_list
+        %h3 Version History
         Loading craft History
         .ajax_loader
 
     :javascript
-      $(function(){
-        poll_craft_version()
-        $('.part').on("mouseover", function(){
-          $('.details').hide();
-          $('.part').removeClass("selected_part")
-          $(this).find(".details").show();
-          $(this).addClass("selected_part")
-        });
-        $('.parts_list').on("mouseout", function(){
-          $('.details').hide();
-          $('.part').removeClass("selected_part")
-        });
-        
-        $("#campaign_selector").find(".campaign_holder").addClass("unselected_campaign")
-        
-        $("#campaign_selector").find(".campaign_holder").click(function(){
-          if( $(this).hasClass("selected_campaign") ){
-            $(this).removeClass("selected_campaign")
-            $(this).addClass("unselected_campaign")
-          }else{
-            $(this).addClass("selected_campaign")
-            $(this).removeClass("unselected_campaign")
-          };
-        })
-      });
-                
+      $(function(){craft_show_actions()});
                  
 
   -else

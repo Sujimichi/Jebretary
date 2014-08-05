@@ -20,6 +20,7 @@ class CraftsController < ApplicationController
       f.html{
         Rails.cache.delete("state_stamp")
         @craft = Craft.find(params[:id])
+        @sync_targets = Campaign.find(@craft.sync[:with]).select{|c| !c.eql?(@craft.campaign)}
         unless @craft.deleted?
           @craft.update_part_data 
           @craft.save if @craft.changed?
@@ -59,6 +60,7 @@ class CraftsController < ApplicationController
 
             if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CraftsController") 
               @history = @craft.history  
+              @sync_targets = Campaign.find(@craft.sync[:with]).select{|c| !c.eql?(@craft.campaign)}
             else
               return render :partial => "partials/no_update"
             end

@@ -1,4 +1,5 @@
 $(function(){
+  reset_server_cache()
   clearTimeout(index_search_timer);
   autohide_flash();
   check_error_log();
@@ -86,6 +87,10 @@ function poll_for_updated_instance(){
   }, 1000);
 };
 
+
+function reset_server_cache(){
+  ajax_get('/reset_cache', {}, function(){});  
+};
 
 function poll_for_updated_list(){
   var campaign_id = $('#campaign_id').val();
@@ -198,6 +203,7 @@ function move_copy_dialog(){
     closeOnEscape: true,
     title: "Move, Copy or Sync craft to other campaigns",
     buttons: [
+      { text: "Sync", click: function(){$('#sync_submit').click()} },
       { text: "Move", click: function(){$('#move_submit').click()} },
       { text: "Copy", click: function(){$('#copy_submit').click()} },
       { text: "Cancel", click: function(){$(this).dialog('close')} }
@@ -415,3 +421,58 @@ function toggle_subassembly_list(force_hide){
     });
   };
 };
+
+
+function craft_show_actions(){
+  poll_craft_version()
+  $('.part').on("mouseover", function(){
+    $('.details').hide();
+    $('.part').removeClass("selected_part")
+    $(this).find(".details").show();
+    $(this).addClass("selected_part")
+  });
+  $('.parts_list').on("mouseout", function(){
+    $('.details').hide();
+    $('.part').removeClass("selected_part")
+  });
+  
+  $("#campaign_selector").find(".campaign_holder").addClass("unselected_campaign")
+  
+  get_selected_campaigns()
+  $("#campaign_selector").find(".campaign_holder").click(function(){
+    if( $(this).hasClass("dont-select") != true ){
+      if( $(this).hasClass("selected_campaign") ){
+        $(this).removeClass("selected_campaign")
+        $(this).addClass("unselected_campaign")
+      }else{
+        $(this).addClass("selected_campaign")
+        $(this).removeClass("unselected_campaign")
+      };
+      get_selected_campaigns();
+    };
+  });
+};
+
+function get_selected_campaigns(){
+  var selected = []
+  $(".campaign_holder").each(function(){
+    if( $(this).hasClass("selected_campaign") ){ selected.push( $(this).data("campaign_id") ) };
+  });
+  $("#selected_campaigns").val(JSON.stringify(selected));
+};
+
+
+function ajaxify_form(form_id){
+  $(form_id).submit(function() {  
+    var data = $(this).serialize();
+
+    url = $(this).attr('action')
+    ajax_put(url, data, function(){
+      alert("yo")
+    });
+
+    return false; // prevents normal behaviour
+  });
+
+};
+
