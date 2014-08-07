@@ -212,13 +212,14 @@ function open_move_copy_dialog(){
   $('#move_copy_dialog').find(".submit_button").hide();
 };
 
-function delete_craft_dialog(){
+function open_delete_craft_dialog(){
+  var craft_name = $('#delete_craft_dialog').data("craft_name")
   $('#delete_craft_dialog').dialog({
     position: ['center', 100],
     width: 750,
     height: 'auto',
     closeOnEscape: true,
-    title: "Delete Craft!?!",
+    title: "Delete "+ craft_name + "!?!",
     buttons: [
       { text: "Delete!", click: function(){$('#delete_submit').click()} },
       { text: "Cancel", click: function(){$(this).dialog('close')} }

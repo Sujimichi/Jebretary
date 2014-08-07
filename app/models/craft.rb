@@ -135,7 +135,7 @@ class Craft < ActiveRecord::Base
     return unless File.exists?(self.file_path) && !self.deleted?
     File.delete(self.file_path)
     self.deleted = true
-    self.commit
+    self.commit :dont_sync => true
   end
 
   def move_to other_campaign, opts = {}

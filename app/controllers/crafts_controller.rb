@@ -72,21 +72,24 @@ class CraftsController < ApplicationController
   end
 
   def edit
+    @craft = Craft.find(params[:id])
     respond_with(@craft) do |f|
-      f.html{
-        @craft = Craft.find(params[:id])
+      f.html{        
         @sha_id = params[:sha_id]
         history = @craft.history
         @commit = history.select{|c| c.to_s.eql?(@sha_id)}.first
         @is_changed = @craft.is_changed?
         
-
         unless @craft.deleted?          
           @revert_to_version = history.reverse.map{|h| h.sha_id}.index(@sha_id) + 1
           @current_version = @craft.history_count
         end
         @latest_commit = history.first
         @return_to = params[:return_to]       
+      }
+      f.js {
+        
+      
       }
     end
   end

@@ -14,20 +14,10 @@
       %h2
         = link_to "Move, Copy or Sync Craft", edit_transfer_path(@craft), :remote => true
         |
-        = link_to_function "Delete Craft", "delete_craft_dialog()"
+        = link_to "Delete Craft", edit_craft_path(@craft), :remote => true 
+        = #link_to_function "mo", "delete_craft_dialog()"
       .vblk_1
       
-
-
-      #delete_craft_dialog.hidden
-        %h4= "That bad huh? How many died!?"
-        = "Ok, well if you really want to delete this craft and try to block out the memories of all those poor Kerbals you killed building this, I will <b>delete the craft file!!</b> ".html_safe
-        .small= "But this is git; once tracked, never forgotten.  You can always recover this craft later."
-        .small= "(fyi, this also applies to craft that you delete in game or via your OS)"
-
-
-        = link_to 'Destroy', craft_path(@craft), :method => :delete, :class => 'submit_button', :id => :delete_submit
-
 
       -if @parts.stock?
         %h4= "#{@craft.name} is 100% Stock"

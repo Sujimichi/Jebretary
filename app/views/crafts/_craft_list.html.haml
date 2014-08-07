@@ -163,9 +163,14 @@
               
               .action_links
                 .links
-                  = link_to "mcs", edit_transfer_path(craft), :remote => true
-                  |
-                  = link_to "d"
+                  - unless craft.deleted?
+                    = link_to "mcs", edit_transfer_path(craft), :remote => true
+                    |
+                    = link_to "d", edit_craft_path(craft), :remote => true
+                  - else
+                    = link_to "recover", craft_path(craft)
+                
+                
               -unless craft.sync[:with].blank?
                 .clear
                 .sync_status
