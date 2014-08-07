@@ -206,7 +206,7 @@ function open_move_copy_dialog(){
       { text: "Sync", click: function(){$('#sync_submit').click()} },
       { text: "Move", click: function(){$('#move_submit').click()} },
       { text: "Copy", click: function(){$('#copy_submit').click()} },
-      { text: "Cancel", click: function(){$(this).dialog('close')} }
+      { text: "Cancel", click: function(){$(this).dialog('close'); } }
     ]
   })
   $('#move_copy_dialog').find(".submit_button").hide();
@@ -446,6 +446,7 @@ function prepare_campaign_selector(){
     if( $(this).hasClass("dont-select") != true ){
       if( $(this).hasClass("selected_campaign") ){
         $(this).removeClass("selected_campaign")
+        $(this).removeClass("selected_sync")
         $(this).addClass("unselected_campaign")
       }else{
         $(this).addClass("selected_campaign")

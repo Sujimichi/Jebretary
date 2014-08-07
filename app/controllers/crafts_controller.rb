@@ -59,7 +59,7 @@ class CraftsController < ApplicationController
 
             if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CraftsController") 
               @history = @craft.history  
-              @sync_targets = Campaign.find(@craft.sync[:with]).select{|c| !c.eql?(@craft.campaign)} unless @craft.sync[:with].blank?
+              @sync_targets = @craft.sync_targets
             else
               return render :partial => "partials/no_update"
             end

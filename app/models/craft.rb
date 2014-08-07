@@ -208,4 +208,14 @@ class Craft < ActiveRecord::Base
     end
   end
 
+  def sync_targets
+    sync_with_campaigns = self.sync[:with]
+    return [] if sync_with_campaigns.blank? #no sync targets
+    campaigns = Campaign.where(:id => sync_with_campaigns) #select the campaigns from the DB, :where rather than find as some ids might be wrong (ie if a campaign was removed)
+    return campaigns if campaigns.size.eql?(sync_with_campaigns) #return the found campaigns, if there is the same number as expected from the sync[:with] ids
+    self.sync = {:with => campaigns.map{|c| c.id} } #update/fix the sync[:with] ids if there was a discrepency.
+    self.save
+    campaigns
+  end
+
 end

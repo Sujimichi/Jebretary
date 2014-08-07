@@ -5,7 +5,7 @@ class TransferController < ApplicationController
       f.js{
         @craft = Craft.find(params[:id])    
         @instances = Instance.all
-        @sync_targets = Campaign.find(@craft.sync[:with]).select{|c| !c.eql?(@craft.campaign)} unless @craft.sync[:with].blank?
+        @sync_targets = @sync_targets = @craft.sync_targets
       }
     end
 
@@ -38,26 +38,28 @@ class TransferController < ApplicationController
           @craft.move_to(campaigns.last, :replace => true, :copy => false)
           #if it was a move, redo the move to the last campaign with copy=>false.  Using copy=>false for a group of campaigns won't work as the first one would 
           #delete the craft file and set the craft object as deleted.
-          @craft = campaigns.first.craft.where(:name => @craft.name).first
+          #@craft = campaigns.first.craft.where(:name => @craft.name).first
         end
-        notice = "Craft has been #{action_past_tense[action_type]} to #{campaigns.map{|c| c.name}.and_join}"
+        notice = "#{@craft.name} has been #{action_past_tense[action_type]} to #{campaigns.map{|c| c.name}.and_join}"
+        notice = "#{@craft.name} was not #{action_past_tense[action_type]} to campaigns it is already sync'd with" if campaigns.empty?
       else
-        error = "no destination campaingns where selected. Craft was not #{action_past_tense[action_type]}"
+        error = "No destination campaingns where selected. #{@craft.name} was not #{action_past_tense[action_type]}"
       end
 
 
     when "sync"
       cur_list = @craft.sync[:with]
       @craft.sync = {:with => campaigns.map{|c| c.id} }
+      
       @craft.save
       @craft.synchronize
-      notice = "craft will now be sync'd with #{campaigns.map{|c| c.name}.and_join}"
-      notice = "no destination campaigns where selected. Craft will not be sync'd" if campaigns.blank?
-      notice = "craft will no longer be sync'd with other campaigns" if @craft.sync[:with].blank? && !cur_list.blank?      
+      notice = "#{@craft.name} will now be sync'd with #{campaigns.map{|c| c.name}.and_join}"
+      notice = "No destination campaigns where selected." if campaigns.blank?
+      notice = "#{@craft.name} will no longer be sync'd with other campaigns" if @craft.sync[:with].blank? && !cur_list.blank?      
     end
 
 
-    redirect_to @craft, :notice => notice, :alert => error
+    redirect_to :back, :notice => notice, :alert => error
   end
 
 end

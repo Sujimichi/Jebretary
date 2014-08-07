@@ -1,3 +1,5 @@
+$("#move_copy_dialog").remove()
+
 $('#dialog_holder').html("#{j render :partial => "transfer/transfer_dialog", :locals => {:craft => @craft, :sync_targets => @sync_targets, :instances => @instances} }");
 open_move_copy_dialog()
 $('#dialog_holder').html("")

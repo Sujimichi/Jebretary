@@ -592,6 +592,7 @@ a
   :color red
 
 #campaign_selector
+  :margin-top 1em
   :max-height 20em
   :overflow-y auto
   :border
@@ -619,17 +620,27 @@ a
   .campaign
     :border 2px solid transparent
     &:hover
-      :border 2px solid blue
-      :background-color #78A8CF
-
+      :border 2px solid grey
+      :background-color $site_highlight 
 
 .selected_campaign
+  $selected: #EB5F28
   .campaign
-    :border 2px solid red 
-    :background-color lighten(green, 60%)
+    :border 2px solid darken($selected, 20%)
+    :background-color lighten($selected, 20%)
     &:hover  
-      :border 2px solid red
-      :background-color green
+      :border 2px solid darken($selected, 20%)
+      :background-color $selected
+
+.selected_sync
+  $selected: #A181D6
+  .campaign
+    :border 2px solid darken($selected, 20%)
+    :background-color lighten($selected, 20%)
+    &:hover  
+      :border 2px solid darken($selected, 20%)
+      :background-color $selected
+  
   
 .dont-select
   :opacity 0.4
