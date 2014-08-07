@@ -4,15 +4,16 @@
   = form_for(craft, :url => transfer_path(craft)) do |f|
     = hidden_field_tag :move_copy, true
     = hidden_field_tag :selected_campaigns
-    .info= "Select another campaign(s) to move, copy or sync #{@craft.name.truncate(30)} to"
+    .info= "Select another campaign(s) to move, copy or sync #{@craft.name} to"
     - unless sync_targets.blank?
       .small
-        .info= "It's currently sync'd with #{sync_targets.size} campaigns (highlighted below).  To unsync from a campaign click on it to un-highlight it and press sync."
-        .info= ""
-        =link_to_function "how do I move/copy and sync'd craft?", "$('.move_copy_syncd_help').toggle('fast')"
+        - sync_count = sync_targets.size
+        .info= "#{@craft.name} is currently sync'd with #{sync_count} campaign#{sync_count.eql?(1) ? '' : 's'} (highlighted blue below)."
+        .info= "You can un-sync by unselecting #{sync_count.eql?(1) ? 'it' : 'them'} or select more campaigns to sync to, then hit 'sync' to update."
+        =link_to_function "how do I move/copy a sync'd craft?", "$('.move_copy_syncd_help').toggle('fast')"
         .move_copy_syncd_help.hidden
           .info= "If you want to move/copy it (without effecting its sync settings) just select the campaign you want to move/copy to. You can just ignore the campaigns that are highted as sync-targets, I won't try to move/copy to a campaign that its already sync'd with."
-    
+              
     #campaign_selector
       - instances.each do |instance| 
         .instance
