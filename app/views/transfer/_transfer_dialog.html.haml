@@ -1,0 +1,32 @@
+
+#move_copy_dialog.hidden
+  - sync_targets ||= []
+  = form_for(craft, :url => transfer_path(craft)) do |f|
+    = hidden_field_tag :move_copy, true
+    = hidden_field_tag :selected_campaigns
+    .info select another campaign(s) to move, copy or sync this craft to
+    
+    #campaign_selector
+      - instances.each do |instance| 
+        .instance
+          %h3{:title => File.split(instance.path).first}= File.split(instance.path).last
+          .clear
+          - instance.campaigns.each do |campaign|
+            - klass = ""
+            - klass << (campaign.eql?(craft.campaign) ? " dont-select" : "")
+            - klass << (sync_targets.include?(campaign) ? " selected_campaign" : "")
+            .campaign_holder{"data-campaign_id" => campaign.id, :class => klass}
+              .campaign
+                = campaign.name
+                .mini-flag
+                  = image_tag("/flag_for_campaign_#{campaign.id}.png")
+              
+
+    .hidden
+      .small= "existing craft with the same name in the #{craft.craft_type} of the selected campaign(s) will get replaced"
+      .small= "(but don't worry, you're using GIT, you can always revert them!)"
+      = f.submit "Move", :id => :move_submit, :class => "submit_button"
+      = f.submit "Copy", :id => :copy_submit, :class => "submit_button"
+      = f.submit "Sync", :id => :sync_submit, :class => "submit_button"
+
+  =# javascript_tag "ajaxify_form('#edit_craft_#{craft.id}')"    

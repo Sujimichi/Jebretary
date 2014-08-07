@@ -195,7 +195,7 @@ function dialog_open(div_id){
   if(open_dialogs[div_id] == true){return true}else{return false}
 };
 
-function move_copy_dialog(){
+function open_move_copy_dialog(){
   $('#move_copy_dialog').dialog({
     position: ['center', 100],
     width: 800,
@@ -436,8 +436,11 @@ function craft_show_actions(){
     $('.part').removeClass("selected_part")
   });
   
-  $("#campaign_selector").find(".campaign_holder").addClass("unselected_campaign")
   
+};
+
+function prepare_campaign_selector(){
+  $("#campaign_selector").find(".campaign_holder").addClass("unselected_campaign")
   get_selected_campaigns()
   $("#campaign_selector").find(".campaign_holder").click(function(){
     if( $(this).hasClass("dont-select") != true ){

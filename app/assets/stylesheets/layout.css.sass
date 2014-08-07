@@ -674,6 +674,8 @@ a
   +gradient_h(rgba($base_color, 0.2), rgba($site_high_tone, 0))
   &:hover
     +gradient_h(rgba($base_color, 0.4), rgba($site_high_tone, 0.1))
+    .action_links    
+      :display inline
 
 .mod_craft
   :border-left 2px solid green
@@ -681,6 +683,8 @@ a
   +gradient_h(rgba($base_color, 0.2), rgba($site_high_tone, 0))
   &:hover
     +gradient_h(rgba($base_color, 0.4), rgba($site_high_tone, 0.1))
+    .action_links    
+      :display inline
 
 .missing_parts
   .missing
@@ -717,9 +721,22 @@ a
   .git_info
     :padding-left 1em
     :float left
+    :width 4em
   .history
     :padding-left 1em
     :float left
+    
+  .action_links    
+    :display none
+    :float right
+    :padding-top 1em
+    :margin-right 1em
+    .links
+      :font-size 80%
+  .sync_status
+    :padding-left 6em
+    .info
+      :font-size 80%
   +clearfix
 
 .subassembly

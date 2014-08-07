@@ -5,7 +5,7 @@ Jebretary::Application.routes.draw do
 
   resources :subassemblies
   resources :launch
-  resources :move_craft
+  resources :transfer
   resources :messages
   
   resources :campaigns do

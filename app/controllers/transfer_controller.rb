@@ -1,4 +1,15 @@
-class MoveCraftController < ApplicationController
+class TransferController < ApplicationController
+
+  def edit
+    respond_to do |f|
+      f.js{
+        @craft = Craft.find(params[:id])    
+        @instances = Instance.all
+        @sync_targets = Campaign.find(@craft.sync[:with]).select{|c| !c.eql?(@craft.campaign)} unless @craft.sync[:with].blank?
+      }
+    end
+
+  end
 
   def update
 
@@ -21,7 +32,7 @@ class MoveCraftController < ApplicationController
 
       unless campaigns.empty?
         campaigns = campaigns.select{|c| !cur_list.include?(c.id)}
-                
+
         campaigns.each{|campaign| @craft.move_to campaign, :replace => true, :copy => true} #for either copy or move perform the copy to all selected campaigns
         if action_type.eql?("move")
           @craft.move_to(campaigns.last, :replace => true, :copy => false)
@@ -33,7 +44,7 @@ class MoveCraftController < ApplicationController
       else
         error = "no destination campaingns where selected. Craft was not #{action_past_tense[action_type]}"
       end
-      
+
 
     when "sync"
       cur_list = @craft.sync[:with]
