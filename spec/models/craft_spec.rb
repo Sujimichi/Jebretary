@@ -357,7 +357,7 @@ describe Craft do
 
   end
 
-  describe "deleting craft" do 
+  describe "deleting craft file" do 
     before(:each) do 
       set_up_sample_data
       File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("first version")}
@@ -368,16 +368,16 @@ describe Craft do
 
     it 'should delete the craft file from the campaign' do 
       File.should be_exists("Ships/VAB/my_rocket.craft")          
-      @craft.delete_craft
+      @craft.delete_file
       File.should_not be_exists("Ships/VAB/my_rocket.craft")      
       @craft.should be_deleted
     end
 
     it 'should not call delete on an already deleted craft' do 
       File.should_receive(:delete).with(File.join([@craft.campaign.path, @craft.file_name])).once
-      @craft.delete_craft
+      @craft.delete_file
       File.should_not_receive(:delete).with(File.join([@craft.campaign.path, @craft.file_name]))
-      @craft.delete_craft
+      @craft.delete_file
     end
 
   end

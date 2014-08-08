@@ -1,6 +1,5 @@
 class Campaign < ActiveRecord::Base
   include CommitMessageChanger
-  include CommonLogic
 
   attr_accessible :instance_id, :name, :persistence_checksum, :sort_options
   

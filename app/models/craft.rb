@@ -1,7 +1,7 @@
 class Craft < ActiveRecord::Base
   include CommitMessageChanger
-  include CommonLogic
   include RepoObject
+  include CommonLogic
   include Transferable
 
   attr_accessible :name, :craft_type, :deleted, :part_count, :history_count, :last_commit, :commit_messages, :part_data, :sync
@@ -11,9 +11,6 @@ class Craft < ActiveRecord::Base
 
   validates :commit_messages, :git_compatible => true
 
-  #
-  ## - Instance Methods
-  ###
 
   #retun the path to the .craft file, form the root of the repo.
   def local_path
@@ -21,15 +18,6 @@ class Craft < ActiveRecord::Base
   end
   alias file_name local_path 
 
-  def file_path
-    File.join([self.campaign.path, self.local_path])
-  end
-  alias path file_path
-
-  #to be repalced with attribute to enable optional tracking of craft.
-  def track?
-    true
-  end
 
   def parts args = {:load_data => false, :read_file => true}
     @parts = nil if args[:load_data]
@@ -56,22 +44,6 @@ class Craft < ActiveRecord::Base
     data = data.to_json unless data.nil?
     super(data)
   end
-
-  #crafts_campaign= allows the campaign to be passed in and held in instance var if the campaign has already been loaded from the DB
-  def crafts_campaign= campaign
-    @campaign = campaign
-  end
-  #returns a cached instance of the campaign
-  def crafts_campaign
-    return @campaign if defined?(@campaign) && !@campaign.nil?
-    crafts_campaign = self.campaign
-  end
-
-  def repo
-    return @repo if defined?(@repo) && !@repo.nil?
-    @repo = crafts_campaign.repo
-  end
-
 
   alias new_craft? is_new?
   alias changed_craft? is_changed?
@@ -131,12 +103,5 @@ class Craft < ActiveRecord::Base
     self.save
   end
 
-  #deleted the craft file and marks the craft object as being deleted.
-  def delete_craft
-    return unless File.exists?(self.file_path) && !self.deleted?
-    File.delete(self.file_path)
-    self.deleted = true
-    self.commit :dont_sync => true
-  end
 
 end

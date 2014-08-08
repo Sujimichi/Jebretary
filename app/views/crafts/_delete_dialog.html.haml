@@ -1,8 +1,0 @@
-#delete_craft_dialog{:class => "hidden", "data-craft_name" => craft.name}
-  %h4= "That bad huh? How many died!?"
-  = "Ok, well if you really want to delete this craft and try to block out the memories of all those poor Kerbals you killed building it, I will <b>delete the craft file!!</b> ".html_safe
-  .small= "NOTE: You can always recover this craft later."
-  .small= "(fyi, this also applies to craft that you delete in game or via your OS)"
-
-
-  = link_to 'Destroy', craft_path(craft), :method => :delete, :class => 'submit_button', :id => :delete_submit

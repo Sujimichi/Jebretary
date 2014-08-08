@@ -126,7 +126,7 @@ class CraftsController < ApplicationController
 
   def destroy
     @craft = Craft.find(params[:id])
-    @craft.delete_craft
-    redirect_to @craft.campaign
+    @craft.delete_file
+    redirect_to @craft.campaign, :notice => "#{@craft.name} has been deleted"
   end
 end

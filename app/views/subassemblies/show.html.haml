@@ -14,7 +14,7 @@
       %h2
         = link_to "Move, Copy or Sync Subassembly", edit_transfer_path(@subassembly, :subassembly => true), :remote => true
         |
-        = link_to "Delete Subassembly", edit_subassembly_path(@subassembly), :remote => true 
+        = link_to "Delete Subassembly", edit_subassembly_path(@subassembly, :delete_dialog => true), :remote => true 
         = #link_to_function "mo", "delete_craft_dialog()"
       .vblk_1
       

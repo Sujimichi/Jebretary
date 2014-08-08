@@ -1,27 +1,18 @@
 class Subassembly < ActiveRecord::Base
   include RepoObject
+  include CommonLogic
   include Transferable
 
   attr_accessible :campaign_id, :history_count, :name, :deleted, :last_commit
   belongs_to :campaign
 
 
-  def file_path campaign_path = nil
-    campaign_path ||= self.campaign.path
-    File.join([campaign_path,"Subassemblies", "#{self.name}.craft"])
-  end
-  alias path file_path
-
+  #retun the path to the .craft file, form the root of the repo.
   def local_path
     File.join(["Subassemblies", "#{self.name}.craft"])
   end
   alias file_name local_path 
 
-  def repo
-    return @repo if defined?(@repo) && !@repo.nil?
-    @repo = self.campaign.repo
-  end
-  
   def commit args = {}
     @repo = args[:repo] if args.has_key?(:repo)
     action = :deleted if self.deleted?
@@ -57,5 +48,4 @@ class Subassembly < ActiveRecord::Base
     super other_campaign, opts
   end
 
-  
 end
