@@ -21,17 +21,14 @@ class TransferController < ApplicationController
     campaigns = Campaign.find(campaign_ids)
 
     action_type = params[:commit].downcase
-    action_past_tense = {"move" => "moved", "copy" => "copied"}
-
     cur_list = @object.sync[:with]
     cur_list ||= []
 
-
     case action_type
     when "move", "copy"
-
       unless campaigns.empty?
         campaigns = campaigns.select{|c| !cur_list.include?(c.id)}
+        action_past_tense = {"move" => "moved", "copy" => "copied"}[action_type]
 
         campaigns.each{|campaign| @object.move_to campaign, :replace => true, :copy => true} #for either copy or move perform the copy to all selected campaigns
         if action_type.eql?("move")
@@ -40,12 +37,11 @@ class TransferController < ApplicationController
           #delete the craft file and set the craft object as deleted.
           #@object = campaigns.first.craft.where(:name => @object.name).first
         end
-        notice = "#{@object.name} has been #{action_past_tense[action_type]} to #{campaigns.map{|c| c.name}.and_join}"
-        notice = "#{@object.name} was not #{action_past_tense[action_type]} to campaigns it is already sync'd with" if campaigns.empty?
+        notice = "#{@object.name} has been #{action_past_tense} to #{campaigns.map{|c| c.name}.and_join}"
+        notice = "#{@object.name} was not #{action_past_tense} to campaigns it is already sync'd with" if campaigns.empty?
       else
-        error = "No destination campaingns where selected. #{@object.name} was not #{action_past_tense[action_type]}"
+        error = "No destination campaingns where selected. #{@object.name} was not #{action_past_tense}"
       end
-
 
     when "sync"
       cur_list = @object.sync[:with]

@@ -9,6 +9,10 @@ class Instance < ActiveRecord::Base
     p = JSON.parse(self.full_path)
     File.join(p)
   end
+
+  def name
+    File.split(self.path).last
+  end
     
   def exists?
     File.exists? self.path

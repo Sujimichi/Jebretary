@@ -15,6 +15,12 @@ module CommonLogic
     @repo = crafts_campaign.repo
   end
 
+  def reset_cache
+    @repo = nil
+    @campaign = nil
+    return self
+  end
+
 
   def file_path campaign_path = crafts_campaign.path
     File.join([campaign_path, self.local_path])
