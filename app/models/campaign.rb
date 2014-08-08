@@ -364,7 +364,7 @@ class Campaign < ActiveRecord::Base
         updated_sub = deleted_sub.update_attributes(:deleted => false) 
       else
         updated_sub = Subassembly.create(:campaign_id => self.id, :name => sub) 
-        updated_sub.commit(self.repo)
+        updated_sub.commit(:repo => self.repo)
       end
       puts "done" unless Rails.env.eql?("test")
     }
@@ -374,7 +374,7 @@ class Campaign < ActiveRecord::Base
     existing_subs.each{|sub|
       unless File.exists?(sub.path(campaign_path)) && !sub.deleted?
         sub.update_attributes(:deleted => true) 
-        sub.commit(self.repo)
+        sub.commit(:repo => self.repo)
       end
     }
   end
