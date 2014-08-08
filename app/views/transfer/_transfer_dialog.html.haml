@@ -1,14 +1,15 @@
-
+//craft can be either a Craft or Subassebly object
 #move_copy_dialog.hidden
+  - a_craft = craft.is_a?(Craft)
   - sync_targets ||= []
-  = form_for(craft, :url => transfer_path(craft)) do |f|
+  = form_for(craft, :url => transfer_path(craft, :subassembly => (not a_craft))) do |f|
     = hidden_field_tag :move_copy, true
     = hidden_field_tag :selected_campaigns
-    .info= "Select another campaign(s) to move, copy or sync #{@craft.name} to"
+    .info= "Select another campaign(s) to move, copy or sync #{craft.name} to"
     - unless sync_targets.blank?
       .small
         - sync_count = sync_targets.size
-        .info= "#{@craft.name} is currently sync'd with #{sync_count} campaign#{sync_count.eql?(1) ? '' : 's'} (highlighted blue below)."
+        .info= "#{craft.name} is currently sync'd with #{sync_count} campaign#{sync_count.eql?(1) ? '' : 's'} (highlighted blue below)."
         .info= "You can un-sync by unselecting #{sync_count.eql?(1) ? 'it' : 'them'} or select more campaigns to sync to, then hit 'sync' to update."
         =link_to_function "how do I move/copy a sync'd craft?", "$('.move_copy_syncd_help').toggle('fast')"
         .move_copy_syncd_help.hidden
@@ -29,10 +30,14 @@
                 .mini-flag
                   = image_tag("/flag_for_campaign_#{campaign.id}.png")
               
-
+    
+    - if a_craft
+      .small= "existing craft with the same name in the #{craft.craft_type} of the selected campaign(s) will get replaced" 
+    - else
+      .small= "existing subassemblies with the same name in the selected campaign(s) will get replaced" 
+    
+    .small= "(but don't worry, you're using GIT, you can always revert them!)"
     .hidden
-      .small= "existing craft with the same name in the #{craft.craft_type} of the selected campaign(s) will get replaced"
-      .small= "(but don't worry, you're using GIT, you can always revert them!)"
       = f.submit "Move", :id => :move_submit, :class => "submit_button"
       = f.submit "Copy", :id => :copy_submit, :class => "submit_button"
       = f.submit "Sync", :id => :sync_submit, :class => "submit_button"

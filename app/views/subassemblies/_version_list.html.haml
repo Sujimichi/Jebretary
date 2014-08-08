@@ -1,5 +1,13 @@
 
 -if @subassembly
+  -unless sync_targets.blank?
+    %h4= "This subassembly is sync'd with #{sync_targets.size} other campaign#{sync_targets.size.eql?(1) ? '' : 's'}"
+    - sync_targets.each do |campaign|
+      .sync_target
+        .mini-flag= image_tag("/flag_for_campaign_#{campaign.id}.png")
+        .path= link_to campaign.path, campaign_path(campaign)
+
+  %h3 Version History
   - version = @subassembly.history_count
   - version ||= 1
   = "#{@subassembly.name} has #{version} versions"

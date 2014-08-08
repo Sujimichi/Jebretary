@@ -5,6 +5,19 @@
     - history = @subassembly.history
     = hidden_field_tag :subassembly_id, @subassembly.id
     %h1= "#{@subassembly.name} subassembly"
+    %h4= "in #{@subassembly.campaign.name}"
+    
+  .clear
+  .vblk_2
+  - unless @subassembly.deleted?
+    .grid_10.push_1
+      %h2
+        = link_to "Move, Copy or Sync Subassembly", edit_transfer_path(@subassembly, :subassembly => true), :remote => true
+        |
+        = link_to "Delete Subassembly", edit_subassembly_path(@subassembly), :remote => true 
+        = #link_to_function "mo", "delete_craft_dialog()"
+      .vblk_1
+      
 
   #revert_dialog
 
@@ -12,8 +25,8 @@
   .vblk_2
   - unless @subassembly.deleted?
     .grid_10.push_1
-      %h3 Version History
       #history_list
+        %h3 Version History
         Loading subassembly History
         .ajax_loader
 

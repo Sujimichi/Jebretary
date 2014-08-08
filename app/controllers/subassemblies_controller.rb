@@ -16,6 +16,7 @@ class SubassembliesController < ApplicationController
 
           if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("SubassembliesController") 
             @history = @subassembly.history
+            @sync_targets = @subassembly.sync_targets
           else
             return render :partial => "partials/no_update"
           end
