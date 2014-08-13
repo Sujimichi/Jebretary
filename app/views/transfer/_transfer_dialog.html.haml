@@ -6,7 +6,9 @@
     = hidden_field_tag :move_copy, true
     = hidden_field_tag :selected_campaigns
     .info= "Select another campaign(s) to move, copy or sync #{craft.name} to"
-    - unless sync_targets.blank?
+    - if sync_targets.blank?
+      .small.info= "The sync option allows you to have a craft that is maintained across multiple campaigns.  If you change it in one campaign it will automatically be changed in the other selected campaigns."
+    - else
       .small
         - sync_count = sync_targets.size
         .info= "#{craft.name} is currently sync'd with #{sync_count} campaign#{sync_count.eql?(1) ? '' : 's'} (highlighted blue below)."
@@ -14,6 +16,7 @@
         =link_to_function "how do I move/copy a sync'd craft?", "$('.move_copy_syncd_help').toggle('fast')"
         .move_copy_syncd_help.hidden
           .info= "If you want to move/copy it (without effecting its sync settings) just select the campaign you want to move/copy to. You can just ignore the campaigns that are highted as sync-targets, I won't try to move/copy to a campaign that its already sync'd with."
+          .info= "If you copy a craft to another campaign (that it isn't already sync'd with) the copied craft will NOT be sync'd with the others.  If you move the craft I wil update it's sync settings so it will continue to sync with the currently selected campaign#{sync_count.eql?(1) ? '' : 's'}"
               
     #campaign_selector
       - instances.each do |instance| 

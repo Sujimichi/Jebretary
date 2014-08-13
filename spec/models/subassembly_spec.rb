@@ -183,7 +183,7 @@ describe Subassembly do
     describe "sync_with" do 
 
       it "should add the given campaign to the crafts 'sync[:with]' list" do 
-        @sub.sync.should == {}
+        @sub.sync.should == {:with => []}
         @sub.sync_with @campaign_2
         @sub.sync[:with].should == [@campaign_2.id]
       end

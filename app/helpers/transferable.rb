@@ -13,6 +13,8 @@ module Transferable
     target_path = File.join([other_campaign.path, self.file_name])
     return false if File.exists?(target_path) && !args[:replace]
 
+    cur_campaign_id = self.campaign_id #used later in method after campaign_id may have been changed
+
     file = File.open(self.file_path, 'r'){|f| f.readlines}.join
     File.delete(self.file_path) unless args[:copy]
     File.open(target_path,'w'){|f| f.write(file)}
@@ -28,30 +30,45 @@ module Transferable
         attrs = self.attributes.clone
         [:id, :created_at, :updated_at, :campaign_id, :part_data, :sync].each{|at| attrs.delete(at.to_s)}
         attrs[:part_data] = self.part_data if self.is_a? Craft
-        existing_craft.update_attributes(attrs)
+        existing_craft.attributes = attrs
         object = existing_craft        
       else
         message = "copied from #{crafts_campaign.instance.name} - #{crafts_campaign.name}"
         object = self.dup
         object.campaign = other_campaign
-        object.save
       end
 
-      self.update_attributes(:deleted => true) unless args[:copy]
+      self.deleted = true unless args[:copy]
+      object.sync = {} if args[:copy] #sync attrs are not preserved on the copied object
 
       other_campaign.update_attributes(:persistence_checksum => nil)
     else
       message = "moved from #{crafts_campaign.instance.name} - #{crafts_campaign.name}"
       self.campaign_id = other_campaign.id
-      self.save
       object = self
     end
+    
+    object.save if object.changed? || object.new_record?   
+    self.save if self.changed? 
+      
+    update_sync_targets cur_campaign_id, other_campaign.id unless args[:copy] || self.sync[:with].blank?
 
     message = args[:m] if args.has_key?(:m)
-
     object.reset_cache.commit :m => message, :dont_sync => true  #dont_sync is true to prevent infinate looping
-
     return object
+  end
+
+  #update target craft sync attrs after moving a sync'd craft
+  def update_sync_targets old_campaign_id, new_campaign_id
+    sync_with_campaigns = sync_targets
+    return if sync_with_campaigns.blank?
+
+    target_craft = Craft.where(:campaign_id => sync_with_campaigns, :name => self.name)
+    target_craft.each do |c|
+      next if c.sync[:with].blank? 
+      c.sync = {:with => c.sync[:with].map{|id| id.eql?(old_campaign_id) ? new_campaign_id : id } }
+      c.save
+    end
   end
 
 
@@ -72,7 +89,7 @@ module Transferable
     begin
       HashWithIndifferentAccess.new JSON.parse(sync_list)
     rescue
-      {}
+      {:with => []}
     end
   end
 
@@ -83,7 +100,7 @@ module Transferable
   def synchronize
     return false if sync[:with].nil?
     sync[:with].each do |campaign_id|
-      next if campaign_id.eql?(self.campaign_id) #don't try to sync to itself!      
+      next if campaign_id.eql?(self.campaign_id)        #don't try to sync to itself!      
       cpy = self.move_to(                               #copies craft file and ensurecraft object is present
         Campaign.find(campaign_id),                     
         :copy => true, :replace => true,                
@@ -97,11 +114,11 @@ module Transferable
   def sync_targets
     sync_with_campaigns = self.sync[:with]
     return [] if sync_with_campaigns.blank? #no sync targets
-    campaigns = Campaign.where(:id => sync_with_campaigns) #select the campaigns from the DB, :where rather than find as some ids might be wrong (ie if a campaign was removed)
-    return campaigns if campaigns.size.eql?(sync_with_campaigns) #return the found campaigns, if there is the same number as expected from the sync[:with] ids
+    campaigns = Campaign.where(:id => sync_with_campaigns) #select the campaigns from the DB, .where rather than .find as some ids might be wrong (ie if a campaign was removed)
+    return (campaigns - [self.campaign]) if campaigns.size.eql?(sync_with_campaigns) #return the found campaigns, if there is the same number as expected from the sync[:with] ids
     self.sync = {:with => campaigns.map{|c| c.id} } #update/fix the sync[:with] ids if there was a discrepency.
     self.save
-    campaigns
+    campaigns - [self.campaign]
   end
 
 

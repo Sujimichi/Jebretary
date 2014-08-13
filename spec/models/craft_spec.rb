@@ -503,6 +503,45 @@ describe Craft do
       end
     end
 
+    describe "transfering of sync attribute" do 
+      before :each do 
+        @campaign_2.craft.map{|c| c.name}.should_not be_include(@craft.name)
+        @craft.sync_with @campaign_2
+        @craft.commit
+        @campaign_2.reload.craft.map{|c| c.name}.should be_include(@craft.name)
+
+        make_campaign_dir "test_campaign_3", :reset => false
+        @campaign_3 = Campaign.create!(:name => "test_campaign_3", :instance_id => @instance.id)
+        Dir.chdir File.join(@instance.path, "saves", "test_campaign_3")
+        make_sample_data :with_craft => false
+      end
+
+      it 'should not keep the sync settings when being copied' do 
+        @craft.move_to @campaign_3, :copy => true
+        @craft = @campaign_3.craft.find_by_name(@craft.name) #as @craft is still in campaign_1
+
+        @craft.reload.sync[:with].should be_blank      
+      end
+
+      it 'should keep the sync settings when moved' do 
+        @craft.move_to @campaign_3
+        @craft.reload.campaign.should == @campaign_3 #sanity check
+        
+        @craft.sync[:with].should_not be_blank      
+      end
+
+      it 'should update the sync attrs on the craft in the sync-target when moved' do 
+        sync_target_craft = @campaign_2.craft.find_by_name(@craft.name)
+        
+        @craft.sync[:with].should == [@campaign_2.id]
+        sync_target_craft.sync[:with].should == [@campaign_2.id, @campaign_1.id]
+        
+        @craft.move_to @campaign_3
+        sync_target_craft.reload.sync[:with].should == [@campaign_2.id, @campaign_3.id]
+      end
+
+    end
+
   end
 
 
@@ -527,7 +566,7 @@ describe Craft do
     describe "sync_with" do 
 
       it "should add the given campaign to the crafts 'sync[:with]' list" do 
-        @craft.sync.should == {}
+        @craft.sync.should == {:with => []}
         @craft.sync_with @campaign_2
         @craft.sync[:with].should == [@campaign_2.id]
       end
