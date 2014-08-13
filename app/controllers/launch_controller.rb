@@ -43,7 +43,7 @@ class LaunchController < ApplicationController
       end
 
       if run
-        KSP.controller.start @instance.path
+        KSP.controller.start @instance.path, @instance.use_x64_exe?
         @notice = "Starting KSP..."
       else
         @notice = "This instance is already running</br>click the left side to view its campaigns"

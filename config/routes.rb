@@ -2,6 +2,7 @@ Jebretary::Application.routes.draw do
   get "welcome/index"
   get "welcome/edit"
   post "welcome/update"
+  match "instances/:id/update" => "instances#update"
 
   resources :subassemblies
   resources :launch

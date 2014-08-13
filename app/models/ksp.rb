@@ -19,7 +19,7 @@ class KSP::LinuxDev
     []
   end
 
-  def self.start path
+  def self.start path, x64_mode = false
     return true
   end
 
@@ -38,9 +38,8 @@ class KSP::Windows
     ksp_instances = processes.select{|p| p.name.downcase.eql?("ksp.exe") || p.name.downcase.eql?("ksp_x64.exe")}
   end
 
-  def self.start path
-    ksp_path = File.join([path, "ksp_x64.exe"]) #default to the 64 bit version
-    ksp_path = File.join([path, "ksp.exe"]) unless File.exists?(ksp_path)  #switch to 32bit of 64bit exe is not present. 
+  def self.start path, x64_mode = false
+    ksp_path = x64_mode ? File.join([path, "ksp_x64.exe"]) : File.join([path, "ksp.exe"])
     system "start \"\" \"#{ksp_path}\"" if File.exists?(ksp_path) 
   end
 

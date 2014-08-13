@@ -38,6 +38,8 @@ class InstancesController < ApplicationController
     respond_with(@instance) do |f|      
       if @instance.errors.empty?
         @instance.save
+        @instance.check_64_bit_availability
+        
         Task.create(:action => ["generate_part_db_for", @instance.id]) 
         f.js { }
       else
@@ -64,6 +66,34 @@ class InstancesController < ApplicationController
       }
     end
   end
+
+  def update
+
+    @instance = Instance.find(params[:id])
+
+    if @instance.use_x64_exe
+      #switching to x32
+      if File.exists? File.join(@instance.path, "KSP.exe")
+        @instance.use_x64_exe = false
+        notice = "When you next launch KSP from Jebretary it will start in 32 bit mode"
+      else
+        alert = "32 bit exe could not be found in this instance. Sorry, I can only launch this as x64"
+      end
+    else
+      #switching to x64
+      if File.exists? File.join(@instance.path, "KSP_x64.exe")
+        @instance.use_x64_exe = true
+        notice = "When you next launch KSP from Jebretary it will start in 64 bit mode"
+      else
+        alert = "64 bit exe could not be found in this instance. Sorry, I can only launch this as x32"
+      end      
+    end
+    @instance.save
+
+    redirect_to :back, :notice => notice, :alert => alert
+    
+  end
+
 
   def edit
     respond_to do |f| 

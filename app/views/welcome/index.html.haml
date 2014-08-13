@@ -12,16 +12,17 @@
         %h2 Tracked Installs
         - @instances.each do |instance|
           .instance{:id => "installed_instance_#{instance.id}"}
-            .grid_8.alpha
+            .grid_7.alpha
               %a{:href => instance_path(instance)}
                 = instance.path
                 .small= "#{instance.campaigns.count} Campaigns"
             - if RUBY_PLATFORM =~ /mswin|mingw|cygwin/ || Rails.env.eql?("development")
-              .launch_links.grid_2.omega
+              .launch_links.grid_3.omega
                 .shutdown_link
                   = link_to "Shutdown KSP", launch_path(:id => instance.id), :method => :delete, :confirm => "Are you sure?", :remote => true
                 .launch_link
-                  = link_to "Launch KSP", launch_path(:id => instance.id), :remote => true
+                  - mode = instance.use_x64_exe? ? "64" : "32"
+                  = link_to "Launch KSP (x#{mode})", launch_path(:id => instance.id), :remote => true
               .launch_notice.grid_10
               .shutdown_notice.grid_10
             .clear
