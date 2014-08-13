@@ -1,0 +1,4 @@
+$("#delete_craft_dialog").remove()
+
+$('#dialog_holder').html("#{j render :partial => "partials/delete_dialog", :locals => {:object => @craft} }");
+open_delete_craft_dialog()

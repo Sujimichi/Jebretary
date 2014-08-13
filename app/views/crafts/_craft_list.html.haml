@@ -142,7 +142,7 @@
                     = "new"
                   -else
                     - changed = new_and_changed[:changed].include?("Ships/#{craft.craft_type.upcase}/#{craft.name}.craft")
-                    = changed ? "untracked changes" : "tracked"
+                    = changed ? "untracked" : "tracked"
 
                 -else
                   deleted
@@ -160,4 +160,20 @@
                       - unless part_data[:missing_parts].empty?
                         |
                         .missing= "missing #{part_data[:missing_parts].size} parts"
+              
+              .action_links
+                .links
+                  - unless craft.deleted?
+                    = link_to "mcs", edit_transfer_path(craft), :remote => true
+                    |
+                    = link_to "d", edit_craft_path(craft), :remote => true
+                  - else
+                    = link_to "recover", craft_path(craft)
+                
+                
+              -unless craft.sync[:with].blank?
+                .clear
+                .sync_status
+                  .info= "Sync'd with #{craft.sync[:with].size} campaigns"
           .clear
+

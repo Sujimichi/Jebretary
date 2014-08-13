@@ -1,5 +1,5 @@
 class Instance < ActiveRecord::Base
-  attr_accessible :full_path, :part_db_checksum, :part_update_required
+  attr_accessible :full_path, :part_db_checksum, :part_update_required, :x64_available, :use_x64_exe
 
   validates :full_path, :presence => true
   has_many :campaigns, :dependent => :destroy
@@ -9,9 +9,17 @@ class Instance < ActiveRecord::Base
     p = JSON.parse(self.full_path)
     File.join(p)
   end
+
+  def name
+    File.split(self.path).last
+  end
     
   def exists?
     File.exists? self.path
+  end
+
+  def check_64_bit_availability  
+    self.update_attributes(:x64_available => (File.exists? File.join(self.path, "KSP_x64.exe")))
   end
 
   def discover_campaigns

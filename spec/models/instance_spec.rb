@@ -3,20 +3,44 @@ require 'spec_helper'
 describe Instance do
   before(:each) do 
     set_test_dir
+    @root_path = Rails.root.to_s.split("/")
   end
   
   it 'should have a full_path' do 
-    @i = FactoryGirl.create(:instance)
-    root_path = Rails.root.to_s.split("/")
-    @i.full_path.should == (root_path << "temp_test_dir" << "KSP_test").to_json
+    @i = FactoryGirl.create(:instance)   
+    @i.full_path.should == (@root_path << "temp_test_dir" << "KSP_test").to_json
     #["", "home", "sujimichi", "coding", "rails", "jebretary", "temp_test_dir", "KSP_test"].to_json
   end
 
   it 'should return the OS path' do 
     @i = FactoryGirl.create(:instance)
-    root_path = Rails.root.to_s.split("/")
-    @i.path.should == File.join(root_path, "temp_test_dir", "KSP_test")
+    @i.path.should == File.join(@root_path, "temp_test_dir", "KSP_test")
     #"/home/sujimichi/coding/rails/jebretary/temp_test_dir/KSP_test"
+  end
+
+
+  describe "x64_selection" do 
+    before(:each) do 
+      set_up_sample_data
+      @path = File.join(@root_path, "temp_test_dir", "KSP_test")
+      @instance = FactoryGirl.create(:instance)   
+    end
+
+    it 'should set x64_available as false if KSP_x64.exe is not present' do 
+      File.open(File.join(@path, "KSP.exe") ,"wb"){|f| f.write("test exe file")}
+
+      @instance.check_64_bit_availability
+      @instance.x64_available.should be_false
+    end
+
+    it 'should set x64_available if KSP_x64.exe is present' do 
+      File.open(File.join(@path, "KSP_x64.exe") ,"wb"){|f| f.write("test exe file")}
+
+      @instance.check_64_bit_availability
+      @instance.x64_available.should be_true
+    end
+
+
   end
 
   describe "discover_campaigns" do 

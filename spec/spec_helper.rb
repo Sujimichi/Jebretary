@@ -54,20 +54,25 @@ def set_basic_mock_KSP_dir
   Dir.chdir Rails.root
 end
 
-def make_sample_data
+def make_sample_data args= {}
+  args[:with_craft] ||= true unless args[:with_craft].eql?(false)
+  args[:with_subs]  ||= false
+
   cur_dir = Dir.getwd
   File.open("quicksave.sfs", 'w') {|f| f.write("some test data") }
   File.open("persistent.sfs", 'w') {|f| f.write("some test data") }
+  make_sample_subassemblies if args[:with_subs]
+
   Dir.mkdir("Ships")
   Dir.chdir("Ships")
   Dir.mkdir("VAB")
   Dir.mkdir("SPH")
   Dir.chdir("VAB")
-  File.open("my_rocket.craft", 'w') {|f| f.write("some test data") }
-  File.open("my_other_rocket.craft", 'w') {|f| f.write("some test data") }
+  File.open("my_rocket.craft", 'w') {|f| f.write("some test data") } if args[:with_craft]
+  File.open("my_other_rocket.craft", 'w') {|f| f.write("some test data") } if args[:with_craft]
   Dir.chdir('..')
   Dir.chdir('SPH')
-  File.open("my_rocket_car.craft", 'w') {|f| f.write("some test data") }
+  File.open("my_rocket_car.craft", 'w') {|f| f.write("some test data") } if args[:with_craft]
   Dir.chdir(cur_dir)
 end
 
@@ -86,6 +91,8 @@ def make_new_craft_in campaign = nil, c_type = "VAB", name = "some_rocket"
   Dir.chdir("Ships/#{c_type}")
   File.open("#{name}.craft", 'w') {|f| f.write("some test data") }
 end
+
+
 
 def add_subassembly name, args = {}
   cur_dir = Dir.getwd
@@ -113,6 +120,14 @@ def change_craft_contents craft, new_content = "this is some different file data
   File.open("#{craft.name}.craft", 'w') {|f| f.write(new_content) }
   Dir.chdir(cur_dir)
 end
+
+def change_sub_contents sub, new_content = "this is some different file data"
+  cur_dir = Dir.getwd
+  Dir.chdir File.join([sub.campaign.path, "Subassemblies"])
+  File.open("#{sub.name}.craft", 'w') {|f| f.write(new_content) }
+  Dir.chdir(cur_dir)
+end
+
 
 def in_test_dir &blk
   d = Dir.getwd

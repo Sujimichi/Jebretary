@@ -1,2 +1,10 @@
-$('#revert_dialog').html("#{j render :partial => 'subassemblies/confirm_revert', :locals => {:subassembly => @subassembly, :versions_ago => @versions_ago, :commit => @commit} }");
+if("#{@delete_dialog}" == "true"){
+
+$("#delete_craft_dialog").remove()
+$('#dialog_holder').html("#{j render :partial => "partials/delete_dialog", :locals => {:object => @subassembly} }");
+open_delete_craft_dialog()
+
+}else{
+$('#revert_dialog').html("#{j render(:partial => 'subassemblies/confirm_revert', :locals => {:subassembly => @subassembly, :versions_ago => @versions_ago, :commit => @commit}) unless @delete_dialog}");
 $('#revert_dialog').dialog({ height: 'auto', width: 'auto', position: ["center", 150]});
+}

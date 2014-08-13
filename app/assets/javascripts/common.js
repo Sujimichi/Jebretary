@@ -1,4 +1,5 @@
 $(function(){
+  reset_server_cache()
   clearTimeout(index_search_timer);
   autohide_flash();
   check_error_log();
@@ -97,6 +98,10 @@ function poll_for_updated_instance(){
   }, 1000);
 };
 
+
+function reset_server_cache(){
+  ajax_get('/reset_cache', {}, function(){});  
+};
 
 function poll_for_updated_list(){
   var campaign_id = $('#campaign_id').val();
@@ -201,27 +206,31 @@ function dialog_open(div_id){
   if(open_dialogs[div_id] == true){return true}else{return false}
 };
 
-function move_copy_dialog(){
+function open_move_copy_dialog(){
   $('#move_copy_dialog').dialog({
     position: ['center', 100],
-    width: 750,
+    width: 800,
     height: 'auto',
     closeOnEscape: true,
+    title: "Move, Copy or Sync craft to other campaigns",
     buttons: [
+      { text: "Sync", click: function(){$('#sync_submit').click()} },
       { text: "Move", click: function(){$('#move_submit').click()} },
       { text: "Copy", click: function(){$('#copy_submit').click()} },
-      { text: "Cancel", click: function(){$(this).dialog('close')} }
+      { text: "Cancel", click: function(){$(this).dialog('close'); } }
     ]
   })
   $('#move_copy_dialog').find(".submit_button").hide();
 };
 
-function delete_craft_dialog(){
+function open_delete_craft_dialog(){
+  var craft_name = $('#delete_craft_dialog').data("craft_name")
   $('#delete_craft_dialog').dialog({
     position: ['center', 100],
     width: 750,
     height: 'auto',
     closeOnEscape: true,
+    title: "Delete "+ craft_name + "!?!",
     buttons: [
       { text: "Delete!", click: function(){$('#delete_submit').click()} },
       { text: "Cancel", click: function(){$(this).dialog('close')} }
@@ -424,3 +433,62 @@ function toggle_subassembly_list(force_hide){
     });
   };
 };
+
+
+function craft_show_actions(){
+  poll_craft_version()
+  $('.part').on("mouseover", function(){
+    $('.details').hide();
+    $('.part').removeClass("selected_part")
+    $(this).find(".details").show();
+    $(this).addClass("selected_part")
+  });
+  $('.parts_list').on("mouseout", function(){
+    $('.details').hide();
+    $('.part').removeClass("selected_part")
+  });
+  
+  
+};
+
+function prepare_campaign_selector(){
+  $("#campaign_selector").find(".campaign_holder").addClass("unselected_campaign")
+  get_selected_campaigns()
+  $("#campaign_selector").find(".campaign_holder").click(function(){
+    if( $(this).hasClass("dont-select") != true ){
+      if( $(this).hasClass("selected_campaign") ){
+        $(this).removeClass("selected_campaign")
+        $(this).removeClass("selected_sync")
+        $(this).addClass("unselected_campaign")
+      }else{
+        $(this).addClass("selected_campaign")
+        $(this).removeClass("unselected_campaign")
+      };
+      get_selected_campaigns();
+    };
+  });
+};
+
+function get_selected_campaigns(){
+  var selected = []
+  $(".campaign_holder").each(function(){
+    if( $(this).hasClass("selected_campaign") ){ selected.push( $(this).data("campaign_id") ) };
+  });
+  $("#selected_campaigns").val(JSON.stringify(selected));
+};
+
+
+function ajaxify_form(form_id){
+  $(form_id).submit(function() {  
+    var data = $(this).serialize();
+
+    url = $(this).attr('action')
+    ajax_put(url, data, function(){
+      alert("yo")
+    });
+
+    return false; // prevents normal behaviour
+  });
+
+};
+

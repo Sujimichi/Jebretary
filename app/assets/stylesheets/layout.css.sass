@@ -105,7 +105,9 @@ a
 .underline_links a
   :text-decoration underline
 
-
+.ui-widget-content
+  a
+    :color $link_font_color_normal
 
 #header
   :position relative
@@ -612,8 +614,81 @@ a
 .untracked
   :color red
 
+#campaign_selector
+  :margin-top 1em
+  :max-height 20em
+  :overflow-y auto
+  :border
+    :top 3px solid grey
+    :bottom 2px solid grey
+    :left 2px solid grey
+  :padding 0.5em
+    
+  .instance
+    :padding-bottom 1em
+    +clearfix
 
+    .campaign
+      :padding 0.2em
+      :cursor pointer
+      :width 150px
+      :float left
+        
+      .mini-flag
+        :width 128px
+        :margin 0 auto
+        img
+          :max-width 128px
+          :max-height 80px
 
+.unselected_campaign
+  .campaign
+    :border 2px solid transparent
+    &:hover
+      :border 2px solid grey
+      :background-color $site_highlight 
+
+.selected_campaign
+  $selected: #EB5F28
+  .campaign
+    :border 2px solid darken($selected, 20%)
+    :background-color lighten($selected, 20%)
+    &:hover  
+      :border 2px solid darken($selected, 20%)
+      :background-color $selected
+
+.selected_sync
+  $selected: #A181D6
+  .campaign
+    :border 2px solid darken($selected, 20%)
+    :background-color lighten($selected, 20%)
+    &:hover  
+      :border 2px solid darken($selected, 20%)
+      :background-color $selected
+  
+  
+.dont-select
+  :opacity 0.4
+  .campaign
+    :border 2px solid transparent
+    &:hover
+      :border 2px solid grey
+      :background-color grey
+    
+.sync_target
+  .mini-flag
+    :float left
+    :width 45px
+    :margin 0 auto
+    img
+      :max-width 42px
+      :max-height 26px
+      
+  .path
+    :float left
+  +clearfix
+  
+  
 .parts_list
   :display none
   .part
@@ -635,6 +710,8 @@ a
   +gradient_h(rgba($base_color, 0.2), rgba($site_high_tone, 0))
   &:hover
     +gradient_h(rgba($base_color, 0.4), rgba($site_high_tone, 0.1))
+    .action_links    
+      :display inline
 
 .mod_craft
   :border-left 2px solid green
@@ -642,6 +719,8 @@ a
   +gradient_h(rgba($base_color, 0.2), rgba($site_high_tone, 0))
   &:hover
     +gradient_h(rgba($base_color, 0.4), rgba($site_high_tone, 0.1))
+    .action_links    
+      :display inline
 
 .missing_parts
   .missing
@@ -678,9 +757,22 @@ a
   .git_info
     :padding-left 1em
     :float left
+    :width 4em
   .history
     :padding-left 1em
     :float left
+    
+  .action_links    
+    :display none
+    :float right
+    :padding-top 1em
+    :margin-right 1em
+    .links
+      :font-size 80%
+  .sync_status
+    :padding-left 6em
+    .info
+      :font-size 80%
   +clearfix
 
 .subassembly

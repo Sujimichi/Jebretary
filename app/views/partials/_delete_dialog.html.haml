@@ -1,0 +1,13 @@
+- object_class = object.class.to_s.downcase
+#delete_craft_dialog{:class => "hidden", "data-craft_name" => object.name}
+  %h4= "That bad huh? How many died!?"
+  = "Ok, well if you really want to delete this #{object_class} and try to block out the memories of all those poor Kerbals you killed building it, I will <b>delete the .craft file!!</b> ".html_safe
+  - pluralz = {"craft" => "craft", "subassembly" => "subassemblies"}
+  .small= "NOTE: You can always recover this #{object_class} later."
+  .small= "(fyi, this also applies to #{pluralz[object_class]} that you delete in game or via your OS)"
+
+
+  -if object.is_a?(Subassembly)
+    = link_to 'Destroy', subassembly_path(object), :method => :delete, :class => 'submit_button', :id => :delete_submit
+  -else
+    = link_to 'Destroy', craft_path(object), :method => :delete, :class => 'submit_button', :id => :delete_submit

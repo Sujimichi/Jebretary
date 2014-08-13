@@ -41,7 +41,7 @@ describe Craft do
     it 'should return true if the craft is in the repo and has changed' do 
       @repo.add("Ships/VAB/my_rocket.craft")
       @repo.commit("added craft")      
-     
+
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write("something different")}
       @craft.is_changed?.should be_true
     end
@@ -64,7 +64,6 @@ describe Craft do
 
   end
 
-  
   describe "commit" do 
     before(:each) do 
       set_up_sample_data
@@ -88,7 +87,7 @@ describe Craft do
       repo.add("Ships/VAB/my_rocket.craft")
       repo.commit("added my_rocket")
       File.open("Ships/VAB/my_rocket.craft", 'w'){|f| f.write('something different')}
-      
+
       @campaign.repo.untracked.should_not be_include "Ships/VAB/my_rocket.craft"
       @craft.commit
 
@@ -147,7 +146,7 @@ describe Craft do
       first_commit_sha.message.should == "added my_rocket"
 
       @craft.last_commit.should == first_commit_sha.to_s
-      
+
       File.delete("Ships/VAB/my_rocket.craft")
       @craft.deleted = true
       @craft.commit
@@ -156,8 +155,6 @@ describe Craft do
 
       @craft.last_commit.should == latest_commit_sha.to_s
     end
-
-
   end
 
   describe "history" do    
@@ -216,7 +213,7 @@ describe Craft do
       @craft.revert_to commit
       File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "first version"
       @craft.history.first.message.should contain "reverted my_rocket"
-            
+
       commit = @craft.history[2] #same index as there is now another commit 
       @craft.revert_to commit
       File.open("Ships/VAB/my_rocket.craft", "r"){|f| f.readlines}.join.should == "second version"
@@ -360,7 +357,7 @@ describe Craft do
 
   end
 
-  describe "deleting craft" do 
+  describe "deleting craft file" do 
     before(:each) do 
       set_up_sample_data
       File.open("Ships/VAB/my_rocket.craft", "w"){|f| f.write("first version")}
@@ -371,16 +368,16 @@ describe Craft do
 
     it 'should delete the craft file from the campaign' do 
       File.should be_exists("Ships/VAB/my_rocket.craft")          
-      @craft.delete_craft
+      @craft.delete_file
       File.should_not be_exists("Ships/VAB/my_rocket.craft")      
       @craft.should be_deleted
     end
 
     it 'should not call delete on an already deleted craft' do 
       File.should_receive(:delete).with(File.join([@craft.campaign.path, @craft.file_name])).once
-      @craft.delete_craft
+      @craft.delete_file
       File.should_not_receive(:delete).with(File.join([@craft.campaign.path, @craft.file_name]))
-      @craft.delete_craft
+      @craft.delete_file
     end
 
   end
@@ -401,6 +398,7 @@ describe Craft do
       make_new_craft_in @campaign_1, "VAB", "some_brand_new_rocket"
       @craft = @campaign_1.craft.create!(:name => "some_brand_new_rocket", :craft_type => :vab)
       @craft.commit
+      @craft.reload
     end
 
     it 'should move the craft file from one campaign to another' do 
@@ -462,28 +460,273 @@ describe Craft do
       Craft.where(:name => "some_brand_new_rocket").count.should == 2      
     end
 
+    describe "commiting moved/copied craft" do 
+      before(:each) do 
+        @campaign_2.craft.map{|c| c.name}.should_not be_include(@craft.name)
+      end
+
+      it 'should commit the moved craft' do 
+        @craft.move_to @campaign_2
+
+        moved_craft = @campaign_2.reload.craft.last
+        moved_craft.name.should == @craft.name #sanity check
+
+        moved_craft.history.size.should == 1
+        moved_craft.history.first.message.should == "moved from #{@campaign_1.instance.name} - #{@campaign_1.name}"
+      end
+
+      it 'should commit the copied craft' do 
+        @craft.move_to @campaign_2, :copy => true
+
+        moved_craft = @campaign_2.reload.craft.last
+        moved_craft.name.should == @craft.name #sanity check
+
+        moved_craft.history.size.should == 1
+        moved_craft.history.first.message.should == "copied from #{@campaign_1.instance.name} - #{@campaign_1.name}"
+      end
+
+      it 'should commit the replaced craft' do 
+        make_new_craft_in @campaign_2, "VAB", "some_brand_new_rocket"
+        @craft2 = @campaign_2.craft.create!(:name => "some_brand_new_rocket", :craft_type => "vab")
+        @craft2.commit 
+
+        change_craft_contents @craft, "just some diff data" 
+        #otherwise when it replaces craft2 the commit action won't run as it will consider it unchanged
+
+        @craft.move_to @campaign_2, :copy => true, :replace => true
+
+        moved_craft = @campaign_2.reload.craft.last
+        moved_craft.name.should == @craft.name #sanity check
+
+        moved_craft.history.size.should == 2
+        moved_craft.history.first.message.should == "replaced by craft from #{@campaign_1.instance.name} - #{@campaign_1.name}"
+      end
+    end
+
+    describe "transfering of sync attribute" do 
+      before :each do 
+        @campaign_2.craft.map{|c| c.name}.should_not be_include(@craft.name)
+        @craft.sync_with @campaign_2
+        @craft.commit
+        @campaign_2.reload.craft.map{|c| c.name}.should be_include(@craft.name)
+
+        make_campaign_dir "test_campaign_3", :reset => false
+        @campaign_3 = Campaign.create!(:name => "test_campaign_3", :instance_id => @instance.id)
+        Dir.chdir File.join(@instance.path, "saves", "test_campaign_3")
+        make_sample_data :with_craft => false
+      end
+
+      it 'should not keep the sync settings when being copied' do 
+        @craft.move_to @campaign_3, :copy => true
+        @craft = @campaign_3.craft.find_by_name(@craft.name) #as @craft is still in campaign_1
+
+        @craft.reload.sync[:with].should be_blank      
+      end
+
+      it 'should keep the sync settings when moved' do 
+        @craft.move_to @campaign_3
+        @craft.reload.campaign.should == @campaign_3 #sanity check
+        
+        @craft.sync[:with].should_not be_blank      
+      end
+
+      it 'should update the sync attrs on the craft in the sync-target when moved' do 
+        sync_target_craft = @campaign_2.craft.find_by_name(@craft.name)
+        
+        @craft.sync[:with].should == [@campaign_2.id]
+        sync_target_craft.sync[:with].should == [@campaign_2.id, @campaign_1.id]
+        
+        @craft.move_to @campaign_3
+        sync_target_craft.reload.sync[:with].should == [@campaign_2.id, @campaign_3.id]
+      end
+
+    end
+
   end
 
 
-  describe "campaign spanning" do 
+  describe "syncing craft between campaigns" do 
     before(:each) do 
       make_campaign_dir "test_campaign_1", :reset => true
       make_campaign_dir "test_campaign_2", :reset => false
       @instance = FactoryGirl.create(:instance)
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_1")
-      make_sample_data
+      make_sample_data :with_craft => true
       Dir.chdir File.join(@instance.path, "saves", "test_campaign_2")
-      make_sample_data
+      make_sample_data :with_craft => false
       System.process
 
       @campaign_1 = Campaign.where(:name => "test_campaign_1").first
       @campaign_2 = Campaign.where(:name => "test_campaign_2").first
-      make_new_craft_in @campaign_1, "VAB", "some_brand_new_rocket"
-      @craft = @campaign_1.craft.create!(:name => "some_brand_new_rocket", :craft_type => :vab)
+      make_new_craft_in @campaign_1, "VAB", "sync_this_rocket"
+      @craft = @campaign_1.craft.create!(:name => "sync_this_rocket", :craft_type => "vab")
       @craft.commit
     end
 
-    it 'should enable a craft to exist in multiple campaigns and relect changes made in one campaign over all selected campaigns'
+    describe "sync_with" do 
+
+      it "should add the given campaign to the crafts 'sync[:with]' list" do 
+        @craft.sync.should == {:with => []}
+        @craft.sync_with @campaign_2
+        @craft.sync[:with].should == [@campaign_2.id]
+      end
+
+      it 'should append additional campaing_ids to the sync_list' do
+        @craft.sync_with @campaign_2
+        @craft.sync[:with].should == [@campaign_2.id]
+
+        @craft.sync_with 42
+        @craft.sync[:with].should == [@campaign_2.id, 42]        
+      end
+    end
+
+    describe "synchronize" do
+      before(:each) do 
+        @craft.sync_with @campaign_2
+      end
+
+      it 'should create the craft in another campaign if it doesnt already exist' do 
+        @campaign_2.craft.should be_empty
+
+        @craft.synchronize
+
+        @campaign_2.reload
+        @campaign_2.craft.count.should == 1
+        @campaign_2.craft.first.name.should == "sync_this_rocket"      
+      end
+
+      describe "with existing craft in target campaign" do 
+        before(:each) do 
+          make_new_craft_in @campaign_2, "VAB", "sync_this_rocket"
+          @campaign_2.craft.create!(:name => "sync_this_rocket", :craft_type => "vab").commit
+          @campaign_2.craft.count.should == 1
+          File.open(File.join([@campaign_2.path, "Ships", "VAB", "sync_this_rocket.craft"]), "r"){|f| f.readlines}.join.should == "some test data"
+
+          #change the data in the first craft 
+          change_craft_contents @craft, "some different file data"
+        end
+
+        it 'should update the craft in another campaing if it already exists' do 
+          @craft.commit
+          @craft.synchronize
+
+          @campaign_2.reload
+          File.open(File.join([@campaign_2.path, "Ships", "VAB", "sync_this_rocket.craft"]), "r"){|f| f.readlines}.join.should == "some different file data"    
+        end
+
+        it 'should keep the id of the craft in the target campaign' do 
+          id = @campaign_2.craft.first.id
+          @craft.commit
+          @craft.synchronize
+
+          @campaign_2.reload
+          @campaign_2.craft.first.id.should == id
+        end
+
+        it 'should copy the commit message over to the target craft' do 
+          @craft.commit :m => "this is a test commit"
+          @craft.synchronize          
+          @craft.reload.history.first.message.should == "this is a test commit"
+
+          @campaign_2.reload
+          @campaign_2.craft.first.history.first.message.should == "this is a test commit"
+        end
+
+      end
+
+
+      describe "syncing in both directions" do 
+        before(:each) do 
+          make_new_craft_in @campaign_2, "VAB", "sync_this_rocket"
+          @craft2 = @campaign_2.craft.create!(:name => "sync_this_rocket", :craft_type => "vab")
+          @craft2.commit
+
+          #first sync from campaign_1 to campaing_2 (as in the above tests)
+          change_craft_contents @craft, "change made in campaign_1"
+          @craft.commit :m => "changed craft in camp1"
+          @craft.synchronize          
+          [@craft, @craft2].each{|c| c.reload}
+        end
+
+        it 'should sync from campaign_2 to campaign_1' do 
+          change_craft_contents @craft2, "change made in campaign_2"
+          @craft2.commit :m => "changed craft in camp2"
+          @craft2.synchronize          
+
+          File.open(@craft.path, "r"){|f| f.readlines}.join.should == "change made in campaign_2"
+          @craft.history.first.message.should == "changed craft in camp2"
+        end
+
+      end
+
+
+      describe "syncing a craft between 3 campaigns" do 
+        before(:each) do 
+          make_campaign_dir "test_campaign_3", :reset => false
+          Dir.chdir File.join(@instance.path, "saves", "test_campaign_3")
+          make_sample_data :with_craft => false
+          System.process
+
+          @campaign_3 = Campaign.where(:name => "test_campaign_3").first
+          @craft.sync_with @campaign_3
+          @craft.reload
+        end
+
+        it 'should be ready for test' do #just some sanity checks to ensure things are as expected before test
+          @campaign_1.craft.should_not be_empty
+          @campaign_2.craft.should be_empty
+          @campaign_3.craft.should be_empty
+          @craft.sync[:with].should == [@campaign_2.id, @campaign_3.id]
+          @craft.is_changed?.should be_false
+          @craft.is_new?.should be_false
+        end
+
+        it 'should sync the craft so that changes made in one campaign are reflected in the other two' do 
+          #first we synchronize the craft and it should appear in the other two campaigns
+          Campaign.all.map{|c| c.craft.map{|cr| cr.name}.include?(@craft.name)}.should == [true, false, false]  #craft only in first campaign
+
+          @craft.synchronize          
+          Campaign.all.map{|c| c.craft.map{|cr| cr.name}.include?(@craft.name)}.should == [true, true, true]    #craft in all campaigns
+
+          @craft_a, @craft_b, @craft_c = @craft, @campaign_2.craft.first, @campaign_3.craft.first #get each of the craft objects
+          craft = [@craft_a, @craft_b, @craft_c]
+
+          data = "some test data"
+          craft.map{|c| File.open(@craft.path, 'r'){|f| f.readlines.join}.eql?(data) }.all?.should be_true #all craft files should have same content
+
+          #next we change the craft in the first campaign and sync
+          change_craft_contents @craft_a, "change made in campaign_1"
+          @craft_a.commit :m => "made some changes"
+          @craft_a.synchronize          
+
+          data = "change made in campaign_1"
+          craft.map{|c| File.open(c.path, 'r'){|f| f.readlines.join}.eql?(data) }.all?.should be_true #all craft files should have same content
+          craft.map{|c| c.history.first.message.should == "made some changes"} #and have the same commit message
+
+          #next we change the craft in the 2nd campaign and sync
+          change_craft_contents @craft_b, "change made in campaign_2"
+          @craft_b.commit :m => "made some more changes"
+          @craft_b.synchronize          
+
+          data = "change made in campaign_2"
+          craft.map{|c| File.open(c.path, 'r'){|f| f.readlines.join}.eql?(data) }.all?.should be_true #all craft files should have same content
+          craft.map{|c| c.history.first.message.should == "made some more changes"} #and have the same commit message
+
+          #finally we change the craft in the 3rd campaign and sync
+          change_craft_contents @craft_c, "change made in campaign_3"
+          @craft_c.commit :m => "made even more changes"
+          @craft_c.synchronize          
+
+          data = "change made in campaign_3"
+          craft.map{|c| File.open(c.path, 'r'){|f| f.readlines.join}.eql?(data) }.all?.should be_true #all craft files should have same content
+          craft.map{|c| c.history.first.message.should == "made even more changes"} #and have the same commit message
+
+        end
+
+
+      end
+
+    end
 
   end
 

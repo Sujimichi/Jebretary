@@ -16,6 +16,7 @@ class SubassembliesController < ApplicationController
 
           if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("SubassembliesController") 
             @history = @subassembly.history
+            @sync_targets = @subassembly.sync_targets
           else
             return render :partial => "partials/no_update"
           end
@@ -28,10 +29,15 @@ class SubassembliesController < ApplicationController
   def edit
     respond_with(@subassembly) do |f|
       f.js{
-        @subassembly = Subassembly.find(params[:id])  
-        @commit = @subassembly.campaign.repo.get_commit(:for => @subassembly.path, :sha_id => params[:sha_id])
-        @versions_ago = @subassembly.history_count - params[:version].to_i
-        @sha_id = params[:sha_id]
+        @subassembly = Subassembly.find(params[:id])
+        if params[:delete_dialog]
+          @delete_dialog = true
+        else
+          @commit = @subassembly.campaign.repo.get_commit(:for => @subassembly.path, :sha_id => params[:sha_id])
+          @versions_ago = @subassembly.history_count - params[:version].to_i
+          @sha_id = params[:sha_id]
+        end
+        
       }
     end
   end
@@ -50,6 +56,12 @@ class SubassembliesController < ApplicationController
     end
     
     redirect_to :back, :notice => message
+  end
+
+  def destroy
+    @subassembly = Subassembly.find(params[:id])
+    @subassembly.delete_file
+    redirect_to @subassembly.campaign, :notice => "#{@subassembly.name} has been deleted"
   end
 
 end

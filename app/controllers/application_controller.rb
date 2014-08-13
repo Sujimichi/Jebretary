@@ -24,8 +24,16 @@ class ApplicationController < ActionController::Base
     #ActiveRecord::StatementInvalid: SQLite3::BusyException: database is locked
  #end
 
+  def cache_reset 
+    respond_to do |f|     
+      Rails.cache.delete("state_stamp")
+      Rails.cache.delete("last_controller")
+      f.js {return render :text => "", :status => 200}
+    end
+  end
 
   private
+
 
   def check_error_log
     opt = System.new.get_config["show_error_report"]

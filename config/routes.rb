@@ -2,10 +2,11 @@ Jebretary::Application.routes.draw do
   get "welcome/index"
   get "welcome/edit"
   post "welcome/update"
+  match "instances/:id/update" => "instances#update"
 
   resources :subassemblies
   resources :launch
-  resources :move_craft
+  resources :transfer
   resources :messages
   
   resources :campaigns do
@@ -15,6 +16,8 @@ Jebretary::Application.routes.draw do
   resources :crafts
   resources :instances
   match "new_version_info" => "welcome#new_version_info"
+
+  match "reset_cache" => "application#cache_reset"
 
   #match 'campaigns/:id/saves' => 'saves#index'
 

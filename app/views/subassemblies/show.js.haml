@@ -1,5 +1,5 @@
 if("#{@background_process}" != "waiting"){
-$('#history_list').html("#{j render :partial => 'subassemblies/version_list', :locals => {:history => @history} }");
+$('#history_list').html("#{j render :partial => 'subassemblies/version_list', :locals => {:history => @history, :sync_targets => @sync_targets } }");
 };
 - if @subassembly && @subassembly.deleted?
   if( $('.subassembly_history').html() != undefined){

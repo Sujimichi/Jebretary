@@ -19,7 +19,7 @@ class CraftsController < ApplicationController
     respond_with(@craft) do |f|
       f.html{
         Rails.cache.delete("state_stamp")
-        @craft = Craft.find(params[:id])
+        @craft = Craft.find(params[:id])       
         unless @craft.deleted?
           @craft.update_part_data 
           @craft.save if @craft.changed?
@@ -59,6 +59,7 @@ class CraftsController < ApplicationController
 
             if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CraftsController") 
               @history = @craft.history  
+              @sync_targets = @craft.sync_targets
             else
               return render :partial => "partials/no_update"
             end
@@ -71,21 +72,24 @@ class CraftsController < ApplicationController
   end
 
   def edit
+    @craft = Craft.find(params[:id])
     respond_with(@craft) do |f|
-      f.html{
-        @craft = Craft.find(params[:id])
+      f.html{        
         @sha_id = params[:sha_id]
         history = @craft.history
         @commit = history.select{|c| c.to_s.eql?(@sha_id)}.first
         @is_changed = @craft.is_changed?
         
-
         unless @craft.deleted?          
           @revert_to_version = history.reverse.map{|h| h.sha_id}.index(@sha_id) + 1
           @current_version = @craft.history_count
         end
         @latest_commit = history.first
         @return_to = params[:return_to]       
+      }
+      f.js {
+        
+      
       }
     end
   end
@@ -122,7 +126,7 @@ class CraftsController < ApplicationController
 
   def destroy
     @craft = Craft.find(params[:id])
-    @craft.delete_craft
-    redirect_to @craft.campaign
+    @craft.delete_file
+    redirect_to @craft.campaign, :notice => "#{@craft.name} has been deleted"
   end
 end

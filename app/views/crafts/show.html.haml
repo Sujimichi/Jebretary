@@ -2,44 +2,22 @@
   #nav-box
     =link_to "return to campaign", campaign_path(@craft.campaign)
   .grid_10
-    - history = @craft.history
     = hidden_field_tag :craft_id, @craft.id
     %h1= @craft.name
+    %h4= "in #{@craft.campaign.name}"
 
 
   .clear
   .vblk_2
   - unless @craft.deleted?
     .grid_10.push_1
-      = link_to_function "Move/Copy Craft", "move_copy_dialog()"
-      |
-      = link_to_function "Delete Craft", "delete_craft_dialog()"
+      %h2
+        = link_to "Move, Copy or Sync Craft", edit_transfer_path(@craft), :remote => true
+        |
+        = link_to "Delete Craft", edit_craft_path(@craft), :remote => true 
+        = #link_to_function "mo", "delete_craft_dialog()"
       .vblk_1
-      #move_copy_dialog.hidden
-        %h3= "Move or Copy craft to 1 or more other campaigns"
-
-        = form_for(@craft, :url => move_craft_path(@craft)) do |f|
-          = hidden_field_tag :move_copy, true
-          .info select another campaign to move or copy this craft to
-          .small hold ctrl to select multiple campaigns
-          - campaigns = (Campaign.all - [@craft.campaign]).sort_by{|c| c.instance_id}
-
-          = select_tag "move_copy_to_select", options_from_collection_for_select(campaigns, "id", "path"), :multiple => true
-          .small= "existing craft with the same name in the #{@craft.craft_type} of the selected campaign(s) will get replaced"
-          .small= "(but don't worry, you're using GIT, you can always revert them!)"
-          = f.submit "Move", :id => :move_submit, :class => "submit_button"
-          = f.submit "Copy", :id => :copy_submit, :class => "submit_button"
-
-      #delete_craft_dialog.hidden
-        %h3= "Delete craft!?!"
-        %h4= "That bad huh? How many died!?"
-        = "Ok, well if you really want to delete this craft and try to block out the memories of all those poor Kerbals you killed building this, I will <b>delete the craft file!!</b> ".html_safe
-        .small= "But this is git; once tracked, never forgotten.  You can always recover this craft later."
-        .small= "(fyi, this also applies to craft that you delete in game or via your OS)"
-
-
-        = link_to 'Destroy', craft_path(@craft), :method => :delete, :class => 'submit_button', :id => :delete_submit
-
+      
 
       -if @parts.stock?
         %h4= "#{@craft.name} is 100% Stock"
@@ -77,25 +55,14 @@
         .vblk_1
         .clear
 
-      %h3 Version History
       #history_list
+        %h3 Version History
         Loading craft History
         .ajax_loader
 
     :javascript
-      $(function(){
-        poll_craft_version()
-        $('.part').on("mouseover", function(){
-          $('.details').hide();
-          $('.part').removeClass("selected_part")
-          $(this).find(".details").show();
-          $(this).addClass("selected_part")
-        });
-        $('.parts_list').on("mouseout", function(){
-          $('.details').hide();
-          $('.part').removeClass("selected_part")
-        });
-      });
+      $(function(){craft_show_actions()});
+                 
 
   -else
     .grid_6.push_3

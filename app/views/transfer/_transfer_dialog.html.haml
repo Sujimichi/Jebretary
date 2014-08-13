@@ -1,0 +1,48 @@
+//craft can be either a Craft or Subassebly object
+#move_copy_dialog.hidden
+  - a_craft = craft.is_a?(Craft)
+  - sync_targets ||= []
+  = form_for(craft, :url => transfer_path(craft, :subassembly => (not a_craft))) do |f|
+    = hidden_field_tag :move_copy, true
+    = hidden_field_tag :selected_campaigns
+    .info= "Select another campaign(s) to move, copy or sync #{craft.name} to"
+    - if sync_targets.blank?
+      .small.info= "The sync option allows you to have a craft that is maintained across multiple campaigns.  If you change it in one campaign it will automatically be changed in the other selected campaigns."
+    - else
+      .small
+        - sync_count = sync_targets.size
+        .info= "#{craft.name} is currently sync'd with #{sync_count} campaign#{sync_count.eql?(1) ? '' : 's'} (highlighted blue below)."
+        .info= "You can un-sync by unselecting #{sync_count.eql?(1) ? 'it' : 'them'} or select more campaigns to sync to, then hit 'sync' to update."
+        =link_to_function "how do I move/copy a sync'd craft?", "$('.move_copy_syncd_help').toggle('fast')"
+        .move_copy_syncd_help.hidden
+          .info= "If you want to move/copy it (without effecting its sync settings) just select the campaign you want to move/copy to. You can just ignore the campaigns that are highted as sync-targets, I won't try to move/copy to a campaign that its already sync'd with."
+          .info= "If you copy a craft to another campaign (that it isn't already sync'd with) the copied craft will NOT be sync'd with the others.  If you move the craft I wil update it's sync settings so it will continue to sync with the currently selected campaign#{sync_count.eql?(1) ? '' : 's'}"
+              
+    #campaign_selector
+      - instances.each do |instance| 
+        .instance
+          %h3{:title => File.split(instance.path).first}= File.split(instance.path).last
+          .clear
+          - instance.campaigns.each do |campaign|
+            - klass = ""
+            - klass << (campaign.eql?(craft.campaign) ? " dont-select" : "")
+            - klass << (sync_targets.include?(campaign) ? " selected_campaign selected_sync" : "")
+            .campaign_holder{"data-campaign_id" => campaign.id, :class => klass}
+              .campaign
+                = campaign.name
+                .mini-flag
+                  = image_tag("/flag_for_campaign_#{campaign.id}.png")
+              
+    
+    - if a_craft
+      .small= "existing craft with the same name in the #{craft.craft_type} of the selected campaign(s) will get replaced" 
+    - else
+      .small= "existing subassemblies with the same name in the selected campaign(s) will get replaced" 
+    
+    .small= "(but don't worry, you're using GIT, you can always revert them!)"
+    .hidden
+      = f.submit "Move", :id => :move_submit, :class => "submit_button"
+      = f.submit "Copy", :id => :copy_submit, :class => "submit_button"
+      = f.submit "Sync", :id => :sync_submit, :class => "submit_button"
+
+  =# javascript_tag "ajaxify_form('#edit_craft_#{craft.id}')"    
