@@ -2,7 +2,17 @@
   #new_version_dialog
     -if release
       %h2 A shiny new version of Jebretary is out!!
-      %h4= "Version #{@remote_version} is now available"
+      .left
+        %h4= "Version #{@remote_version} is now available"
+      - if @changes
+        .left= link_to_function "see change log", "$('.change_log').toggle('fast')"
+        .clear
+        .change_log.hidden
+          .small
+            - @changes.last.split("    ").each do |change|
+              .info{:class => change.include?("  -") ? 'with_margin' : ''}= change
+              
+      .clear      
       .centered
         -if download_url 
           %h1= link_to "Download it from GitHub", download_url 

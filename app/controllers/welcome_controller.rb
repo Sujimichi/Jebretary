@@ -67,6 +67,11 @@ class WelcomeController < ApplicationController
         if @release && @release.has_key?("assets") && !@release["assets"].blank?
           @download_url = @release["assets"].first["browser_download_url"]
         end
+        begin
+          @changes = (Remote.change_log :from => @release["tag_name"]).first
+        rescue
+          @changes = nil
+        end
       }
     end
   end

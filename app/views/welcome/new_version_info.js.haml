@@ -1,6 +1,6 @@
 $('#new_verison_info').remove()
 
-$("#help_holder").html("#{j render :partial => 'partials/new_version_info', :locals => {:release => @release, :download_url => @download_url} }");
+$("#help_holder").html("#{j render :partial => 'partials/new_version_info', :locals => {:release => @release, :download_url => @download_url, :changes => @changes} }");
 
 $('#new_version_dialog').dialog({ height: 'auto', width: 'auto', position: ["center", 150]})
 reset_action_links()
