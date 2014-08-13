@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   include Exceptional
-  before_filter :check_error_log
+  before_filter :check_error_log, :version_info
   after_filter :record_last_controller
 
   protect_from_forgery
@@ -39,7 +39,12 @@ class ApplicationController < ActionController::Base
         @logged_errors = true
       end
     end
-    
+  end
+
+  def version_info
+    @version = Jebretary::VERSION
+    @remote_version = Jebretary::Application.config.remote_version 
+    @update_available = @version != @remote_version
   end
 
   def record_last_controller

@@ -14,6 +14,7 @@ Jebretary::Application.routes.draw do
   resources :saves  
   resources :crafts
   resources :instances
+  match "new_version_info" => "welcome#new_version_info"
 
   #match 'campaigns/:id/saves' => 'saves#index'
 

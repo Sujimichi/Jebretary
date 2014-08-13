@@ -13,7 +13,9 @@
         Jebretary
     .title_bar
       = content_for :title_bar
-
+    - if @update_available
+      .update_available{:title => "version #{@remote_version} is out! click for more info"}
+        .action_link= link_to "New Version Available", new_version_info_path, :remote => true
   %body
     #help_holder
     #content
@@ -39,8 +41,8 @@
         - address = Socket.ip_address_list[1].ip_address
         - port = request.port
         = "available on #{address}:#{port} on your local network"
-  .right
-    %p Katateochi
+  .author
+    %p by Katateochi
   .clear
   #error_content
   

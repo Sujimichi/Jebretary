@@ -1,9 +1,8 @@
 class WelcomeController < ApplicationController
   require 'assets/version'
+
   def index
-    @version = Jebretary::VERSION
-    @instances = Instance.all
-    
+    @instances = Instance.all   
     @config = System.new.get_config
     @config["show_error_report"] = true if @config["show_error_report"].nil?
   end
@@ -59,5 +58,16 @@ class WelcomeController < ApplicationController
       notice = "Updating Part DBs on load is now #{params[:update_parts_db_on_load].eql?("true") ? 'On' : 'Off'}"
     end
     redirect_to :root, :notice => notice
+  end
+
+  def new_version_info
+    respond_to do |f| 
+      f.js{
+        @release = Remote.releases(:pre => false).first
+        if @release && @release.has_key?("assets") && !@release["assets"].blank?
+          @download_url = @release["assets"].first["browser_download_url"]
+        end
+      }
+    end
   end
 end

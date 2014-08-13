@@ -1,34 +1,28 @@
 class Remote
 
 
- def self.version v_type = :stable
-    begin
-      response = Remote.get_data("https://raw.githubusercontent.com/Sujimichi/Jebretary/master/lib/assets/version.rb")
-      
-      if response
-        data = response.split("\n")
-        version_line = data.select{|d| 
-          d.include?({:edge => "VERSION", :stable => "RELEASE_VERSION"}[v_type])
-        }.first
-
-        raise "could not read version line" if version_line.nil?
-        remote_version = version_line.split("\"").last
-
-        if v_type == :stable
-          release_url_line = data.select{|d| 
-            d.include?("RELEASE_URL")
-          }.first
-          raise "could not read release url" if release_url_line.nil?
-          release_url = release_url_line.split("\"").last
-        end
-      end
-    rescue
-      remote_version = "unknown"
+  def self.version args = {:pre => false}
+    releases = Remote.releases args
+    unless releases.empty?
+      current_release = releases.first
+      current_release["tag_name"]
+    else
+      nil
     end
-    data = {:version => remote_version}
-    data[:url] = release_url if release_url
-    data
   end
+
+
+  def self.releases args = {:pre => false}
+    response = Remote.get_data("https://api.github.com/repos/Sujimichi/Jebretary/releases")
+
+    begin
+      releases = JSON.parse(response)
+      releases.select{|release| not release["prerelease"]} unless args[:pre]
+    rescue
+      return []
+    end
+  end
+
 
   def self.change_log args = {}
     begin
@@ -49,7 +43,7 @@ class Remote
       versions = log.map{|l| l.first}
       index = versions.index(args[:from])
       index = 5 if index.nil?
-      
+
       log = log[0..index]
     end
     log
@@ -62,10 +56,9 @@ class Remote
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       response = http.get(uri.request_uri)
-      data = response.body
+      response.body
     rescue
-      data = nil
+      return nil
     end
-    data
   end
 end

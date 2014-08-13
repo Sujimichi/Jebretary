@@ -3,7 +3,18 @@ $(function(){
   autohide_flash();
   check_error_log();
   check_part_update_required();
+  $('.action_link').on("click", function(){
+    var cur_html = $(this).html()
+    $(this).data("cur_html", cur_html)
+    $(this).html("<div class='small_ajax_loader'></div>")
+  });
 });
+
+function reset_action_links(){
+  $('.action_link').each(function(){
+    $(this).html($(this).data("cur_html"));
+  });
+};
 
 var detect_running_ksp_timer = null
 var setup_timer = null

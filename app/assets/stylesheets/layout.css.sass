@@ -116,6 +116,14 @@ a
   @extend .plain_links
 
 
+  .update_available  
+    :position absolute
+    :top 0.5em
+    :right 2em
+    :color $site_high_tone
+    @extend .pale_links
+
+
   .main_site_title
     @extend .heading
     :color $site_high_tone
@@ -148,18 +156,17 @@ a
   +clearfix
   @extend .default_shadow
 
-  &:hover
-    .title_bar
-      :background-color lighten($color_header, 45)
-      .inactive_install
-        .launch_links
-          :border 1px solid green
-
-      .active_install
-        .launch_links
-          :border 1px solid red      
   
 .title_bar
+  &:hover
+    :background-color lighten($color_header, 45)
+    .inactive_install
+      .launch_links
+        :border 1px solid green
+
+    .active_install
+      .launch_links
+        :border 1px solid red      
   :margin 0 auto
   :width 25%
   :margin-top 0.5em
@@ -177,7 +184,7 @@ a
 
   .launch_links
     +rounded
-  
+
   
 #content
   :position relative
@@ -219,6 +226,10 @@ a
     :margin-top 1em
     :color $site_white
 
+
+.author
+  :float right
+  :padding-right 1em
 
 .side_divide
   :border-right 1px solid black
@@ -416,6 +427,16 @@ a
     :color transparent
     :image url(ajax-loader.gif)
     :repeat no-repeat
+
+.small_ajax_loader
+  :margin-left  auto
+  :margin-right auto
+  :width 16px
+  :height 16px
+  :background
+    :color transparent
+    :image url(ajax-loader_small.gif)
+    :repeat no-repeat 
 
 .building_icon
   img
