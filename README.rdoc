@@ -57,7 +57,10 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 ==Version History
   == 0.4.0
     - New Feature - Craft Synchronizing
-      - you can set certin craft to be sync'd between specific campaigns.  This means that changes to the craft made in 1 campaign will automatically be mirrored to the other campaigns it is in.
+      - you can set certin craft and subassemblies to be sync'd between specific campaigns.  This means that changes made to the craft/sub in 1 campaign will automatically be mirrored to the other campaigns it is sync'd with.
+      - new copy/move interface (which now also controls sync options)
+      - the copy/move/sync and the delete dialogs can now be accessed from the list of craft in each campaign as well as on each crafts' page.
+    - Choose which mode x64 or x32 to launch each instance (assuming both exe's are present as in the steam version).
 
   == 0.3.4
     - bug fixes

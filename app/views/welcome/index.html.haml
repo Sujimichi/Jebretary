@@ -29,15 +29,14 @@
 
         .clear
         .vblk_2
+
+        = link_to "Manage Instances", instances_path
+        |
+        = link_to "Manage Campaigns", campaigns_path
         .small
-          %h4 Remove (untrack) Instances (installs) or Campaigns
-          = link_to "Manage Instances", instances_path
-          |
-          = link_to "Manage Campaigns", campaigns_path
-          .small
-            .info If you are no longer using a particular instance of KSP it is a good idea to stop tracking it by removing it
-            .info Removing an instance will not effect the files in KSP or the version history, you can always re-add it to pick up where you left off
-            .info Removing a campaign is only needed if the actual campaign has been deleted from KSP. If you remove an existing campaign it will be recreated
+          .small.info If you are no longer using a particular instance of KSP it is a good idea to stop tracking it by removing it
+          .small.info Removing an instance will not effect the files in KSP or the version history, you can always re-add it to pick up where you left off
+          .small.info Removing a campaign is only needed if the actual campaign has been deleted from KSP. If you remove an existing campaign it will be recreated
     .clear
     - if @instances.empty?
       .vblk_1
@@ -123,13 +122,13 @@
 
         .grid_10.alpha
           %h4 Update Part DBs when Jebretary starts
-          .info.small When On Jebretary will refresh its map of what parts you have installed in each KSP install.
+          .info.small When On the map of what parts you have installed in each KSP install will be refreshed each time Jebretary is started.
           .info.small This allows Jebretary to know when you change your mods and recheck craft for missing parts
           .info.small If you have lots of parts, or a slow disk, this can take a while.  If you are not going to change your installed parts you can switch it off, 
-          .info.small Just remember to tell Jebretary to re-scan your craft if you do update your mods.
+          .info.small Just remember to tell Jebretary to re-scan your craft if you do update your mods. (via the link on each instances page)
           
 
-          = "Updating part DBs on start is: #{@config["update_parts_db_on_load"] ? 'ON' : 'OFF'}"
+          = "Updating part DBs at start is: #{@config["update_parts_db_on_load"] ? 'ON' : 'OFF'}"
           = button_to "switch #{@config["update_parts_db_on_load"] ? 'Off' : 'On'}", :controller => :welcome, :action => :update, :method => :put, :update_parts_db_on_load => !@config["update_parts_db_on_load"] 
           
 
