@@ -119,10 +119,6 @@
   - craft_for_list.each do |type, crafts|
     %div{:id => "content_for_#{type}_list"}
       - unless crafts.blank?
-        - sort_by = sort_opts[type]
-        - reverse_order = sort_by.include?('reverse')
-        - crafts = crafts.sort_by{|c| c.send(sort_by.sub("reverse", "").strip)}
-        - crafts.reverse! if reverse_order
         - crafts.each do |craft|
           -# next if craft.eql?(current_project)
           - part_data = craft.part_data

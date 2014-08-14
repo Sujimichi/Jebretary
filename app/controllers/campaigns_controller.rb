@@ -39,25 +39,29 @@ class CampaignsController < ApplicationController
             @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
             @deleted_craft_count = [@campaign.craft.where(:deleted => true), @campaign.subassemblies.where(:deleted => true)].flatten.count
 
-            all_craft = @campaign.craft.group_by{|g| g.craft_type}
+            
+            
+            params[:sort_opts][:vab] ||= "updated_at reverse"
+            params[:sort_opts][:sph] ||= "updated_at reverse"
+            sort_opts = params[:sort_opts]
+            
             @craft_for_list = {}
             [:vab, :sph].each do |type|
+              sort_by = sort_opts[type].sub("reverse", "").strip
+              reverse_order = sort_opts[type].include?('reverse')
+
               unless params[:search_opts][type].empty?
-                @craft_for_list[type] = all_craft[type.to_s].select{|craft| craft.name.downcase.include?(params[:search_opts][type].downcase)}
+                @craft_for_list[type] = @campaign.craft.where(:craft_type => type.to_s).where("LOWER(name) LIKE :query", {:query => "%#{params[:search_opts][type].downcase}%"}).order(sort_by)
               else
-                @craft_for_list[type] = all_craft[type.to_s]
+                @craft_for_list[type] = @campaign.craft.where(:craft_type => type.to_s).order(sort_by)
               end
+              @craft_for_list[type].reverse! if reverse_order
             end
 
             @subassemblies = @campaign.subassemblies.order(:name)
 
-            params[:sort_opts][:vab] ||= "updated_at reverse"
-            params[:sort_opts][:sph] ||= "updated_at reverse"
-            @sort_opts = params[:sort_opts]
-
             @campaign.update_attributes(:sort_options => params[:sort_opts].to_json) unless @campaign.sort_options.eql?(params[:sort_opts].to_json)           
             @current_project_commit_messages = @current_project.commit_messages if @current_project
-
             
           else
             return render :partial => "no_update"

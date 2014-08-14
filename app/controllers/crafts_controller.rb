@@ -133,7 +133,6 @@ class CraftsController < ApplicationController
   def destroy
     @craft = Craft.find(params[:id])
     notice = @craft.delete_file
-    cache_reset
     redirect_to @craft.campaign, :notice => notice
   end
 end

@@ -61,7 +61,6 @@ class SubassembliesController < ApplicationController
   def destroy
     @subassembly = Subassembly.find(params[:id])
     notice = @subassembly.delete_file
-    cache_reset
     redirect_to @subassembly.campaign, :notice => notice
   end
 
