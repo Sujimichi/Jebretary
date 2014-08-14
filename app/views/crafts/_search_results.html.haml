@@ -2,15 +2,16 @@
 - subs ||= nil
 
 - unless craft.nil? && subs.nil?
-  - if craft.empty? && subs.empty?
+  - if craft.empty? && subs.blank?
     Nah, nadda.
     
   - else
-    - results = [craft, subs].flatten.compact.sort_by{|r| r.name}
-    -if craft.blank? && !subs.blank?
-      = "#{results.count} subassembl#{results.count.eql?(1) ? 'y' : 'ies'} found"
-    -else
-      = "#{results.count} #{subs.blank? ? 'craft' : 'craft and subassembles'} found"
+    .result_count.hidden
+      - results = [craft, subs].flatten.compact.sort_by{|r| r.name}
+      -if craft.blank? && !subs.blank?
+        = "#{results.count} subassembl#{results.count.eql?(1) ? 'y' : 'ies'} found"
+      -else
+        = "#{results.count} #{subs.blank? ? 'craft' : 'craft and subassembles'} found"
 
     - results.each do |c|
       .craft_result

@@ -1,1 +1,6 @@
 $('#search_results').html("#{j render :partial => 'crafts/search_results', :locals => {:craft => @craft, :subs => @subs}}");
+$('#result_count').html($('.result_count').html());
+
+var h = $('#content').height() - 100
+if(h > 600){h = 600}
+$('#search_results').css("maxHeight", h);

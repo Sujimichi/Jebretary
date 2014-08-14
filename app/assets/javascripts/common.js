@@ -85,6 +85,7 @@ function show_search(force_hide){
     $('#global_search').focus();
     var e = $('#search_box')
     $(e).animate({top: -10 }, 500)
+    
   }else{
     $('#search_box').data("state", "closed");
     var e = $('#search_box')
