@@ -7,10 +7,9 @@
     - @instances.each do |instance|
       .instance
         .left
-          %h3= instance.path
+          %h3= link_to instance.path, instance_path(instance)
         .right
-          = link_to "Show", instance_path(instance)
-          = link_to 'Destroy', instance, :method => :delete, :data => { :confirm => 'This will remove the reference to this install of KSP and all campaign and craft data.  (It will not effect your actual KSP install).  Are you sure you want to delete this?' }
+          = link_to 'Stop Tracking', instance, :method => :delete, :data => { :confirm => 'This will remove the reference to this install of KSP and all campaign and craft data.  (It will not effect your actual KSP install).  Are you sure you want to delete this?' }
         .clear
         - cur_mode = instance.use_x64_exe? ? "64" : "32"
         - alt_mode = {"64" => "32", "32" => "64"}
