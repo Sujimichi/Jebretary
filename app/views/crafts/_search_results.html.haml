@@ -1,0 +1,26 @@
+
+- unless craft.nil?
+  - if craft.empty?
+    Nah, nadda.
+    
+  - else
+    = "ooo, I found #{craft.count} of 'em"
+    - craft.each do |c|
+      .craft_result
+        .lhs
+          .name
+            =link_to c.name, craft_path(c), :title => "goto craft page"
+          -if c.deleted?
+            .del_inf= "deleted"
+          
+        .location
+          .right
+            in 
+            = link_to c.campaign.name, campaign_path(c.campaign), :title => "goto campaign page"
+          .clear
+          .path= c.campaign.instance.path
+
+-else
+  Type something, silly
+  .small= "If you really want me to list ALL of your craft, enter either *.* or *all"
+        

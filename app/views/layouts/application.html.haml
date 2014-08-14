@@ -11,15 +11,29 @@
     %a{:href => root_url}
       %h1{:class => 'main_site_title'}
         Jebretary
-    .title_bar
-      = content_for :title_bar
+
     - if @update_available
       .update_available{:title => "version #{@remote_version} is out! click for more info"}
         .action_link= link_to "New Version Available", new_version_info_path, :remote => true
+        .loader_icon.hidden
+          .small_ajax_loader
+
+    .title_bar
+      = content_for :title_bar
+    
+    .header_rhs
+
   %body
     #help_holder
     #dialog_holder
     #content
+      #search_box
+        .search_form
+          = text_field_tag :global_search
+          = link_to_function "search", "craft_search()"
+        #search_results
+
+
       #flash
         -unless notice.blank?
           #notice= notice
@@ -27,12 +41,19 @@
           #alert= alert
 
       .clamp_holder
+        #search_container
+          
+          .spacer
+          .search
+            = link_to_function "Search", "show_search()"
+
         .lhs_clamp
         .rhs_clamp
         .lhs_clamp_body
         .rhs_clamp_body
       =yield
   .clear
+  
   #footer
     .left_image
     .right_image

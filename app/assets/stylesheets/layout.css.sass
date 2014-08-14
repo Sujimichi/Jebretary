@@ -113,18 +113,9 @@ a
   :position relative
   :background-color $color_header
   :overflow show
-  :height 2.4em
-  :max-height 2.4em
+  :height 2.5em
+  :max-height 2.5em
   @extend .plain_links
-
-
-  .update_available  
-    :position absolute
-    :top 0.5em
-    :right 2em
-    :color $site_high_tone
-    @extend .pale_links
-
 
   .main_site_title
     @extend .heading
@@ -133,7 +124,6 @@ a
     :float left
     :padding
       :left 0.3em
-      :top 0.1em
 
   .description
     @extend .heading
@@ -146,18 +136,30 @@ a
 
   .header_rhs
     :position absolute
-    :top 0.2em
+    :top 0.4em
     :right 0.5em
     :z-index 2000
     :color $site_white
+    :font-size 120%
     @extend .pale_links
-    .username
-      :float right
-    .links
-      :padding-top 0.3em
   +clearfix
-  @extend .default_shadow
 
+
+  .update_available  
+    :float left
+    :color $site_high_tone
+    :margin-left 0.5em
+    :padding-top 0.6em
+    :color $site_white
+    :font-size 120%
+    @extend .pale_links
+
+
+
+
+    
+.change_log
+  :max-width 800px
   
 .title_bar
   &:hover
@@ -306,6 +308,94 @@ a
   :background
     :color transparent
     :image url(girder_section.gif)
+
+
+
+#search_container
+  :z-index 2000
+  @extend .clamp
+  :right 0em
+  :top 0em
+  :width 3em
+  :height 6em
+  :background
+    :color $site_high_tone
+    :image url(diagonals-small.png)
+    :repeat repeat-x repeat-y
+    
+  +rounded(0px 16px 16px 0px)
+  
+  .spacer
+    :width 0.8em
+    :height 2.2em
+    +rounded(0px 0px 16px 0px)
+  .spacer-color
+    :background-color $site_low_tone
+  
+  .search
+    :cursor pointer
+    :font
+      :size 120%
+      :weight bold
+    :margin-top -1.2em
+    :padding 0.4em
+    +rotate(90)
+
+#search_box
+  :position absolute
+  :z-index 100
+  :left 25%
+  :top -10em
+  :width 50%
+  :border 3px solid $color_header
+  +rounded(0px 0px 16px 16px)
+  +cast_shadow(0px 2px 30px 5px grey)
+  :background
+    :color $site_high_tone
+    :image url(diagonals-small.png)
+    :repeat repeat-x repeat-y
+  
+  .search_form
+    input[type="text"]
+      :font-size 100%
+
+    :font-size 150%
+    :margin 0 auto
+    :width 70%
+    :margin 
+      :top 1em
+      :bottom 1em
+    :text-align center
+    :vertical-align middle
+  #search_results
+    :overflow-y auto
+    :max-height 20em
+     
+    :vertical-align middle
+    :margin 1em
+    :padding 1em
+    .craft_result
+      :border-bottom 1px solid transparent
+      &:hover
+        :border-bottom 1px solid grey
+        
+      :font-size 120%
+      :margin-bottom 0.2em
+      .lhs
+        :float left
+        .name
+          :font-size 110%
+        .del_inf
+          :color red
+          :font-size 60%
+          
+      .location
+        :float right
+      .path
+        :font-size 60%
+      +clearfix
+      
+  
 
 
 #welcome, #standard_page, #instance_page, #campaigns_page, #craft_page, #craft_edit, #new_instance_page, #campaign_save_index, #subassembly_page
@@ -817,6 +907,7 @@ a
 #nav-box
   :position absolute
   :padding 0.5em
+  :padding-left 0.9em
   :right 0em
   :top 0em
   :background-color $site_low_tone

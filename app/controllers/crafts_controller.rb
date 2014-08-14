@@ -3,15 +3,19 @@ class CraftsController < ApplicationController
   respond_to :html, :js
 
   def index
-    if params.include?(:campaign_id)
-      campaign = Campaign.find(params[:campaign_id])
-      @craft = campaign.craft
-    else 
-      @craft = Craft.all
-    end
+    #raise params.inspect
     respond_with(@craft) do |f|      
-      f.js { }
-      f.html { }
+      f.js { 
+        unless params[:search_for].empty?
+          if params[:search_for].eql?("*.*") || params[:search_for].eql?("*all")
+            @craft = Craft.all
+          else
+            @craft = Craft.where("LOWER(name) LIKE :query", {:query => "%#{params[:search_for].downcase}%"}) 
+          end
+        else
+          @craft = nil
+        end
+      }
     end    
   end
 

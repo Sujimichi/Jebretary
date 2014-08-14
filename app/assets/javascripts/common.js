@@ -7,8 +7,14 @@ $(function(){
   $('.action_link').on("click", function(){
     var cur_html = $(this).html()
     $(this).data("cur_html", cur_html)
-    $(this).html("<div class='small_ajax_loader'></div>")
+    $(this).html($('.loader_icon').html())
   });
+  if( $('#nav-box').html() != undefined  ){
+    $('#search_container').find('.spacer').addClass('spacer-color');
+  };
+  $('#global_search').on("keyup", function(){
+    craft_search()
+  })
 });
 
 function reset_action_links(){
@@ -53,6 +59,13 @@ function ajax_send(url, data, callback, type){
   $.ajax({ url: url, data: data, type: type, success: callback, error: wrapped_error, dataType: 'script' });
 };
 
+
+function craft_search(){
+  var name = $('#global_search').val()
+  ajax_get("/crafts", {search_for: name}, function(){
+    $('#global_search').focus()
+  })
+};
 
 autohide_flash = function(){
   setTimeout(function(){
@@ -481,6 +494,26 @@ function get_selected_campaigns(){
   });
   $("#selected_campaigns").val(JSON.stringify(selected));
 };
+
+
+
+function show_search(){
+  var state = $('#search_box').data("state");
+  
+  if(state == undefined || state == "closed"){
+    $('#search_box').data("state", "open");
+    $('#global_search').val("");
+    $('#global_search').focus();
+    var e = $('#search_box')
+    $(e).animate({top: -10 }, 500)
+  }else{
+    $('#search_box').data("state", "closed");
+    var e = $('#search_box')
+    var t = $(e).height() + 100
+    $(e).animate({top: -t }, 500)
+  };
+};
+
 
 
 function ajaxify_form(form_id){
