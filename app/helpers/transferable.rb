@@ -106,7 +106,7 @@ module Transferable
         :copy => true, :replace => true,                
         :m => self.history(:limit => 1).first.message   #move_to will commit the updated craft, using the lastest commit message for this craft
       )                                                                                       
-      cpy.sync = {:with => [self.sync[:with], self.campaign_id].flatten}  #update the sync_list on the remote craft
+      cpy.sync = {:with => [self.sync[:with], self.campaign_id].flatten.uniq}  #update the sync_list on the remote craft
       cpy.save if cpy.changed?
     end
   end

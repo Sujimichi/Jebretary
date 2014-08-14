@@ -60,8 +60,8 @@ class SubassembliesController < ApplicationController
 
   def destroy
     @subassembly = Subassembly.find(params[:id])
-    @subassembly.delete_file
-    redirect_to @subassembly.campaign, :notice => "#{@subassembly.name} has been deleted"
+    notice = @subassembly.delete_file
+    redirect_to @subassembly.campaign, :notice => notice
   end
 
 end

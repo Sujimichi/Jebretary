@@ -540,6 +540,46 @@ describe Craft do
         sync_target_craft.reload.sync[:with].should == [@campaign_2.id, @campaign_3.id]
       end
 
+
+      describe "removing and deleting a sync target" do 
+        before(:each) do 
+          @craft.sync_with @campaign_3
+          @craft.synchronize
+
+          @craft2 = @campaign_2.craft.where(:name => @craft.name).first
+          @craft3 = @campaign_3.craft.where(:name => @craft.name).first
+        end
+
+        it 'should remove sync target from all involved craft' do 
+          Set[@campaign_2.id, @campaign_3.id].subset?(Set.new(@craft.sync[:with])).should be_true
+          Set[@campaign_1.id, @campaign_3.id].subset?(Set.new(@craft2.sync[:with])).should be_true
+          Set[@campaign_2.id, @campaign_1.id].subset?(Set.new(@craft3.sync[:with])).should be_true
+
+          @craft.sync = {:with => [@campaign_2.id]} #remove campaign_3 from the sync
+          @craft.synchronize
+
+          @craft.reload.sync[:with].should_not be_include(@campaign_3.id)
+          @craft2.reload.sync[:with].should_not be_include(@campaign_3.id)
+
+          @craft3.reload.sync[:with].should_not be_empty
+        end
+
+        it "should remove a deleted craft from the other sync'd craft" do
+          @craft2.delete_file
+          @craft2.should be_deleted
+          @craft2.sync[:with].should be_empty
+
+          @craft.reload.sync[:with].should_not be_include(@campaign_2.id)
+          @craft3.reload.sync[:with].should_not be_include(@campaign_2.id)
+
+          @craft.reload.sync[:with].should be_include(@campaign_3.id)
+          @craft3.reload.sync[:with].should be_include(@campaign_1.id)
+
+        end
+
+      end
+
+
     end
 
   end

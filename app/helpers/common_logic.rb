@@ -33,8 +33,23 @@ module CommonLogic
   def delete_file
     return unless File.exists?(self.file_path) && !self.deleted?
     File.delete(self.file_path)
-    self.deleted = true
+
+    message = "#{self.name} has been deleted"
+    
+    #remove reference to this object in the other objects it is sync'd with
+    unless self.sync[:with].blank?
+      objects = self.class.where(:name => self.name, :campaign_id => self.sync_targets)
+      objects.each do |obj|
+        obj.sync = {:with => obj.sync[:with].select{|id| id != self.campaign_id} }
+        obj.save
+      end
+      self.sync = {:with => []} # remove all sync ids from this object
+      message << " and the #{self.class.to_s.downcase} it was sync'd with no longer reference it"
+    end
+
+    self.deleted = true   
     self.commit :dont_sync => true
+    message
   end
 
 
