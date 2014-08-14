@@ -61,6 +61,10 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
       - new copy/move interface (which now also controls sync options)
       - the copy/move/sync and the delete dialogs can now be accessed from the list of craft in each campaign as well as on each crafts' page.
     - Choose which mode x64 or x32 to launch each instance (assuming both exe's are present as in the steam version).
+    - bug fixes
+      - deleting or moving an install no longer causes the background monitor to crash.
+      - the deleted craft was not being shown when only subassembles had been deleted, fixed
+      
 
   == 0.3.4
     - bug fixes
