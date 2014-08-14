@@ -31,6 +31,11 @@
         .search_form
           = text_field_tag :global_search
           = link_to_function "search", "craft_search()"
+          .right
+            .small
+              = label_tag "include_subassemblies", "include Subassmeblies"
+              = check_box_tag :include_subassemblies, false
+        .clear
         #search_results
 
 

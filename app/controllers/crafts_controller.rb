@@ -9,8 +9,10 @@ class CraftsController < ApplicationController
         unless params[:search_for].empty?
           if params[:search_for].eql?("*.*") || params[:search_for].eql?("*all")
             @craft = Craft.all
+            @subs = Subassembly.all if params[:include_subs]
           else
             @craft = Craft.where("LOWER(name) LIKE :query", {:query => "%#{params[:search_for].downcase}%"}) 
+            @subs = Subassembly.where("LOWER(name) LIKE :query", {:query => "%#{params[:search_for].downcase}%"}) if params[:include_subs]
           end
         else
           @craft = nil

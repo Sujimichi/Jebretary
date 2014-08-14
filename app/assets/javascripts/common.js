@@ -15,6 +15,14 @@ $(function(){
   $('#global_search').on("keyup", function(){
     craft_search()
   })
+  $('#include_subassemblies').click(function(){craft_search()});
+  
+  
+  $(document).mouseup(function (e){
+    var container = $("#search_box");
+    var search_link = $('#search_container');
+    if (!container.is(e.target) && container.has(e.target).length === 0 && !search_link.is(e.target) && search_link.has(e.target).length === 0){show_search('hide')};
+  });  
 });
 
 function reset_action_links(){
@@ -60,9 +68,39 @@ function ajax_send(url, data, callback, type){
 };
 
 
+
+function show_search(force_hide){
+  var state = $('#search_box').data("state");
+
+  if(state == undefined || state == "closed"){
+    var action = "open"
+  }else{
+    var action = "close"
+  };
+  if(force_hide == "hide"){action = "close"}
+  
+  if(action == "open"){
+    $('#search_box').data("state", "open");
+    $('#global_search').val("");
+    $('#global_search').focus();
+    var e = $('#search_box')
+    $(e).animate({top: -10 }, 500)
+  }else{
+    $('#search_box').data("state", "closed");
+    var e = $('#search_box')
+    var t = $(e).height() + 100
+    $(e).animate({top: -t }, 500)
+  };
+};
+
+
 function craft_search(){
-  var name = $('#global_search').val()
-  ajax_get("/crafts", {search_for: name}, function(){
+  var data = {search_for: $('#global_search').val()};
+  if( $('#include_subassemblies').prop('checked')){
+    data['include_subs'] = true
+  }
+  
+  ajax_get("/crafts", data, function(){
     $('#global_search').focus()
   })
 };
@@ -190,7 +228,6 @@ function set_campaign_page_bindings(){
   $(document).mouseup(function (e){
     var container = $("#subassemblies_container");
     var delete_link = $('.show_del_link_container');
-    
     if (!container.is(e.target) && container.has(e.target).length === 0 && !delete_link.is(e.target) && delete_link.has(e.target).length === 0){toggle_subassembly_list('hide')};
   });
 };
@@ -493,25 +530,6 @@ function get_selected_campaigns(){
     if( $(this).hasClass("selected_campaign") ){ selected.push( $(this).data("campaign_id") ) };
   });
   $("#selected_campaigns").val(JSON.stringify(selected));
-};
-
-
-
-function show_search(){
-  var state = $('#search_box').data("state");
-  
-  if(state == undefined || state == "closed"){
-    $('#search_box').data("state", "open");
-    $('#global_search').val("");
-    $('#global_search').focus();
-    var e = $('#search_box')
-    $(e).animate({top: -10 }, 500)
-  }else{
-    $('#search_box').data("state", "closed");
-    var e = $('#search_box')
-    var t = $(e).height() + 100
-    $(e).animate({top: -t }, 500)
-  };
 };
 
 

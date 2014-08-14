@@ -1,11 +1,18 @@
+- craft ||= nil
+- subs ||= nil
 
-- unless craft.nil?
-  - if craft.empty?
+- unless craft.nil? && subs.nil?
+  - if craft.empty? && subs.empty?
     Nah, nadda.
     
   - else
-    = "ooo, I found #{craft.count} of 'em"
-    - craft.each do |c|
+    - results = [craft, subs].flatten.compact.sort_by{|r| r.name}
+    -if craft.blank? && !subs.blank?
+      = "#{results.count} subassembl#{results.count.eql?(1) ? 'y' : 'ies'} found"
+    -else
+      = "#{results.count} #{subs.blank? ? 'craft' : 'craft and subassembles'} found"
+
+    - results.each do |c|
       .craft_result
         .lhs
           .name
@@ -15,7 +22,11 @@
           
         .location
           .right
-            in 
+            -if !craft.blank? && subs.blank?
+              in  
+            -else
+              = "#{c.class.to_s.downcase} in"
+              
             = link_to c.campaign.name, campaign_path(c.campaign), :title => "goto campaign page"
           .clear
           .path= c.campaign.instance.path
