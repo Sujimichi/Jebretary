@@ -1,14 +1,17 @@
 =Jebretary
 version 0.4.0
 
-Jebretary is a stand alone tool for the Kerbal Space Program.  It uses the git version control system to track changes to your craft and save files.
+Jebretary is a stand alone tool for the Kerbal Space Program.  It uses the git version control system to track changes to your craft, subassembly and save files.
 It runs as a web server (written in Ruby on Rails) on your KSP machine so you can interface with it from any web enabled device on your network.
 Jebretary is designed to run on windows and comes packaged in an installer that contains everything that is required except git. git needs to be installed separately.
 
 
-- Each time you launch a craft that you've made changes to, Jebretary will track the changes as a new version.  You can revert a craft back to any past version just by clicking on the version you want.
-- It tracks every single quicksave and autosave and enables you to load any past save.
+- Each time you launch a craft that you've made changes to, Jebretary will track the changes as a new version.
+- Subassemblies are tracked each time they are changed.
+- Every quicksave and autosave is tracked.
+- You can revert a craft/subassembly/save back to any past version by clicking on the version you want.
 - autosaves can also be loaded as quicksaves so they can be loaded in game by pressing f9.
+- Craft and Subassemblies can be set to sync between selected campaigns, changes in one campaign will be mirrored to the selected campaigns.
 
 
 ====Install git and then install Jebretary
@@ -28,8 +31,6 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 ==Planned/Todo
 - remote backups; push the repos for each campaign in an instance into a user defined folder somewhere (possibly over network)
 
-- ability to set a craft to exist in all (or select) campaigns and automatically reflect changes made in either campaign.
-
 - setting to disable shutdown from remote device, to block the annoying sibling/parent/housemate factor
 
 - tracking of user defined files in GameData (maybe)
@@ -45,8 +46,8 @@ http://forum.kerbalspaceprogram.com/threads/72212-Jebretary-Automatic-Version-Co
 - ability to not track a craft (remove from repo)
  - possibly, this may be problematic
 
-====MajorFeature- Online System - JebWeb
-- users sign up for a free account online with JebWeb and get a token which they set in Jebretary
+====MajorFeature- Online System - KerbalX
+- users sign up for a free account online with KerbalX and get a token which they set in Jebretary
 - Jebretary can use this token to access the users online account and can then upload craft to the users account
 - This would enable online, cloud storage of craft and would be a way of sharing craft.
   - craft will also have more info, including its required mods.
