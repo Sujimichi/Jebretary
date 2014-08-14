@@ -39,23 +39,34 @@
 -else
   -if campaigns.blank? && background_process.nil?
 
-    .no_campaigns_message.grid_8.push_2
-      %p
-        No Campaigns Discovered in this install yet
-        %br
-        Please Wait while I discover them......
+    - if @instance.exists?
+      .no_campaigns_message.grid_8.push_2
+        %p
+          No Campaigns Discovered in this install yet
+          %br
+          Please Wait while I discover them......
 
-      %p If this messages remains for more than 10 seconds then either
-      %ul
-        %li
-          You don't have any campaigns in this install
-          .small (Go ahead and create one in the game)
+        %p If this messages remains for more than 10 seconds then either
+        %ul
+          %li
+            You don't have any campaigns in this install
+            .small (Go ahead and create one in the game)
 
-        %li
-          The background monitor is not running
-          .small (make sure you have started liquid.exe
-          .small located in the same folder as this app)
-    .clear
+          %li
+            The background monitor is not running
+            .small (make sure you have started liquid.exe
+            .small located in the same folder as this app)
+      .clear
+    - else
+      .grid_8.push_2
+        .vblk_4
+        .header
+          %h2= "This Instance cannot be found"
+          .info It seems that someone, (I blame you) has deleted or moved the folder for this install.
+          .info If you put it back or point me at its new home I will start tracking it again.
+          .info= "If you want to stop tracking this instance go to #{link_to instances_path, instances_path} and delete it.".html_safe        
+      = javascript_tag "$('#campaigns_list').hide(); $('.rescan_link').hide();"
+    
   -else
     - campaigns ||= []
     - campaigns.each do |campaign|

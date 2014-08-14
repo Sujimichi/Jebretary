@@ -109,6 +109,7 @@ class System
     #determines which campaigns exist in each instance, creates new ones as appropriate
     #discovers the craft files associated with each campaign
     instances.each do |instance|
+      next unless instance.exists?
       campaign_names, new_campaigns = instance.prepare_campaigns #checks the saves folder for campaign folders and creates campaigns where needed, returns array of campaign names
       new_campaigns_for_instance[instance.id] = new_campaigns
 

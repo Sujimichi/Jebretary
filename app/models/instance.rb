@@ -23,7 +23,7 @@ class Instance < ActiveRecord::Base
   end
 
   def discover_campaigns
-    ignored = ['.', '..', 'training', 'scenarios']
+    ignored = ['.', '..', 'training', 'scenarios']   
     save_dir = File.join(self.path, "saves")
     dirs = Dir.entries(save_dir).select{|entry| 
       File.directory? File.join(save_dir,entry) and !ignored.include?(entry)
@@ -31,6 +31,7 @@ class Instance < ActiveRecord::Base
   end
 
   def prepare_campaigns
+    return [] unless self.exists?
     existing_campaigns = discover_campaigns
     new_campaigns = []
     known_campaign_names = self.campaigns.map{|c| c.name}
