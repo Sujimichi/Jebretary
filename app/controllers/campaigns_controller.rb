@@ -37,7 +37,7 @@ class CampaignsController < ApplicationController
           if Rails.cache.read("state_stamp") != state || !Rails.cache.read("last_controller").eql?("CampaignsController")
             @current_project_history = @current_project.history(:limit => 5) if @current_project
             @most_recent_commit = @campaign.latest_commit(@current_project, @saves, @new_and_changed)
-            @deleted_craft_count = @campaign.craft.where(:deleted => true).count
+            @deleted_craft_count = [@campaign.craft.where(:deleted => true), @campaign.subassemblies.where(:deleted => true)].flatten.count
 
             all_craft = @campaign.craft.group_by{|g| g.craft_type}
             @craft_for_list = {}
