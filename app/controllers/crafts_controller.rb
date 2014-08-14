@@ -112,6 +112,7 @@ class CraftsController < ApplicationController
       @craft.remove_message_from_temp_store "most_recent"
       @craft.save
     end
+
     respond_with(@craft) do |f|
       f.html{        
         if params[:return_to] && params[:return_to] == "campaign"
@@ -120,13 +121,13 @@ class CraftsController < ApplicationController
           redirect_to @craft, :notice => message.html_safe
         end
       }
-      f.js{}
     end
   end
 
   def destroy
     @craft = Craft.find(params[:id])
     notice = @craft.delete_file
+    cache_reset
     redirect_to @craft.campaign, :notice => notice
   end
 end
