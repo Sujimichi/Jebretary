@@ -52,7 +52,8 @@ class ApplicationController < ActionController::Base
   def version_info
     @version = Jebretary::VERSION
     @remote_version = Jebretary::Application.config.remote_version 
-    @update_available = @version != @remote_version
+    @update_available = @version != @remote_version 
+    @update_available = nil if @remote_version.nil?
   end
 
   def record_last_controller

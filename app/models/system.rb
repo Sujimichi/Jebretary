@@ -102,7 +102,6 @@ class System
       instances.each{|instance| 
         instance.reset_parts_db if @config[:update_parts_db_on_load]
         Task.create(:action => ["generate_part_db_for", instance.id]) unless File.exists?(File.join([instance.path, 'jebretary.partsDB']))
-        instance.check_64_bit_availability
       } 
     end
       

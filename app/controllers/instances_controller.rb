@@ -37,8 +37,8 @@ class InstancesController < ApplicationController
 
     respond_with(@instance) do |f|      
       if @instance.errors.empty?
+        @instance.use_x64_exe = true if @instance.x64_available?
         @instance.save
-        @instance.check_64_bit_availability
         
         Task.create(:action => ["generate_part_db_for", @instance.id]) 
         f.js { }

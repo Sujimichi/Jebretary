@@ -28,16 +28,12 @@ describe Instance do
 
     it 'should set x64_available as false if KSP_x64.exe is not present' do 
       File.open(File.join(@path, "KSP.exe") ,"wb"){|f| f.write("test exe file")}
-
-      @instance.check_64_bit_availability
-      @instance.x64_available.should be_false
+      @instance.should_not be_x64_available
     end
 
     it 'should set x64_available if KSP_x64.exe is present' do 
       File.open(File.join(@path, "KSP_x64.exe") ,"wb"){|f| f.write("test exe file")}
-
-      @instance.check_64_bit_availability
-      @instance.x64_available.should be_true
+      @instance.should be_x64_available
     end
 
 

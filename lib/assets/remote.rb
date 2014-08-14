@@ -50,6 +50,7 @@ class Remote
   end
 
   def self.get_data url
+    require 'net/http'
     begin
       uri = URI.parse(url)
       http = Net::HTTP.new(uri.host, uri.port)
