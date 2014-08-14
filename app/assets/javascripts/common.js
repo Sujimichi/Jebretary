@@ -206,7 +206,10 @@ function dialog_open(div_id){
   if(open_dialogs[div_id] == true){return true}else{return false}
 };
 
+
 function open_move_copy_dialog(){
+  $('#campaign_selector').height ($(window).height() - 300)
+
   $('#move_copy_dialog').dialog({
     position: ['center', 100],
     width: 800,
@@ -221,6 +224,8 @@ function open_move_copy_dialog(){
     ]
   })
   $('#move_copy_dialog').find(".submit_button").hide();
+  //alert( $(window).height() )
+  
 };
 
 function open_delete_craft_dialog(){
