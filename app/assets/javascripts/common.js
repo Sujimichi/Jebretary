@@ -95,15 +95,19 @@ function show_search(force_hide){
 };
 
 
+global_craft_search_timer = undefined;
+
 function craft_search(){
   var data = {search_for: $('#global_search').val()};
   if( $('#include_subassemblies').prop('checked')){
     data['include_subs'] = true
   }
-  
-  ajax_get("/crafts", data, function(){
-    $('#global_search').focus()
-  })
+  clearTimeout(global_craft_search_timer);
+  global_craft_search_timer = setTimeout(function(){
+    ajax_get("/crafts", data, function(){
+      $('#global_search').focus()
+    })
+  }, 200);
 };
 
 autohide_flash = function(){
