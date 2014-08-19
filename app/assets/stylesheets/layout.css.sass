@@ -332,7 +332,7 @@ a
   .spacer-color
     :background-color $site_low_tone
   
-  .search
+  .search_link
     :cursor pointer
     :font
       :size 120%
@@ -344,9 +344,11 @@ a
 #search_box
   :position absolute
   :z-index 100
-  :left 25%
+  :left 17.5%
   :top -15em
-  :width 50%
+  :width 65%
+  //:max-width 800px
+  //:min-width 500px
   :border 3px solid $color_header
   +rounded(0px 0px 16px 16px)
   +cast_shadow(0px 2px 30px 5px grey)

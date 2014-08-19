@@ -22,6 +22,8 @@
       = content_for :title_bar
     
     .header_rhs
+      #header_search_container.hidden
+        .search_link= link_to_function "Search", "show_search()"
 
   %body
     #help_holder
@@ -37,7 +39,6 @@
               = check_box_tag :include_subassemblies, false
         .clear
         #result_count
-          = content_for :result_count
         #search_results
 
 
@@ -50,8 +51,7 @@
       .clamp_holder
         #search_container
           .spacer
-          .search
-            = link_to_function "Search", "show_search()"
+          .search_link= link_to_function "Search", "show_search()"
 
         .lhs_clamp
         .rhs_clamp

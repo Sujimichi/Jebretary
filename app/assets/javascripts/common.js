@@ -20,9 +20,14 @@ $(function(){
   
   $(document).mouseup(function (e){
     var container = $("#search_box");
-    var search_link = $('#search_container');
+    var search_link = $('.search_link');
     if (!container.is(e.target) && container.has(e.target).length === 0 && !search_link.is(e.target) && search_link.has(e.target).length === 0){show_search('hide')};
   });  
+  
+  $(window).resize(function(){
+    move_global_search_button();
+  });
+  move_global_search_button();
 });
 
 function reset_action_links(){
@@ -79,6 +84,8 @@ function show_search(force_hide){
   };
   if(force_hide == "hide"){action = "close"}
   
+  console.log(action)
+  
   if(action == "open"){
     $('#search_box').data("state", "open");
     $('#global_search').val("");
@@ -94,14 +101,27 @@ function show_search(force_hide){
   };
 };
 
+function move_global_search_button(){
+  var width = $('#content').width()
+  if(width <= 1100){
+    var target = $('#header_search_container');
+  }else{
+    var target = $('#search_container');
+  };
+
+  console.log(width)
+  
+  $('#search_container').hide();
+  $('#header_search_container').hide();
+  $(target).show();
+};
 
 global_craft_search_timer = undefined;
 
 function craft_search(){
   var data = {search_for: $('#global_search').val()};
-  if( $('#include_subassemblies').prop('checked')){
-    data['include_subs'] = true
-  }
+  if( $('#include_subassemblies').prop('checked')){data['include_subs'] = true };
+      
   clearTimeout(global_craft_search_timer);
   global_craft_search_timer = setTimeout(function(){
     ajax_get("/crafts", data, function(){
