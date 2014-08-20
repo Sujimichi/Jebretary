@@ -84,8 +84,6 @@ function show_search(force_hide){
   };
   if(force_hide == "hide"){action = "close"}
   
-  console.log(action)
-  
   if(action == "open"){
     $('#search_box').data("state", "open");
     $('#global_search').val("");
@@ -108,8 +106,6 @@ function move_global_search_button(){
   }else{
     var target = $('#search_container');
   };
-
-  console.log(width)
   
   $('#search_container').hide();
   $('#header_search_container').hide();
@@ -132,7 +128,7 @@ function craft_search(){
 
 autohide_flash = function(){
   setTimeout(function(){
-    $('#flash').slideUp('fast')},
+    $('#flash').animate({top: -$('#flash').height()}, 500 )},
     8000
   );
 };
