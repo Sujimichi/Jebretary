@@ -1,5 +1,5 @@
 module Transferable
-
+  
 
   #move_to can either move or copy a craft.
   # move_to campaign #> will move the craft, assuming that one of the same name doesn't already exist in the target campaign
@@ -93,11 +93,28 @@ module Transferable
     end
   end
 
+  #write data to attrbute as json string, set instance var containing ids which have been removed since last write
   def sync= sync_list
+    cur_list = sync   
+    @removed_from_sync_list = cur_list[:with] - sync_list[:with] if sync_list[:with] && cur_list[:with]
+    sync_list[:with] = sync_list[:with].select{|id| id != self.campaign_id } if sync_list[:with]
     super(sync_list.to_json)
   end
 
+  #process the craft which have been removed from sync to no longer point back at this craft
+  #instance var is set by sync= being called. this method is called by the synchronize method
+  def update_removed_from_list  
+    if @removed_from_sync_list && !@removed_from_sync_list.blank?
+      rem_craft = Craft.where(:name => self.name, :campaign_id => @removed_from_sync_list)
+      rem_craft.each do |c|
+        c.sync = {:with => c.sync[:with].select{|id| ![self.campaign_id, self.sync[:with]].flatten.include?(id) } }
+        c.save
+      end
+    end
+  end
+
   def synchronize
+    update_removed_from_list
     return false if sync[:with].nil?
     sync[:with].each do |campaign_id|
       next if campaign_id.eql?(self.campaign_id)        #don't try to sync to itself!      

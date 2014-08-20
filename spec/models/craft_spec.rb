@@ -534,10 +534,10 @@ describe Craft do
         sync_target_craft = @campaign_2.craft.find_by_name(@craft.name)
         
         @craft.sync[:with].should == [@campaign_2.id]
-        sync_target_craft.sync[:with].should == [@campaign_2.id, @campaign_1.id]
+        sync_target_craft.sync[:with].should == [@campaign_1.id]
         
         @craft.move_to @campaign_3
-        sync_target_craft.reload.sync[:with].should == [@campaign_2.id, @campaign_3.id]
+        sync_target_craft.reload.sync[:with].should == [@campaign_3.id]
       end
 
 
@@ -555,13 +555,17 @@ describe Craft do
           Set[@campaign_1.id, @campaign_3.id].subset?(Set.new(@craft2.sync[:with])).should be_true
           Set[@campaign_2.id, @campaign_1.id].subset?(Set.new(@craft3.sync[:with])).should be_true
 
+          
           @craft.sync = {:with => [@campaign_2.id]} #remove campaign_3 from the sync
           @craft.synchronize
+
 
           @craft.reload.sync[:with].should_not be_include(@campaign_3.id)
           @craft2.reload.sync[:with].should_not be_include(@campaign_3.id)
 
-          @craft3.reload.sync[:with].should_not be_empty
+          @craft3.reload.sync[:with].should_not be_include(@campaign_1.id)
+          @craft3.reload.sync[:with].should_not be_include(@campaign_2.id)
+
         end
 
         it "should remove a deleted craft from the other sync'd craft" do
