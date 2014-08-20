@@ -2,7 +2,13 @@
   #nav-box
     =link_to "home", root_path
   %h1 All Instances
-  .vblk_3
+  .vblk_1
+  .grid_11.push_1    
+    .small.info If you are no longer using a particular instance of KSP it is a good idea to stop tracking it
+    .small.info Removing an instance will not effect the files in KSP or the version history, you can always re-add it to pick up where you left off  
+  .clear
+  
+  .vblk_2
   .grid_8.push_2
     - @instances.each do |instance|
       .instance

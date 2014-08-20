@@ -27,16 +27,8 @@
               .shutdown_notice.grid_10
             .clear
 
-        .clear
-        .vblk_2
 
-        = link_to "Manage Instances", instances_path
-        |
-        = link_to "Manage Campaigns", campaigns_path
-        .small
-          .small.info If you are no longer using a particular instance of KSP it is a good idea to stop tracking it by removing it
-          .small.info Removing an instance will not effect the files in KSP or the version history, you can always re-add it to pick up where you left off
-          .small.info Removing a campaign is only needed if the actual campaign has been deleted from KSP. If you remove an existing campaign it will be recreated
+        
     .clear
     - if @instances.empty?
       .vblk_1
@@ -78,60 +70,24 @@
 
 
     -else
-      .vblk_2
+      .vblk_1
       .grid_7.push_1
-        %h3=link_to_function "Add another KSP instance", "$('.additional_instance_form').toggle('slow');"
+        %h3
+          =link_to_function "Add another KSP install", "$('.additional_instance_form').toggle('slow');"
         .additional_instance_form.hidden
           Tell me where a different version/copy of KSP is installed;
           #new_instance_form
             = render('instances/form', :instance => Instance.new)
             .left= link_to_function "cancel", "$('#new_instance')[0].reset();$('.additional_instance_form').hide('slow');"
-    .vblk_2
-    .grid_10.push_1
-      %h3= link_to_function "Jebretary Settings", "toggle_settings()"
-      .settings.hidden
-        %h4 Stock Parts
-        .info.small By default craft that use parts from Squad and NASAmission are considered stock craft.
-        .info.small If you want Jebretary to consider other mods as stock then add the folders to this list (case senstive and comma separated). 
-        .info.small ie to consider MechJeb as part of stock put: Squad, NASAmission, MechJeb2
-        %b.info.small updating this can take a while as all craft need to be rescanned for their part data.
-        = form_tag "welcome/update" do |f|
-          .left
-            = text_field_tag :stock_parts, @config["stock_parts"].join(", ")
-            = submit_tag("update", {:onclick => "$(this).hide(); $('.update_stock_ajax_loader').show()"})
-          .left.update_stock_ajax_loader.ajax_loader.hidden
-          .clear
-        
-        .vblk_2
-        .grid_5.alpha
-          %h4 Show notification of errors
-          .info.small By default you will be notified if there have been errors. 
-          .info.small But you can change this;
-          .info
-            = "Error reporting is currently #{@config["show_error_report"] ? 'ON' : 'OFF'}"
-            = button_to "#{@config["show_error_report"] ? 'Disable' : 'Enable'}", :controller => :welcome, :action => :update, :method => :put, :error_reporting => !@config["show_error_report"] 
-          
-        
-        .grid_5.omega
-          %h4 Reset Help Tips
-          .info.small Want the mildly helpful tips again? Then hit this reset button.
-          = button_to "reset help tips", :controller => :welcome, :action => :update, :method => :put, :reset_help => true
-          
+
         .clear
         .vblk_2
+      .grid_6.push_1
+        .left
+          %h1
+            = link_to "Settings", settings_path
+            |
+        .left.with_margin
+          %h3= link_to "Manage Installs (instances)", instances_path
+          = link_to "Manage Campaigns", campaigns_path
 
-        .grid_10.alpha
-          %h4 Update Part DBs when Jebretary starts
-          .info.small When On the map of what parts you have installed in each KSP install will be refreshed each time Jebretary is started.
-          .info.small This allows Jebretary to know when you change your mods and recheck craft for missing parts
-          .info.small If you have lots of parts, or a slow disk, this can take a while.  If you are not going to change your installed parts you can switch it off, 
-          .info.small Just remember to tell Jebretary to re-scan your craft if you do update your mods. (via the link on each instances page)
-          
-
-          = "Updating part DBs at start is: #{@config["update_parts_db_on_load"] ? 'ON' : 'OFF'}"
-          = button_to "switch #{@config["update_parts_db_on_load"] ? 'Off' : 'On'}", :controller => :welcome, :action => :update, :method => :put, :update_parts_db_on_load => !@config["update_parts_db_on_load"] 
-          
-
-      
-      
-    

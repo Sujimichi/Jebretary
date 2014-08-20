@@ -487,8 +487,6 @@ function toggle_deleted_craft(){
   };
 };
 
-function toggle_settings(){$(".settings").toggle('slow')};
-
 function toggle_subassembly_list(force_hide){
   var is_visible = $('.subassemblies').is(":visible");
   if(is_visible || (force_hide == "hide")){
