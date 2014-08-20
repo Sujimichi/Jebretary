@@ -341,13 +341,17 @@ a
     :padding 0.4em
     +rotate(90)
 
-#search_box
+
+#slidable_container
   :position absolute
   :z-index 100
-  :left 17.5%
+  :width 100%
+
+#search_box
+  :position relative
+  :margin 0 auto
   :top -15em
-  :width 65%
-  //:max-width 800px
+  :width 700px
   //:min-width 500px
   :border 3px solid $color_header
   +rounded(0px 0px 16px 16px)

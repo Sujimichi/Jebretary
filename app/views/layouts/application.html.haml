@@ -29,17 +29,19 @@
     #help_holder
     #dialog_holder
     #content
-      #search_box
-        .search_form
-          = text_field_tag :global_search
-          = link_to_function "search", "craft_search()"
-          .right
-            .small
-              = label_tag "include_subassemblies", "include Subassmeblies"
-              = check_box_tag :include_subassemblies, false
-        .clear
-        #result_count
-        #search_results
+      #slidable_container
+        #search_box
+          .search_form
+            = text_field_tag :global_search
+            = link_to_function "search", "craft_search()"
+            .clear
+            .right
+              .small
+                = label_tag "include_subassemblies", "include Subassmeblies"
+                = check_box_tag :include_subassemblies, false
+          .clear
+          #result_count
+          #search_results
 
 
       #flash
